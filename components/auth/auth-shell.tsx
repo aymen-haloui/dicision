@@ -21,8 +21,8 @@ export function AuthShell({
     <main className="relative min-h-screen overflow-hidden bg-[#fff1f2] text-slate-900">
       <div className="relative grid min-h-screen lg:grid-cols-2">
 
-        {/* Left — full-bleed image with overlay and text */}
-        <section className="relative overflow-hidden">
+        {/* Left — full-bleed image with overlay and text (hidden on mobile) */}
+        <section className="relative hidden overflow-hidden lg:block">
           {/* Background image */}
           <Image
             src={imageSrc}
@@ -54,11 +54,16 @@ export function AuthShell({
         </section>
 
         {/* Right — form */}
-        <section className="flex items-center justify-center bg-[#fff8f9] p-6 sm:p-10 lg:p-14">
+        <section className="flex min-h-screen items-center justify-center bg-[#fff8f9] px-4 py-10 sm:px-8 lg:px-14">
           <div className="w-full max-w-[500px] animate-rise">
+            {/* Mobile logo — shown only when left panel is hidden */}
+            <Link href="/" className="mb-8 block text-center text-base font-extrabold tracking-[0.22em] text-[#0F172A] lg:hidden">
+              HEXA
+            </Link>
+
             <Link
               href="/"
-              className="mb-10 inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-slate-800"
+              className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-slate-800"
             >
               <ArrowLeft className="h-4 w-4" />
               Retour a l'accueil

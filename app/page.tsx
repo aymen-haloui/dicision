@@ -15,38 +15,14 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
+import Navbar from '@/components/navbar'
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen landing-bg text-foreground">
-      <header className="sticky top-0 z-50 border-b border-slate-900/10 bg-white/70 shadow-[0_1px_12px_rgba(15,23,42,0.06)] backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3.5">
-          <p className="text-base font-extrabold tracking-[0.22em] text-[#0F172A]">
-            HEXA
-          </p>
-          <nav className="hidden items-center gap-8 text-sm font-medium text-slate-500 md:flex">
-            <a href="#valeur" className="transition-colors duration-200 hover:text-[#BE185D]">
-              Valeur clinique
-            </a>
-            <a href="#fonctionnement" className="transition-colors duration-200 hover:text-[#BE185D]">
-              Fonctionnement
-            </a>
-            <a href="#apercu" className="transition-colors duration-200 hover:text-[#BE185D]">
-              Apercu produit
-            </a>
-            <Link href="/auth/login">
-              <Button
-                size="sm"
-                className="rounded-xl bg-[#BE185D] text-white shadow-[0_4px_14px_rgba(190,24,93,0.28)] transition-all duration-200 hover:scale-[1.03] hover:bg-[#9f1239]"
-              >
-                Acceder a la plateforme
-              </Button>
-            </Link>
-          </nav>
-        </div>
-      </header>
+      <Navbar />
 
-      <section className="relative overflow-hidden px-6 pb-28 pt-20 md:pb-36 md:pt-28">
+      <section className="relative overflow-hidden px-4 pb-20 pt-16 sm:px-6 md:pb-36 md:pt-28">
         <Image
           src="https://images.unsplash.com/photo-1631815589968-fdb09a223b1e?auto=format&fit=crop&w=2000&h=1200&q=80"
           alt="Equipe de medecins en reunion clinique"
@@ -61,18 +37,10 @@ export default function LandingPage() {
         <div className="hero-grid-bg pointer-events-none absolute inset-0 opacity-20" />
 
         <div className="relative mx-auto max-w-7xl">
-          <div className="max-w-2xl space-y-8">
-            {/* Eyebrow */}
-            <div className="hero-eyebrow inline-flex items-center gap-2 rounded-full border border-[#BE185D]/40 bg-[#BE185D]/15 px-4 py-1.5 backdrop-blur-sm">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#f43f6e]" />
-              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-rose-200">
-                Plateforme de toxicologie clinique
-              </span>
-            </div>
-
+          <div className="max-w-2xl space-y-6 sm:space-y-8">
             {/* Headline */}
             <div className="hero-headline space-y-2">
-              <h1 className="text-5xl font-bold leading-[1.1] tracking-tight text-white md:text-6xl md:leading-[1.08]">
+              <h1 className="text-3xl font-bold leading-[1.1] tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl md:leading-[1.08]">
                 Anticipez le risque<br />
                 <span className="text-[#f43f6e]">toxicologique</span> et<br />
                 securisez chaque decision.
@@ -80,7 +48,7 @@ export default function LandingPage() {
             </div>
 
             {/* Subtitle */}
-            <p className="hero-subtitle max-w-xl text-base leading-relaxed text-white/75 md:text-lg">
+            <p className="hero-subtitle max-w-xl text-sm leading-relaxed text-white/75 sm:text-base md:text-lg">
               HEXA combine l'intelligence artificielle, la pharmacogenomique
               et les references cliniques pour detecter les interactions,
               prioriser les risques et proposer des posologies personnalisees.
@@ -88,31 +56,31 @@ export default function LandingPage() {
 
             {/* CTAs */}
             <div className="hero-ctas flex flex-col gap-3 pt-1 sm:flex-row">
-              <Link href="/auth/login">
-                <Button className="h-12 rounded-xl bg-[#BE185D] px-8 font-semibold text-white shadow-[0_10px_28px_rgba(190,24,93,0.35)] transition-all duration-250 hover:scale-[1.03] hover:bg-[#9f1239] active:scale-[0.98]">
+              <Link href="/auth/login" className="w-full sm:w-auto">
+                <Button className="h-12 w-full rounded-xl bg-[#BE185D] px-8 font-semibold text-white shadow-[0_10px_28px_rgba(190,24,93,0.35)] transition-all duration-250 hover:scale-[1.03] hover:bg-[#9f1239] active:scale-[0.98] sm:w-auto">
                   Acceder a la plateforme
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
               <Button
                 variant="outline"
-                className="h-12 rounded-xl border border-white/25 bg-white/8 px-8 font-medium text-white backdrop-blur-sm transition-all duration-250 hover:scale-[1.03] hover:border-white/50 hover:bg-white/16 active:scale-[0.98]"
+                className="h-12 w-full rounded-xl border border-white/25 bg-white/8 px-8 font-medium text-white backdrop-blur-sm transition-all duration-250 hover:scale-[1.03] hover:border-white/50 hover:bg-white/16 active:scale-[0.98] sm:w-auto"
               >
                 Voir la demonstration
               </Button>
             </div>
 
             {/* Stats cards – glassmorphism */}
-            <div className="hero-stats grid max-w-2xl grid-cols-1 gap-3 pt-2 sm:grid-cols-3">
+            <div className="hero-stats grid max-w-2xl grid-cols-3 gap-2 pt-2 sm:gap-3">
               {heroStats.map((stat, i) => (
                 <div
                   key={stat.label}
-                  className="stat-card rounded-xl border border-white/15 bg-white/8 px-5 py-4 backdrop-blur-md transition-all duration-300 hover:border-[#BE185D]/50 hover:bg-white/12"
+                  className="stat-card rounded-xl border border-white/15 bg-white/8 px-3 py-3 backdrop-blur-md transition-all duration-300 hover:border-[#BE185D]/50 hover:bg-white/12 sm:px-5 sm:py-4"
                   style={{ animationDelay: `${0.55 + i * 0.1}s` }}
                 >
-                  <div className="mb-1 text-[#f43f6e]">{stat.icon}</div>
-                  <p className="text-2xl font-bold text-white">{stat.value}</p>
-                  <p className="text-xs text-white/65 mt-0.5">{stat.label}</p>
+                  <div className="mb-1 hidden text-[#f43f6e] sm:block">{stat.icon}</div>
+                  <p className="text-lg font-bold text-white sm:text-2xl">{stat.value}</p>
+                  <p className="mt-0.5 text-[10px] leading-tight text-white/65 sm:text-xs">{stat.label}</p>
                 </div>
               ))}
             </div>
@@ -120,7 +88,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="valeur" className="bg-[#fff1f2] px-6 py-20 text-slate-900">
+      <section id="valeur" className="bg-[#fff1f2] px-4 py-14 text-slate-900 sm:px-6 sm:py-20">
         <div className="mx-auto max-w-7xl rounded-2xl border border-rose-100 bg-white p-8 shadow-soft md:p-12">
           <div className="grid gap-10 md:grid-cols-[1.15fr_0.85fr] md:items-center">
             <div className="space-y-5">
@@ -154,7 +122,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="features" className="bg-[#fff1f2] px-6 pb-20 text-slate-900">
+      <section id="features" className="bg-[#fff1f2] px-4 pb-14 text-slate-900 sm:px-6 sm:pb-20">
         <div className="mx-auto max-w-7xl">
           <div className="mb-10 space-y-4">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#BE185D]">
@@ -180,7 +148,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="fonctionnement" className="bg-white px-6 py-20 text-slate-900">
+      <section id="fonctionnement" className="bg-white px-4 py-14 text-slate-900 sm:px-6 sm:py-20">
         <div className="mx-auto max-w-7xl">
           <div className="mb-12 space-y-4">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#BE185D]">
@@ -209,7 +177,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="apercu" className="bg-[#fff1f2] px-6 py-20 text-slate-900">
+      <section id="apercu" className="bg-[#fff1f2] px-4 py-14 text-slate-900 sm:px-6 sm:py-20">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
           <div className="space-y-5">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#BE185D]">
@@ -264,7 +232,7 @@ export default function LandingPage() {
               </span>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-[0.55fr_0.45fr]">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
               <div className="rounded-2xl border border-slate-200 p-4">
                 <p className="text-xs uppercase tracking-wide text-slate-500">Carte des interactions</p>
                 <div className="mt-4 space-y-3">
@@ -295,7 +263,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="bg-white px-6 py-20 text-slate-900">
+      <section className="bg-white px-4 py-14 text-slate-900 sm:px-6 sm:py-20">
         <div className="mx-auto max-w-7xl rounded-2xl border border-slate-200 bg-white p-8 shadow-soft md:p-12">
           <div className="mb-8 space-y-4">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#BE185D]">
@@ -329,7 +297,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="px-6 pb-20 pt-6">
+      <section className="px-4 pb-14 pt-6 sm:px-6 sm:pb-20">
         <div className="mx-auto max-w-7xl rounded-2xl border border-rose-200 bg-gradient-to-r from-[#fff6f7] via-[#fff1f2] to-[#fff6f7] p-10 text-center shadow-soft">
           <h2 className="text-3xl font-semibold text-slate-900 md:text-4xl">
             Optimisez vos decisions cliniques des aujourd'hui
@@ -348,13 +316,13 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className="border-t border-slate-200 bg-white px-6 py-10 text-slate-600">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <footer className="border-t border-slate-200 bg-white px-4 py-10 text-slate-600 sm:px-6">
+        <div className="mx-auto flex max-w-7xl flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-sm font-semibold tracking-[0.16em] text-slate-800">HEXA</p>
             <p className="mt-1 text-sm">Plateforme d'aide a la decision en toxicologie et posologie personnalisee.</p>
           </div>
-          <div className="flex gap-6 text-sm">
+          <div className="flex flex-wrap gap-4 text-sm sm:gap-6">
             <a href="#features" className="transition hover:text-slate-900">Fonctionnalites</a>
             <a href="#fonctionnement" className="transition hover:text-slate-900">Fonctionnement</a>
             <a href="#apercu" className="transition hover:text-slate-900">Apercu</a>

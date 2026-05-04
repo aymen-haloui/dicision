@@ -49,9 +49,9 @@ export default function LoginPage() {
       imageSrc="https://images.unsplash.com/photo-1587351021759-3e566b6af7cc?auto=format&fit=crop&w=1400&h=1800&q=80"
       imageAlt="Medecin en environnement hospitalier"
     >
-      <div className="mb-10">
-        <h2 className="text-4xl font-semibold leading-tight text-[#0F172A]">Bon retour</h2>
-        <p className="mt-3 text-xl leading-relaxed text-slate-600">
+      <div className="mb-8">
+        <h2 className="text-2xl font-semibold leading-tight text-[#0F172A] sm:text-4xl">Bon retour</h2>
+        <p className="mt-2 text-base leading-relaxed text-slate-600 sm:mt-3 sm:text-xl">
           Connectez-vous pour continuer vers votre espace clinique
         </p>
       </div>
@@ -62,9 +62,9 @@ export default function LoginPage() {
         </Alert>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-7">
+      <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-7">
         <div>
-          <Label htmlFor="email" className="mb-3 block text-lg font-semibold text-slate-700">
+          <Label htmlFor="email" className="mb-2 block text-sm font-semibold text-slate-700 sm:mb-3 sm:text-lg">
             Adresse de messagerie
           </Label>
           <Input
@@ -75,16 +75,16 @@ export default function LoginPage() {
             onChange={(e) => setEmail(e.target.value)}
             required
             disabled={isLoading}
-            className="h-14 rounded-xl border-slate-200 bg-white px-4 text-lg shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus-visible:border-pink-400 focus-visible:ring-4 focus-visible:ring-pink-100"
+            className="h-12 rounded-xl border-slate-200 bg-white px-4 text-base shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus-visible:border-pink-400 focus-visible:ring-4 focus-visible:ring-pink-100 sm:h-14 sm:text-lg"
           />
         </div>
 
         <div>
-          <div className="mb-3 flex items-center justify-between">
-            <Label htmlFor="password" className="text-lg font-semibold text-slate-700">
+          <div className="mb-2 flex items-center justify-between sm:mb-3">
+            <Label htmlFor="password" className="text-sm font-semibold text-slate-700 sm:text-lg">
               Mot de passe
             </Label>
-            <button type="button" className="text-lg font-semibold text-pink-600 transition hover:text-pink-700">
+            <button type="button" className="text-sm font-semibold text-pink-600 transition hover:text-pink-700 sm:text-lg">
               Mot de passe oublié ?
             </button>
           </div>
@@ -96,20 +96,20 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
             disabled={isLoading}
-            className="h-14 rounded-xl border-slate-200 bg-white px-4 text-lg shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus-visible:border-pink-400 focus-visible:ring-4 focus-visible:ring-pink-100"
+            className="h-12 rounded-xl border-slate-200 bg-white px-4 text-base shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus-visible:border-pink-400 focus-visible:ring-4 focus-visible:ring-pink-100 sm:h-14 sm:text-lg"
           />
         </div>
 
         <Button
           type="submit"
-          className="h-14 w-full rounded-2xl bg-gradient-to-r from-pink-500 to-rose-500 text-xl font-semibold text-white shadow-[0_10px_24px_rgba(219,39,119,0.28)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(219,39,119,0.38)]"
+          className="h-12 w-full rounded-2xl bg-gradient-to-r from-pink-500 to-rose-500 text-base font-semibold text-white shadow-[0_10px_24px_rgba(219,39,119,0.28)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(219,39,119,0.38)] sm:h-14 sm:text-xl"
           disabled={isLoading}
         >
           {isLoading ? 'Connexion en cours...' : 'Se connecter'}
         </Button>
       </form>
 
-      <p className="mt-8 text-center text-xl text-slate-500">
+      <p className="mt-6 text-center text-base text-slate-500 sm:mt-8 sm:text-xl">
         Vous n'avez pas de compte ?{' '}
         <Link href="/auth/register" className="font-semibold text-[#BE185D] transition hover:text-[#9f1239]">
           Créez votre espace
