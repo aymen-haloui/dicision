@@ -1,0 +1,179 @@
+interface Finding {
+  type: string
+  severity: 'low' | 'moderate' | 'high' | 'critical'
+  description: string
+  recommendation: string
+}
+
+interface Recommendation {
+  title: string
+  description: string
+  priority: 'low' | 'medium' | 'high'
+  action: string
+}
+
+interface RiskAssessment {
+  id: string
+  risk_score: number
+  risk_level: 'low' | 'moderate' | 'high' | 'critical'
+  findings: { findings: Finding[] }
+  recommendations: { recommendations: Recommendation[] }
+  created_at: string
+}
+
+export default function RiskAssessmentDisplay({
+  assessment,
+}: {
+  assessment: RiskAssessment
+}) {
+  const getRiskColor = (level: string) => {
+    switch (level) {
+      case 'critical':
+        return 'bg-red-50 border-red-200'
+      case 'high':
+        return 'bg-orange-50 border-orange-200'
+      case 'moderate':
+        return 'bg-yellow-50 border-yellow-200'
+      default:
+        return 'bg-green-50 border-green-200'
+    }
+  }
+
+  const getRiskBadgeColor = (level: string) => {
+    switch (level) {
+      case 'critical':
+        return 'bg-red-100 text-red-800'
+      case 'high':
+        return 'bg-orange-100 text-orange-800'
+      case 'moderate':
+        return 'bg-yellow-100 text-yellow-800'
+      default:
+        return 'bg-green-100 text-green-800'
+    }
+  }
+
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case 'critical':
+        return 'border-red-200 bg-red-50'
+      case 'high':
+        return 'border-orange-200 bg-orange-50'
+      case 'moderate':
+        return 'border-yellow-200 bg-yellow-50'
+      default:
+        return 'border-green-200 bg-green-50'
+    }
+  }
+
+  const findings = assessment.findings?.findings || []
+  const recommendations = assessment.recommendations?.recommendations || []
+
+  return (
+    <div className={`border-2 rounded-lg p-6 ${getRiskColor(assessment.risk_level)}`}>
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-2xl font-bold text-slate-900">Risk Assessment</h3>
+        <span
+          className={`inline-flex items-center px-4 py-2 rounded-full text-lg font-bold ${getRiskBadgeColor(assessment.risk_level)}`}
+        >
+          {assessment.risk_level.toUpperCase()}
+        </span>
+      </div>
+
+      {/* Risk Score */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-sm font-medium text-slate-600">Risk Score</p>
+          <p className="text-3xl font-bold text-slate-900">
+            {assessment.risk_score.toFixed(1)}/100
+          </p>
+        </div>
+        <div className="w-full bg-slate-200 rounded-full h-3">
+          <div
+            className={`h-3 rounded-full transition-all ${
+              assessment.risk_level === 'critical'
+                ? 'bg-red-500'
+                : assessment.risk_level === 'high'
+                  ? 'bg-orange-500'
+                  : assessment.risk_level === 'moderate'
+                    ? 'bg-yellow-500'
+                    : 'bg-green-500'
+            }`}
+            style={{ width: `${assessment.risk_score}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Findings */}
+      {findings.length > 0 && (
+        <div className="mb-6">
+          <h4 className="font-semibold text-slate-900 mb-3">Key Findings</h4>
+          <div className="space-y-3">
+            {findings.map((finding, index) => (
+              <div
+                key={index}
+                className={`border-l-4 p-4 rounded-r-lg ${getSeverityColor(finding.severity)}`}
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <p className="font-medium text-slate-900">{finding.type.replace(/_/g, ' ')}</p>
+                  <span
+                    className={`text-xs font-bold px-2 py-1 rounded ${
+                      finding.severity === 'critical'
+                        ? 'bg-red-200 text-red-800'
+                        : finding.severity === 'high'
+                          ? 'bg-orange-200 text-orange-800'
+                          : finding.severity === 'moderate'
+                            ? 'bg-yellow-200 text-yellow-800'
+                            : 'bg-green-200 text-green-800'
+                    }`}
+                  >
+                    {finding.severity}
+                  </span>
+                </div>
+                <p className="text-slate-700 mb-2">{finding.description}</p>
+                <p className="text-sm text-slate-600 italic">
+                  Recommendation: {finding.recommendation}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Recommendations */}
+      {recommendations.length > 0 && (
+        <div>
+          <h4 className="font-semibold text-slate-900 mb-3">Clinical Recommendations</h4>
+          <div className="space-y-3">
+            {recommendations.map((rec, index) => (
+              <div
+                key={index}
+                className="border-l-4 border-blue-300 bg-blue-50 p-4 rounded-r-lg"
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <p className="font-medium text-slate-900">{rec.title}</p>
+                  <span
+                    className={`text-xs font-bold px-2 py-1 rounded ${
+                      rec.priority === 'high'
+                        ? 'bg-red-200 text-red-800'
+                        : rec.priority === 'medium'
+                          ? 'bg-yellow-200 text-yellow-800'
+                          : 'bg-green-200 text-green-800'
+                    }`}
+                  >
+                    {rec.priority}
+                  </span>
+                </div>
+                <p className="text-slate-700 mb-2">{rec.description}</p>
+                <p className="text-sm font-semibold text-slate-800">Action: {rec.action}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <p className="text-xs text-slate-500 mt-6">
+        Assessment created: {new Date(assessment.created_at).toLocaleString()}
+      </p>
+    </div>
+  )
+}
