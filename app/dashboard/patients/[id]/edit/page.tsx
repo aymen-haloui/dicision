@@ -12,10 +12,11 @@ export const metadata = {
 export default async function EditPatientPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  const { id } = await params
   const session = await getServerSession(authOptions)
-  const patient = await getPatientById(params.id, session?.user?.id || '')
+  const patient = await getPatientById(id, session?.user?.id || '')
 
   if (!patient) {
     notFound()
@@ -30,7 +31,7 @@ export default async function EditPatientPage({
 
       <Card className="p-8">
         <PatientForm
-          patientId={params.id}
+          patientId={id}
           mode="edit"
           initialData={{
             firstName: patient.first_name,

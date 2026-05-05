@@ -89,7 +89,7 @@ export default function RegisterPage() {
     <AuthShell
       title="Rejoignez les cliniciens qui font confiance a HEXA."
       subtitle="Creez votre espace en quelques secondes et accedez a une aide a la decision toxicologique alimentee par l'IA."
-      imageSrc="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?auto=format&fit=crop&w=1400&h=1800&q=80"
+      imageSrc="/medical-hero.jpg"
       imageAlt="Equipe clinique analysant un dossier patient"
     >
       <div className="mb-8">
@@ -120,7 +120,7 @@ export default function RegisterPage() {
               onChange={handleChange}
               required
               disabled={isLoading}
-              className="h-12 rounded-xl border-slate-200 bg-white px-4 text-base shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus-visible:border-pink-400 focus-visible:ring-4 focus-visible:ring-pink-100 sm:h-14 sm:text-lg"
+              className="h-12 rounded-xl border-slate-200 bg-white px-4 text-base shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus-visible:border-[#5B6CFF] focus-visible:ring-4 focus-visible:ring-[#5B6CFF]/15 sm:h-14 sm:text-lg"
             />
           </div>
 
@@ -135,7 +135,7 @@ export default function RegisterPage() {
               value={formData.specialization}
               onChange={handleChange}
               disabled={isLoading}
-              className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-base text-slate-700 shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus:border-pink-400 focus:outline-none focus:ring-4 focus:ring-pink-100 sm:h-14 sm:text-lg"
+              className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-base text-slate-700 shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus:border-[#5B6CFF] focus:outline-none focus:ring-4 focus:ring-[#5B6CFF]/15 sm:h-14 sm:text-lg"
             >
               <option value="">Sélectionner</option>
               <option value="toxicology">Toxicologie</option>
@@ -160,7 +160,7 @@ export default function RegisterPage() {
             onChange={handleChange}
             required
             disabled={isLoading}
-            className="h-12 rounded-xl border-slate-200 bg-white px-4 text-base shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus-visible:border-pink-400 focus-visible:ring-4 focus-visible:ring-pink-100 sm:h-14 sm:text-lg"
+            className="h-12 rounded-xl border-slate-200 bg-white px-4 text-base shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus-visible:border-[#5B6CFF] focus-visible:ring-4 focus-visible:ring-[#5B6CFF]/15 sm:h-14 sm:text-lg"
           />
         </div>
 
@@ -178,7 +178,7 @@ export default function RegisterPage() {
               onChange={handleChange}
               required
               disabled={isLoading}
-              className="h-12 rounded-xl border-slate-200 bg-white px-4 text-base shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus-visible:border-pink-400 focus-visible:ring-4 focus-visible:ring-pink-100 sm:h-14 sm:text-lg"
+              className="h-12 rounded-xl border-slate-200 bg-white px-4 text-base shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus-visible:border-[#5B6CFF] focus-visible:ring-4 focus-visible:ring-[#5B6CFF]/15 sm:h-14 sm:text-lg"
             />
           </div>
 
@@ -195,14 +195,14 @@ export default function RegisterPage() {
               onChange={handleChange}
               required
               disabled={isLoading}
-              className="h-12 rounded-xl border-slate-200 bg-white px-4 text-base shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus-visible:border-pink-400 focus-visible:ring-4 focus-visible:ring-pink-100 sm:h-14 sm:text-lg"
+              className="h-12 rounded-xl border-slate-200 bg-white px-4 text-base shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus-visible:border-[#5B6CFF] focus-visible:ring-4 focus-visible:ring-[#5B6CFF]/15 sm:h-14 sm:text-lg"
             />
           </div>
         </div>
 
         <Button
           type="submit"
-          className="h-12 w-full rounded-xl bg-[#BE185D] text-base font-semibold text-white shadow-[0_10px_24px_rgba(190,24,93,0.24)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#9f1239] sm:h-14 sm:text-xl"
+          className="h-12 w-full rounded-xl bg-[#5B6CFF] text-base font-semibold text-white shadow-[0_10px_24px_rgba(91,108,255,0.30)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#4a5ae0] active:bg-[#3f4ecc] sm:h-14 sm:text-xl"
           disabled={isLoading}
         >
           {isLoading ? "Inscription en cours..." : "Créer un compte"}
@@ -211,7 +211,7 @@ export default function RegisterPage() {
 
       <p className="mt-6 text-center text-base text-slate-500 sm:mt-8 sm:text-xl">
         Vous avez déjà un compte ?{' '}
-        <Link href="/auth/login" className="font-semibold text-[#BE185D] transition hover:text-[#9f1239]">
+        <Link href="/auth/login" className="font-semibold text-[#5B6CFF] transition hover:text-[#4a5ae0] hover:underline">
           Connectez-vous ici
         </Link>
       </p>

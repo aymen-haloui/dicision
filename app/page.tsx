@@ -76,7 +76,6 @@ export default function LandingPage() {
                 <div
                   key={stat.label}
                   className="stat-card rounded-xl border border-white/15 bg-white/8 px-3 py-3 backdrop-blur-md transition-all duration-300 hover:border-[#BE185D]/50 hover:bg-white/12 sm:px-5 sm:py-4"
-                  style={{ animationDelay: `${0.55 + i * 0.1}s` }}
                 >
                   <div className="mb-1 hidden text-[#f43f6e] sm:block">{stat.icon}</div>
                   <p className="text-lg font-bold text-white sm:text-2xl">{stat.value}</p>

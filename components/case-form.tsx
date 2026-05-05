@@ -208,6 +208,7 @@ export default function CaseForm() {
             <select
               id="patientId"
               name="patientId"
+              aria-label="Patient"
               value={formData.patientId}
               onChange={handleChange}
               disabled={isLoading}
@@ -229,6 +230,7 @@ export default function CaseForm() {
             <select
               id="caseType"
               name="caseType"
+              aria-label="Case Type"
               value={formData.caseType}
               onChange={handleChange}
               disabled={isLoading}
@@ -365,6 +367,7 @@ export default function CaseForm() {
                   Medication *
                 </Label>
                 <select
+                  aria-label="Medication"
                   value={med.medicationId}
                   onChange={(e) =>
                     handleMedicationChange(index, 'medicationId', e.target.value)

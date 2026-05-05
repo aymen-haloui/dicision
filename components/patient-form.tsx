@@ -17,6 +17,10 @@ interface PatientFormProps {
     medicalRecordNumber?: string
     allergies?: string
     comorbidities?: string
+    weight?: string
+    renalCreatinineClearance?: string
+    hepaticStatus?: string
+    pregnancyStatus?: string
   }
   mode?: 'create' | 'edit'
 }
@@ -36,6 +40,10 @@ export default function PatientForm({
       medicalRecordNumber: '',
       allergies: '',
       comorbidities: '',
+      weight: '',
+      renalCreatinineClearance: '',
+      hepaticStatus: '',
+      pregnancyStatus: '',
     }
   )
   const [error, setError] = useState('')
@@ -75,6 +83,10 @@ export default function PatientForm({
           medicalRecordNumber: formData.medicalRecordNumber || null,
           allergies: formData.allergies || null,
           comorbidities: formData.comorbidities || null,
+          weight: formData.weight ? parseFloat(formData.weight) : null,
+          renalCreatinineClearance: formData.renalCreatinineClearance ? parseFloat(formData.renalCreatinineClearance) : null,
+          hepaticStatus: formData.hepaticStatus || null,
+          pregnancyStatus: formData.pregnancyStatus || null,
         }),
       })
 
@@ -131,6 +143,84 @@ export default function PatientForm({
         </div>
       </div>
 
+      {/* Clinical risk parameters */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="weight" className="text-sm font-medium text-slate-900 mb-2 block">
+            Weight (kg)
+          </Label>
+          <Input
+            id="weight"
+            name="weight"
+            type="number"
+            min="0"
+            step="0.1"
+            value={formData.weight}
+            onChange={handleChange}
+            placeholder="e.g. 70"
+            disabled={isLoading}
+          />
+        </div>
+        <div>
+          <Label htmlFor="renalCreatinineClearance" className="text-sm font-medium text-slate-900 mb-2 block">
+            Renal CrCl (ml/min)
+          </Label>
+          <Input
+            id="renalCreatinineClearance"
+            name="renalCreatinineClearance"
+            type="number"
+            min="0"
+            step="1"
+            value={formData.renalCreatinineClearance}
+            onChange={handleChange}
+            placeholder="e.g. 80 (leave blank if unknown)"
+            disabled={isLoading}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="hepaticStatus" className="text-sm font-medium text-slate-900 mb-2 block">
+            Hepatic Status
+          </Label>
+          <select
+            id="hepaticStatus"
+            name="hepaticStatus"
+            aria-label="Hepatic Status"
+            value={formData.hepaticStatus}
+            onChange={handleChange}
+            disabled={isLoading}
+            className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Normal</option>
+            <option value="mild">Mild insufficiency</option>
+            <option value="moderate">Moderate insufficiency</option>
+            <option value="severe">Severe insufficiency</option>
+          </select>
+        </div>
+        <div>
+          <Label htmlFor="pregnancyStatus" className="text-sm font-medium text-slate-900 mb-2 block">
+            Pregnancy Status
+          </Label>
+          <select
+            id="pregnancyStatus"
+            name="pregnancyStatus"
+            aria-label="Pregnancy Status"
+            value={formData.pregnancyStatus}
+            onChange={handleChange}
+            disabled={isLoading}
+            className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">Not applicable</option>
+            <option value="trimester_1">Pregnant — Trimester 1</option>
+            <option value="trimester_2">Pregnant — Trimester 2</option>
+            <option value="trimester_3">Pregnant — Trimester 3 (≥6 months)</option>
+            <option value="breastfeeding">Breastfeeding</option>
+          </select>
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor="dateOfBirth" className="text-sm font-medium text-slate-900 mb-2 block">
@@ -153,6 +243,7 @@ export default function PatientForm({
           <select
             id="gender"
             name="gender"
+            aria-label="Gender"
             value={formData.gender}
             onChange={handleChange}
             disabled={isLoading}

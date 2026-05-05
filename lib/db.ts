@@ -72,19 +72,26 @@ export async function createPatient(
   gender?: string,
   medicalRecordNumber?: string,
   allergies?: string,
-  comorbidities?: string
+  comorbidities?: string,
+  weight?: number,
+  renalCreatinineClearance?: number,
+  hepaticStatus?: string,
+  pregnancyStatus?: string
 ) {
   try {
     const result = await sql`
       INSERT INTO patients (
-        user_id, first_name, last_name, date_of_birth, gender, 
-        medical_record_number, allergies, comorbidities
+        user_id, first_name, last_name, date_of_birth, gender,
+        medical_record_number, allergies, comorbidities,
+        weight, renal_creatinine_clearance, hepatic_status, pregnancy_status
       )
       VALUES (
         ${userId}, ${firstName}, ${lastName}, ${dateOfBirth || null}, ${gender || null},
-        ${medicalRecordNumber || null}, ${allergies || null}, ${comorbidities || null}
+        ${medicalRecordNumber || null}, ${allergies || null}, ${comorbidities || null},
+        ${weight ?? null}, ${renalCreatinineClearance ?? null}, ${hepaticStatus || null}, ${pregnancyStatus || null}
       )
-      RETURNING id, first_name, last_name, date_of_birth, gender, medical_record_number, allergies, comorbidities
+      RETURNING id, first_name, last_name, date_of_birth, gender, medical_record_number,
+                allergies, comorbidities, weight, renal_creatinine_clearance, hepatic_status, pregnancy_status
     `
 
     return result[0]

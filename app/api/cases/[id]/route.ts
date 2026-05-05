@@ -5,22 +5,23 @@ import { getCaseById, getCaseMedications, getRiskAssessmentByCase } from '@/lib/
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const caseData = await getCaseById(params.id, session.user.id)
+    const caseData = await getCaseById(id, session.user.id)
     if (!caseData) {
       return NextResponse.json({ error: 'Case not found' }, { status: 404 })
     }
 
     const [medications, assessment] = await Promise.all([
-      getCaseMedications(params.id),
-      getRiskAssessmentByCase(params.id),
+      getCaseMedications(id),
+      getRiskAssessmentByCase(id),
     ])
 
     return NextResponse.json({

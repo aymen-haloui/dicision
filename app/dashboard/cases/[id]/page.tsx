@@ -15,10 +15,11 @@ export const metadata = {
 export default async function CaseDetailPage({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  const { id } = await params
   const session = await getServerSession(authOptions)
-  const caseData = await getCaseById(params.id, session?.user?.id || '')
+  const caseData = await getCaseById(id, session?.user?.id || '')
 
   if (!caseData) {
     notFound()
@@ -26,8 +27,8 @@ export default async function CaseDetailPage({
 
   const [patient, medications, riskAssessment] = await Promise.all([
     getPatientById(caseData.patient_id, session?.user?.id || ''),
-    getCaseMedications(params.id),
-    getRiskAssessmentByCase(params.id),
+    getCaseMedications(id),
+    getRiskAssessmentByCase(id),
   ])
 
   const getRiskColor = (level: string) => {
@@ -56,7 +57,7 @@ export default async function CaseDetailPage({
           </p>
         </div>
         <div className="flex gap-2">
-          <CaseAnalysisButton caseId={params.id} />
+          <CaseAnalysisButton caseId={id} />
           <Link href="/dashboard/cases">
             <Button variant="outline">Back to Cases</Button>
           </Link>
@@ -66,7 +67,7 @@ export default async function CaseDetailPage({
       {/* Risk Assessment */}
       {riskAssessment && (
         <Card className="p-6 border-2 border-slate-200">
-          <RiskAssessmentDisplay assessment={riskAssessment} />
+          <RiskAssessmentDisplay assessment={riskAssessment as any} />
         </Card>
       )}
 
@@ -128,7 +129,7 @@ export default async function CaseDetailPage({
                 <p className="text-sm text-slate-600 mb-1 capitalize">
                   {key.replace(/([A-Z])/g, ' $1').trim()}
                 </p>
-                <p className="text-2xl font-bold text-slate-900">{value || '-'}</p>
+                <p className="text-2xl font-bold text-slate-900">{String(value) || '-'}</p>
               </div>
             ))}
           </div>

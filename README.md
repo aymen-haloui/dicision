@@ -62,6 +62,15 @@ pnpm dev
 curl -X POST http://localhost:3000/api/admin/seed
 ```
 
+5. **Seed default local users** (Optional)
+```bash
+pnpm run seed:users
+```
+
+Default local credentials after seeding:
+- Admin: `admin@hexa.local` / `Admin@123456`
+- Medecin: `medecin@hexa.local` / `Medecin@123456`
+
 Visit `http://localhost:3000` and sign up or login.
 
 ## Project Structure

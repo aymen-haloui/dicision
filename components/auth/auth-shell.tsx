@@ -18,7 +18,7 @@ export function AuthShell({
   children,
 }: AuthShellProps) {
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#fff1f2] text-slate-900">
+    <main className="relative min-h-screen overflow-hidden bg-white text-slate-900">
       <div className="relative grid min-h-screen lg:grid-cols-2">
 
         {/* Left — full-bleed image with overlay and text (hidden on mobile) */}
@@ -32,7 +32,7 @@ export function AuthShell({
             className="object-cover object-center"
           />
           {/* Premium medical overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#19070e]/58 via-[#3d1027]/44 to-[#0f172a]/36" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#5B6CFF]/65 via-[#14142a]/70 to-[#0f172a]/75" />
 
           {/* Content */}
           <div className="relative flex h-full flex-col justify-between p-10 lg:p-14">
@@ -54,10 +54,10 @@ export function AuthShell({
         </section>
 
         {/* Right — form */}
-        <section className="flex min-h-screen items-center justify-center bg-[#fff8f9] px-4 py-10 sm:px-8 lg:px-14">
+        <section className="flex min-h-screen items-center justify-center bg-[#f5f6ff] px-4 py-10 sm:px-8 lg:px-14">
           <div className="w-full max-w-[500px] animate-rise">
             {/* Mobile logo — shown only when left panel is hidden */}
-            <Link href="/" className="mb-8 block text-center text-base font-extrabold tracking-[0.22em] text-[#0F172A] lg:hidden">
+            <Link href="/" className="mb-8 block text-center text-base font-extrabold tracking-[0.22em] text-[#5B6CFF] lg:hidden">
               HEXA
             </Link>
 

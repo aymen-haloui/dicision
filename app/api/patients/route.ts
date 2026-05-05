@@ -10,7 +10,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { firstName, lastName, dateOfBirth, gender, medicalRecordNumber, allergies, comorbidities } =
+    const { firstName, lastName, dateOfBirth, gender, medicalRecordNumber, allergies, comorbidities,
+            weight, renalCreatinineClearance, hepaticStatus, pregnancyStatus } =
       await request.json()
 
     if (!firstName || !lastName) {
@@ -28,7 +29,11 @@ export async function POST(request: NextRequest) {
       gender,
       medicalRecordNumber,
       allergies,
-      comorbidities
+      comorbidities,
+      weight,
+      renalCreatinineClearance,
+      hepaticStatus,
+      pregnancyStatus
     )
 
     return NextResponse.json(patient, { status: 201 })

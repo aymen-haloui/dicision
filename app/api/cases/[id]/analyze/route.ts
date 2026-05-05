@@ -6,8 +6,9 @@ import { createRiskAssessment, getRiskAssessmentByCase } from '@/lib/db'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
@@ -15,11 +16,11 @@ export async function POST(
     }
 
     // Analyze case using decision engine
-    const analysis = await analyzeCase(params.id, session.user.id)
+    const analysis = await analyzeCase(id, session.user.id)
 
     // Save risk assessment to database
     const assessment = await createRiskAssessment(
-      params.id,
+      id,
       analysis.riskScore,
       analysis.riskLevel,
       { findings: analysis.findings },
@@ -38,8 +39,9 @@ export async function POST(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
@@ -47,7 +49,7 @@ export async function GET(
     }
 
     // Get existing assessment
-    const assessment = await getRiskAssessmentByCase(params.id)
+    const assessment = await getRiskAssessmentByCase(id)
 
     if (!assessment) {
       return NextResponse.json(
