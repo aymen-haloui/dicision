@@ -30,7 +30,7 @@ export default function LandingPage() {
           priority
           className="object-cover object-top"
         />
-        {/* Strong left-to-right gradient: dark left (90%) â†’ lighter right (45%) */}
+        {/* Strong left-to-right gradient: dark left (90%) -> lighter right (45%) */}
         <div className="absolute inset-0 bg-gradient-to-r from-[#0f172a]/88 via-[#0f2744]/60 to-[#0f172a]/35" />
         {/* Subtle vertical vignette for polish */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/35" />
@@ -70,7 +70,7 @@ export default function LandingPage() {
               </Button>
             </div>
 
-            {/* Stats cards â€“ glassmorphism */}
+            {/* Stats cards - glassmorphism */}
             <div className="hero-stats grid max-w-2xl grid-cols-3 gap-2 pt-2 sm:gap-3">
               {heroStats.map((stat, i) => (
                 <div
@@ -326,7 +326,7 @@ export default function LandingPage() {
             <a href="#fonctionnement" className="transition hover:text-slate-900">Fonctionnement</a>
             <a href="#apercu" className="transition hover:text-slate-900">Apercu</a>
           </div>
-          <p className="text-sm text-slate-500">Â© 2026 HEXA. Tous droits reserves.</p>
+          <p className="text-sm text-slate-500">(c) 2026 HEXA. Tous droits reserves.</p>
         </div>
       </footer>
     </div>
@@ -335,7 +335,7 @@ export default function LandingPage() {
 
 const heroStats = [
   { value: '< 20 s', label: 'pour prioriser un risque critique', icon: <Activity className="h-4 w-4" /> },
-  { value: '360Â°', label: 'vision interactions et contexte patient', icon: <FlaskConical className="h-4 w-4" /> },
+  { value: '360 deg', label: 'vision interactions et contexte patient', icon: <FlaskConical className="h-4 w-4" /> },
   { value: '24/7', label: 'support decisionnel disponible', icon: <Stethoscope className="h-4 w-4" /> },
 ]
 

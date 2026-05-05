@@ -85,7 +85,7 @@ export default function LoginPage() {
               Mot de passe
             </Label>
             <button type="button" className="text-sm font-semibold text-[#2CB1BC] transition hover:text-[#239AA3] sm:text-lg">
-              Mot de passe oubliÃ© ?
+              Mot de passe oublie ?
             </button>
           </div>
           <Input
@@ -112,7 +112,7 @@ export default function LoginPage() {
       <p className="mt-6 text-center text-base text-slate-500 sm:mt-8 sm:text-xl">
         Vous n'avez pas de compte ?{' '}
         <Link href="/auth/register" className="font-semibold text-[#2CB1BC] transition hover:text-[#239AA3] hover:underline">
-          CrÃ©ez votre espace
+          Creez votre espace
         </Link>
       </p>
     </AuthShell>

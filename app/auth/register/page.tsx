@@ -93,7 +93,7 @@ export default function RegisterPage() {
       imageAlt="Equipe clinique analysant un dossier patient"
     >
       <div className="mb-8">
-        <h2 className="text-2xl font-semibold leading-tight text-[#0F172A] sm:text-4xl">CrÃ©er un compte</h2>
+        <h2 className="text-2xl font-semibold leading-tight text-[#0F172A] sm:text-4xl">Creer un compte</h2>
         <p className="mt-2 text-base leading-relaxed text-slate-600 sm:mt-3 sm:text-xl">
           Rejoignez notre communaute medicale exclusive
         </p>
@@ -126,23 +126,23 @@ export default function RegisterPage() {
 
           <div>
             <Label htmlFor="specialization" className="mb-2 block text-sm font-semibold text-slate-700 sm:mb-3 sm:text-lg">
-              SpÃ©cialitÃ© mÃ©dicale
+              Specialite medicale
             </Label>
             <select
               id="specialization"
               name="specialization"
-              title="SpÃ©cialitÃ© mÃ©dicale"
+              title="Specialite medicale"
               value={formData.specialization}
               onChange={handleChange}
               disabled={isLoading}
               className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-base text-slate-700 shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus:border-[#2CB1BC] focus:outline-none focus:ring-4 focus:ring-[#2CB1BC]/15 sm:h-14 sm:text-lg"
             >
-              <option value="">SÃ©lectionner</option>
+              <option value="">Selectionner</option>
               <option value="toxicology">Toxicologie</option>
-              <option value="emergency-medicine">MÃ©decine d'urgence</option>
+              <option value="emergency-medicine">Medecine d'urgence</option>
               <option value="clinical-pharmacy">Pharmacie clinique</option>
-              <option value="internal-medicine">MÃ©decine interne</option>
-              <option value="general-medicine">MÃ©decine gÃ©nÃ©rale</option>
+              <option value="internal-medicine">Medecine interne</option>
+              <option value="general-medicine">Medecine generale</option>
             </select>
           </div>
         </div>
@@ -173,7 +173,7 @@ export default function RegisterPage() {
               id="password"
               name="password"
               type="password"
-              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+              placeholder="********"
               value={formData.password}
               onChange={handleChange}
               required
@@ -190,7 +190,7 @@ export default function RegisterPage() {
               id="confirmPassword"
               name="confirmPassword"
               type="password"
-              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+              placeholder="********"
               value={formData.confirmPassword}
               onChange={handleChange}
               required
@@ -205,12 +205,12 @@ export default function RegisterPage() {
           className="h-12 w-full rounded-xl bg-[#2CB1BC] text-base font-semibold text-white shadow-[0_10px_24px_rgba(44,177,188,0.30)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#239AA3] active:bg-[#1d8a94] sm:h-14 sm:text-xl"
           disabled={isLoading}
         >
-          {isLoading ? "Inscription en cours..." : "CrÃ©er un compte"}
+          {isLoading ? "Inscription en cours..." : "Creer un compte"}
         </Button>
       </form>
 
       <p className="mt-6 text-center text-base text-slate-500 sm:mt-8 sm:text-xl">
-        Vous avez dÃ©jÃ  un compte ?{' '}
+        Vous avez deja un compte ?{' '}
         <Link href="/auth/login" className="font-semibold text-[#2CB1BC] transition hover:text-[#239AA3] hover:underline">
           Connectez-vous ici
         </Link>
