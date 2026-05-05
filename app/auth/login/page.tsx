@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
@@ -75,7 +75,7 @@ export default function LoginPage() {
             onChange={(e) => setEmail(e.target.value)}
             required
             disabled={isLoading}
-            className="h-12 rounded-xl border-slate-200 bg-white px-4 text-base shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus-visible:border-[#5B6CFF] focus-visible:ring-4 focus-visible:ring-[#5B6CFF]/15 sm:h-14 sm:text-lg"
+            className="h-12 rounded-xl border-slate-200 bg-white px-4 text-base shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus-visible:border-[#2CB1BC] focus-visible:ring-4 focus-visible:ring-[#2CB1BC]/15 sm:h-14 sm:text-lg"
           />
         </div>
 
@@ -84,8 +84,8 @@ export default function LoginPage() {
             <Label htmlFor="password" className="text-sm font-semibold text-slate-700 sm:text-lg">
               Mot de passe
             </Label>
-            <button type="button" className="text-sm font-semibold text-[#5B6CFF] transition hover:text-[#4a5ae0] sm:text-lg">
-              Mot de passe oublié ?
+            <button type="button" className="text-sm font-semibold text-[#2CB1BC] transition hover:text-[#239AA3] sm:text-lg">
+              Mot de passe oubliÃ© ?
             </button>
           </div>
           <Input
@@ -96,13 +96,13 @@ export default function LoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             required
             disabled={isLoading}
-            className="h-12 rounded-xl border-slate-200 bg-white px-4 text-base shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus-visible:border-[#5B6CFF] focus-visible:ring-4 focus-visible:ring-[#5B6CFF]/15 sm:h-14 sm:text-lg"
+            className="h-12 rounded-xl border-slate-200 bg-white px-4 text-base shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus-visible:border-[#2CB1BC] focus-visible:ring-4 focus-visible:ring-[#2CB1BC]/15 sm:h-14 sm:text-lg"
           />
         </div>
 
         <Button
           type="submit"
-          className="h-12 w-full rounded-2xl bg-[#5B6CFF] text-base font-semibold text-white shadow-[0_10px_24px_rgba(91,108,255,0.30)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#4a5ae0] hover:shadow-[0_14px_30px_rgba(91,108,255,0.40)] active:bg-[#3f4ecc] sm:h-14 sm:text-xl"
+          className="h-12 w-full rounded-2xl bg-[#2CB1BC] text-base font-semibold text-white shadow-[0_10px_24px_rgba(44,177,188,0.30)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#239AA3] hover:shadow-[0_14px_30px_rgba(44,177,188,0.40)] active:bg-[#1d8a94] sm:h-14 sm:text-xl"
           disabled={isLoading}
         >
           {isLoading ? 'Connexion en cours...' : 'Se connecter'}
@@ -111,8 +111,8 @@ export default function LoginPage() {
 
       <p className="mt-6 text-center text-base text-slate-500 sm:mt-8 sm:text-xl">
         Vous n'avez pas de compte ?{' '}
-        <Link href="/auth/register" className="font-semibold text-[#5B6CFF] transition hover:text-[#4a5ae0] hover:underline">
-          Créez votre espace
+        <Link href="/auth/register" className="font-semibold text-[#2CB1BC] transition hover:text-[#239AA3] hover:underline">
+          CrÃ©ez votre espace
         </Link>
       </p>
     </AuthShell>

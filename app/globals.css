@@ -4,39 +4,39 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: oklch(0.97 0.02 8);
-  --foreground: oklch(0.2 0.02 260);
+  --background: oklch(0.98 0.003 220);
+  --foreground: oklch(0.13 0.03 237);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.23 0.03 258);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.23 0.03 258);
-  --primary: oklch(0.53 0.2 5);
+  --primary: oklch(0.27 0.07 237);
   --primary-foreground: oklch(0.99 0 0);
   --secondary: oklch(0.98 0.01 260);
   --secondary-foreground: oklch(0.26 0.02 260);
   --muted: oklch(0.98 0.01 260);
   --muted-foreground: oklch(0.47 0.02 260);
-  --accent: oklch(0.66 0.18 350);
+  --accent: oklch(0.68 0.10 195);
   --accent-foreground: oklch(0.99 0 0);
   --destructive: oklch(0.5 0.15 30);
   --destructive-foreground: oklch(1 0 0);
-  --border: oklch(0.89 0.015 8);
-  --input: oklch(0.995 0.01 8);
-  --ring: oklch(0.66 0.18 350);
+  --border: oklch(0.90 0.005 220);
+  --input: oklch(1 0 0);
+  --ring: oklch(0.68 0.10 195);
   --chart-1: oklch(0.58 0.13 240);
   --chart-2: oklch(0.64 0.12 205);
   --chart-3: oklch(0.7 0.14 170);
   --chart-4: oklch(0.73 0.11 285);
   --chart-5: oklch(0.76 0.1 110);
   --radius: 0.5rem;
-  --sidebar: oklch(0.99 0.01 8);
-  --sidebar-foreground: oklch(0.2 0.02 260);
-  --sidebar-primary: oklch(0.53 0.2 5);
+  --sidebar: oklch(0.99 0 0);
+  --sidebar-foreground: oklch(0.13 0.03 237);
+  --sidebar-primary: oklch(0.27 0.07 237);
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.97 0.01 8);
-  --sidebar-accent-foreground: oklch(0.26 0.02 260);
-  --sidebar-border: oklch(0.89 0.015 8);
-  --sidebar-ring: oklch(0.66 0.18 350);
+  --sidebar-accent: oklch(0.97 0.003 220);
+  --sidebar-accent-foreground: oklch(0.26 0.03 237);
+  --sidebar-border: oklch(0.90 0.005 220);
+  --sidebar-ring: oklch(0.68 0.10 195);
 }
 
 .dark {
@@ -127,15 +127,15 @@
 @layer utilities {
   .landing-bg {
     background:
-      radial-gradient(1200px 500px at 12% -10%, rgba(190, 24, 93, 0.14), transparent 62%),
-      radial-gradient(900px 420px at 92% 2%, rgba(236, 72, 153, 0.12), transparent 60%),
-      linear-gradient(180deg, #fff1f2 0%, #fff7f8 40%, #ffffff 100%);
+      radial-gradient(1200px 500px at 12% -10%, rgba(44, 177, 188, 0.10), transparent 62%),
+      radial-gradient(900px 420px at 92% 2%, rgba(74, 144, 226, 0.08), transparent 60%),
+      linear-gradient(180deg, #EBF8FF 0%, #F7FAFC 40%, #ffffff 100%);
   }
 
   .hero-grid-bg {
     background-image:
-      linear-gradient(to right, rgba(190, 24, 93, 0.08) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(190, 24, 93, 0.07) 1px, transparent 1px);
+      linear-gradient(to right, rgba(44, 177, 188, 0.08) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(74, 144, 226, 0.07) 1px, transparent 1px);
     background-size: 38px 38px;
     -webkit-mask-image: radial-gradient(circle at 30% 30%, black 20%, transparent 95%);
     mask-image: radial-gradient(circle at 30% 30%, black 20%, transparent 95%);

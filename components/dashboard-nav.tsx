@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -39,7 +39,7 @@ export default function DashboardNav({ user }: { user: User }) {
         {/* brand + links */}
         <div className="flex items-center gap-8">
           <Link href="/dashboard" className="flex items-center gap-2 shrink-0">
-            <span className="w-7 h-7 rounded-lg bg-[#BE185D] flex items-center justify-center">
+            <span className="w-7 h-7 rounded-lg bg-[#2CB1BC] flex items-center justify-center">
               <span className="text-white font-black text-xs leading-none">Hx</span>
             </span>
             <span className="font-bold text-slate-900 text-lg tracking-tight">HEXA</span>
@@ -54,7 +54,7 @@ export default function DashboardNav({ user }: { user: User }) {
                   href={href}
                   className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     active
-                      ? 'bg-[#BE185D]/10 text-[#BE185D]'
+                      ? 'bg-[#2CB1BC]/10 text-[#2CB1BC]'
                       : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
                   }`}
                 >
@@ -69,7 +69,7 @@ export default function DashboardNav({ user }: { user: User }) {
         {/* user */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-3 pr-3 border-r border-slate-200">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#BE185D] to-[#9f1239] flex items-center justify-center text-white text-xs font-bold shrink-0">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#2CB1BC] to-[#239AA3] flex items-center justify-center text-white text-xs font-bold shrink-0">
               {initials}
             </div>
             <div className="hidden sm:block leading-tight">

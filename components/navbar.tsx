@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
@@ -66,14 +66,14 @@ export default function Navbar() {
                 href={link.href}
                 className={[
                   'group relative px-3 py-2 text-sm font-[550] transition-colors duration-200',
-                  isActive ? 'text-[#BE185D]' : 'text-slate-500 hover:text-[#BE185D]',
+                  isActive ? 'text-[#2CB1BC]' : 'text-slate-500 hover:text-[#2CB1BC]',
                 ].join(' ')}
               >
                 {link.label}
                 {/* Animated underline */}
                 <span
                   className={[
-                    'absolute bottom-0.5 left-3 right-3 h-[1.5px] origin-left rounded-full bg-[#BE185D] transition-all duration-250',
+                    'absolute bottom-0.5 left-3 right-3 h-[1.5px] origin-left rounded-full bg-[#2CB1BC] transition-all duration-250',
                     isActive ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0 group-hover:opacity-100 group-hover:scale-x-100',
                   ].join(' ')}
                 />
@@ -86,11 +86,11 @@ export default function Navbar() {
             <Button
               size="sm"
               className={[
-                'rounded-xl bg-[#BE185D] px-5 text-white',
-                'shadow-[0_4px_14px_rgba(190,24,93,0.25)]',
+                'rounded-xl bg-[#2CB1BC] px-5 text-white',
+                'shadow-[0_4px_14px_rgba(44,177,188,0.25)]',
                 'transition-all duration-200',
-                'hover:-translate-y-[2px] hover:bg-[#9f1239] hover:shadow-[0_8px_22px_rgba(190,24,93,0.38)]',
-                'active:translate-y-0 active:shadow-[0_4px_10px_rgba(190,24,93,0.22)]',
+                'hover:-translate-y-[2px] hover:bg-[#239AA3] hover:shadow-[0_8px_22px_rgba(44,177,188,0.38)]',
+                'active:translate-y-0 active:shadow-[0_4px_10px_rgba(44,177,188,0.22)]',
               ].join(' ')}
             >
               Acceder a la plateforme

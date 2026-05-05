@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
@@ -51,7 +51,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   nsaid:        'bg-blue-100 text-blue-700',
   antibiotic:   'bg-violet-100 text-violet-700',
   antidiabetic: 'bg-teal-100 text-teal-700',
-  anticoagulant:'bg-rose-100 text-rose-700',
+  anticoagulant:'bg-amber-100 text-amber-700',
   statin:       'bg-indigo-100 text-indigo-700',
   analgesic:    'bg-sky-100 text-sky-700',
 }
@@ -160,27 +160,27 @@ export default function AdminRulesPage() {
 
   const criticalCount = interactions.filter(i => i.severity === 'critical').length
   const severeCount = interactions.filter(i => i.severity === 'severe').length
-  const accentTextCls = 'text-[#5B6CFF]'
-  const accentButtonCls = 'bg-[#5B6CFF] hover:bg-[#4a5ae0] text-white'
-  const accentPanelCls = 'border-[#5B6CFF]/20 bg-[#eef1ff]'
-  const accentNoteCls = 'text-[#5B6CFF] bg-[#eef1ff] border border-[#cdd4ff]'
+  const accentTextCls = 'text-[#2CB1BC]'
+  const accentButtonCls = 'bg-[#2CB1BC] hover:bg-[#239AA3] text-white'
+  const accentPanelCls = 'border-teal-200 bg-teal-50'
+  const accentNoteCls = 'text-[#2CB1BC] bg-[#eef1ff] border border-[#cdd4ff]'
 
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-3">
-        <div className="w-8 h-8 border-4 border-slate-200 border-t-[#5B6CFF] rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-slate-200 border-t-[#2CB1BC] rounded-full animate-spin" />
         <p className="text-slate-500 text-sm">Loading clinical rules database...</p>
       </div>
     )
   }
 
-  const inputCls = "w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#5B6CFF]/30 focus:border-[#5B6CFF] transition"
+  const inputCls = "w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2CB1BC]/30 focus:border-[#2CB1BC] transition"
   const labelCls = "block text-xs font-semibold text-slate-600 mb-1"
 
   return (
     <div className="space-y-6">
 
-      {/* ── PAGE HEADER ───────────────────────────────────────────── */}
+      {/* â”€â”€ PAGE HEADER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
@@ -207,7 +207,7 @@ export default function AdminRulesPage() {
         </div>
       </div>
 
-      {/* ── STATS ROW ─────────────────────────────────────────────── */}
+      {/* â”€â”€ STATS ROW â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: 'Medications', value: medications.length, icon: <Pill className="h-5 w-5" />, color: 'text-blue-600 bg-blue-50' },
@@ -233,7 +233,7 @@ export default function AdminRulesPage() {
         </div>
       )}
 
-      {/* ── TABS ──────────────────────────────────────────────────── */}
+      {/* â”€â”€ TABS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="flex gap-1 bg-slate-100 p-1 rounded-xl w-fit">
         {(['medications', 'interactions'] as const).map(t => (
           <button
@@ -253,9 +253,9 @@ export default function AdminRulesPage() {
         ))}
       </div>
 
-      {/* ══════════════════════════════════════════════════════════════
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
           MEDICATIONS TAB
-      ══════════════════════════════════════════════════════════════ */}
+      â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       {tab === 'medications' && (
         <div className="space-y-4">
 
@@ -308,11 +308,11 @@ export default function AdminRulesPage() {
                   <input className={inputCls} value={newMed.defaultDosage} onChange={e => setNewMed(p => ({ ...p, defaultDosage: e.target.value }))} placeholder="e.g. 400mg" />
                 </div>
                 <div>
-                  <label className={labelCls}>Max Daily Dose — Adult (mg)</label>
+                  <label className={labelCls}>Max Daily Dose â€” Adult (mg)</label>
                   <input type="number" className={inputCls} value={newMed.maxDailyDoseAdult} onChange={e => setNewMed(p => ({ ...p, maxDailyDoseAdult: e.target.value }))} placeholder="e.g. 3200" />
                 </div>
                 <div>
-                  <label className={labelCls}>Max Daily Dose — Child (mg/day)</label>
+                  <label className={labelCls}>Max Daily Dose â€” Child (mg/day)</label>
                   <input type="number" className={inputCls} value={newMed.maxDailyDoseChild} onChange={e => setNewMed(p => ({ ...p, maxDailyDoseChild: e.target.value }))} placeholder="e.g. 40" />
                 </div>
                 <div className="md:col-span-2">
@@ -373,7 +373,7 @@ export default function AdminRulesPage() {
 
                       {med.warnings && (
                         <p className="mt-2 text-xs text-amber-700 bg-amber-50 border border-amber-100 px-2.5 py-1.5 rounded-lg line-clamp-1">
-                          ⚠ {med.warnings}
+                          âš  {med.warnings}
                         </p>
                       )}
                     </div>
@@ -434,9 +434,9 @@ export default function AdminRulesPage() {
         </div>
       )}
 
-      {/* ══════════════════════════════════════════════════════════════
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
           INTERACTIONS TAB
-      ══════════════════════════════════════════════════════════════ */}
+      â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       {tab === 'interactions' && (
         <div className="space-y-4">
 
@@ -547,7 +547,7 @@ export default function AdminRulesPage() {
                     )}
                     {int.recommendation && (
                       <p className={`text-xs px-2.5 py-1.5 rounded-lg ${accentNoteCls}`}>
-                        → {int.recommendation}
+                        â†’ {int.recommendation}
                       </p>
                     )}
                   </div>

@@ -1,4 +1,4 @@
-import { getServerSession } from 'next-auth'
+﻿import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import Link from 'next/link'
 import { Card } from '@/components/ui/card'
@@ -47,7 +47,7 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
 
-      {/* ── HEADER ─────────────────────────────────────────────── */}
+      {/* â”€â”€ HEADER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <p className="text-slate-500 text-sm">{greeting},</p>
@@ -60,14 +60,14 @@ export default async function DashboardPage() {
             </button>
           </Link>
           <Link href="/dashboard/cases/new">
-            <button className="flex items-center gap-2 px-4 py-2 bg-[#BE185D] hover:bg-[#9f1239] text-white text-sm font-medium rounded-lg transition">
+            <button className="flex items-center gap-2 px-4 py-2 bg-[#2CB1BC] hover:bg-[#239AA3] text-white text-sm font-medium rounded-lg transition">
               <Plus className="h-4 w-4" /> New Case
             </button>
           </Link>
         </div>
       </div>
 
-      {/* ── STATS ──────────────────────────────────────────────── */}
+      {/* â”€â”€ STATS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {([
           { label: 'Total Patients',    value: stats.patientCount,    icon: Users,          color: 'text-blue-600 bg-blue-50',    href: '/dashboard/patients' },
@@ -90,13 +90,13 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      {/* ── RECENT CASES ───────────────────────────────────────── */}
+      {/* â”€â”€ RECENT CASES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-slate-900">Recent Cases</h2>
           <Link
             href="/dashboard/cases"
-            className="text-sm text-[#BE185D] hover:underline flex items-center gap-1"
+            className="text-sm text-[#2CB1BC] hover:underline flex items-center gap-1"
           >
             View all <ArrowRight className="h-3 w-3" />
           </Link>
@@ -107,7 +107,7 @@ export default async function DashboardPage() {
             <FolderOpen className="h-10 w-10 text-slate-200 mx-auto mb-3" />
             <p className="text-slate-500 font-medium">No cases yet</p>
             <Link href="/dashboard/cases/new">
-              <button className="mt-4 px-4 py-2 bg-[#BE185D] text-white text-sm font-medium rounded-lg hover:bg-[#9f1239] transition">
+              <button className="mt-4 px-4 py-2 bg-[#2CB1BC] text-white text-sm font-medium rounded-lg hover:bg-[#239AA3] transition">
                 Create First Case
               </button>
             </Link>
@@ -144,7 +144,7 @@ export default async function DashboardPage() {
                       <span className="text-xs text-slate-400 hidden sm:inline">
                         {new Date(c.created_at).toLocaleDateString()}
                       </span>
-                      <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-[#BE185D] transition-colors" />
+                      <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-[#2CB1BC] transition-colors" />
                     </div>
                   </div>
                 </Card>

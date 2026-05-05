@@ -1,4 +1,4 @@
-import { getServerSession } from 'next-auth'
+﻿import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import Link from 'next/link'
 import { Card } from '@/components/ui/card'
@@ -6,7 +6,7 @@ import { Users, Plus, ArrowRight, AlertCircle } from 'lucide-react'
 import { getPatientsByUserId } from '@/lib/db'
 
 export const metadata = {
-  title: 'Patients — HEXA',
+  title: 'Patients â€” HEXA',
 }
 
 function getInitials(first: string, last: string) {
@@ -20,11 +20,11 @@ export default async function PatientsPage() {
   return (
     <div className="space-y-6">
 
-      {/* ── HEADER ───────────────────────────────────────────── */}
+      {/* â”€â”€ HEADER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <Users className="h-6 w-6 text-[#BE185D]" />
+            <Users className="h-6 w-6 text-[#2CB1BC]" />
             Patients
           </h1>
           <p className="text-slate-500 mt-1 text-sm">
@@ -32,19 +32,19 @@ export default async function PatientsPage() {
           </p>
         </div>
         <Link href="/dashboard/patients/new">
-          <button className="flex items-center gap-2 px-4 py-2 bg-[#BE185D] hover:bg-[#9f1239] text-white text-sm font-medium rounded-lg transition">
+          <button className="flex items-center gap-2 px-4 py-2 bg-[#2CB1BC] hover:bg-[#239AA3] text-white text-sm font-medium rounded-lg transition">
             <Plus className="h-4 w-4" /> New Patient
           </button>
         </Link>
       </div>
 
-      {/* ── PATIENT LIST ─────────────────────────────────────── */}
+      {/* â”€â”€ PATIENT LIST â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {patients.length === 0 ? (
         <Card className="p-16 text-center">
           <Users className="h-10 w-10 text-slate-200 mx-auto mb-3" />
           <p className="text-slate-500 font-medium">No patients yet</p>
           <Link href="/dashboard/patients/new">
-            <button className="mt-4 px-4 py-2 bg-[#BE185D] text-white text-sm font-medium rounded-lg hover:bg-[#9f1239] transition">
+            <button className="mt-4 px-4 py-2 bg-[#2CB1BC] text-white text-sm font-medium rounded-lg hover:bg-[#239AA3] transition">
               Add Patient
             </button>
           </Link>
@@ -55,7 +55,7 @@ export default async function PatientsPage() {
             <Link key={p.id} href={`/dashboard/patients/${p.id}`}>
               <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer group">
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#BE185D] to-[#9f1239] flex items-center justify-center text-white text-sm font-bold shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#2CB1BC] to-[#239AA3] flex items-center justify-center text-white text-sm font-bold shrink-0">
                     {getInitials(p.first_name, p.last_name)}
                   </div>
 
@@ -82,7 +82,7 @@ export default async function PatientsPage() {
                         <AlertCircle className="h-3 w-3" /> Allergies
                       </span>
                     )}
-                    <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-[#BE185D] transition-colors" />
+                    <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-[#2CB1BC] transition-colors" />
                   </div>
                 </div>
               </Card>

@@ -1,4 +1,4 @@
-import Image from 'next/image'
+﻿import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 
@@ -21,7 +21,7 @@ export function AuthShell({
     <main className="relative min-h-screen overflow-hidden bg-white text-slate-900">
       <div className="relative grid min-h-screen lg:grid-cols-2">
 
-        {/* Left — full-bleed image with overlay and text (hidden on mobile) */}
+        {/* Left â€” full-bleed image with overlay and text (hidden on mobile) */}
         <section className="relative hidden overflow-hidden lg:block">
           {/* Background image */}
           <Image
@@ -32,7 +32,7 @@ export function AuthShell({
             className="object-cover object-center"
           />
           {/* Premium medical overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#5B6CFF]/65 via-[#14142a]/70 to-[#0f172a]/75" />
+          <div className="absolute inset-0 bg-gradient-to-br from-[#1E3A5F]/70 via-[#0f2744]/65 to-[#0f172a]/75" />
 
           {/* Content */}
           <div className="relative flex h-full flex-col justify-between p-10 lg:p-14">
@@ -49,15 +49,15 @@ export function AuthShell({
               </p>
             </div>
 
-            <p className="text-sm text-white/60">© 2026 HEXA</p>
+            <p className="text-sm text-white/60">Â© 2026 HEXA</p>
           </div>
         </section>
 
-        {/* Right — form */}
-        <section className="flex min-h-screen items-center justify-center bg-[#f5f6ff] px-4 py-10 sm:px-8 lg:px-14">
+        {/* Right â€” form */}
+        <section className="flex min-h-screen items-center justify-center bg-[#F7FAFC] px-4 py-10 sm:px-8 lg:px-14">
           <div className="w-full max-w-[500px] animate-rise">
-            {/* Mobile logo — shown only when left panel is hidden */}
-            <Link href="/" className="mb-8 block text-center text-base font-extrabold tracking-[0.22em] text-[#5B6CFF] lg:hidden">
+            {/* Mobile logo â€” shown only when left panel is hidden */}
+            <Link href="/" className="mb-8 block text-center text-base font-extrabold tracking-[0.22em] text-[#2CB1BC] lg:hidden">
               HEXA
             </Link>
 

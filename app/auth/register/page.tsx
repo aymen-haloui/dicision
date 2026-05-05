@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -93,7 +93,7 @@ export default function RegisterPage() {
       imageAlt="Equipe clinique analysant un dossier patient"
     >
       <div className="mb-8">
-        <h2 className="text-2xl font-semibold leading-tight text-[#0F172A] sm:text-4xl">Créer un compte</h2>
+        <h2 className="text-2xl font-semibold leading-tight text-[#0F172A] sm:text-4xl">CrÃ©er un compte</h2>
         <p className="mt-2 text-base leading-relaxed text-slate-600 sm:mt-3 sm:text-xl">
           Rejoignez notre communaute medicale exclusive
         </p>
@@ -120,29 +120,29 @@ export default function RegisterPage() {
               onChange={handleChange}
               required
               disabled={isLoading}
-              className="h-12 rounded-xl border-slate-200 bg-white px-4 text-base shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus-visible:border-[#5B6CFF] focus-visible:ring-4 focus-visible:ring-[#5B6CFF]/15 sm:h-14 sm:text-lg"
+              className="h-12 rounded-xl border-slate-200 bg-white px-4 text-base shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus-visible:border-[#2CB1BC] focus-visible:ring-4 focus-visible:ring-[#2CB1BC]/15 sm:h-14 sm:text-lg"
             />
           </div>
 
           <div>
             <Label htmlFor="specialization" className="mb-2 block text-sm font-semibold text-slate-700 sm:mb-3 sm:text-lg">
-              Spécialité médicale
+              SpÃ©cialitÃ© mÃ©dicale
             </Label>
             <select
               id="specialization"
               name="specialization"
-              title="Spécialité médicale"
+              title="SpÃ©cialitÃ© mÃ©dicale"
               value={formData.specialization}
               onChange={handleChange}
               disabled={isLoading}
-              className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-base text-slate-700 shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus:border-[#5B6CFF] focus:outline-none focus:ring-4 focus:ring-[#5B6CFF]/15 sm:h-14 sm:text-lg"
+              className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-base text-slate-700 shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus:border-[#2CB1BC] focus:outline-none focus:ring-4 focus:ring-[#2CB1BC]/15 sm:h-14 sm:text-lg"
             >
-              <option value="">Sélectionner</option>
+              <option value="">SÃ©lectionner</option>
               <option value="toxicology">Toxicologie</option>
-              <option value="emergency-medicine">Médecine d'urgence</option>
+              <option value="emergency-medicine">MÃ©decine d'urgence</option>
               <option value="clinical-pharmacy">Pharmacie clinique</option>
-              <option value="internal-medicine">Médecine interne</option>
-              <option value="general-medicine">Médecine générale</option>
+              <option value="internal-medicine">MÃ©decine interne</option>
+              <option value="general-medicine">MÃ©decine gÃ©nÃ©rale</option>
             </select>
           </div>
         </div>
@@ -160,7 +160,7 @@ export default function RegisterPage() {
             onChange={handleChange}
             required
             disabled={isLoading}
-            className="h-12 rounded-xl border-slate-200 bg-white px-4 text-base shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus-visible:border-[#5B6CFF] focus-visible:ring-4 focus-visible:ring-[#5B6CFF]/15 sm:h-14 sm:text-lg"
+            className="h-12 rounded-xl border-slate-200 bg-white px-4 text-base shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus-visible:border-[#2CB1BC] focus-visible:ring-4 focus-visible:ring-[#2CB1BC]/15 sm:h-14 sm:text-lg"
           />
         </div>
 
@@ -173,12 +173,12 @@ export default function RegisterPage() {
               id="password"
               name="password"
               type="password"
-              placeholder="••••••••"
+              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
               value={formData.password}
               onChange={handleChange}
               required
               disabled={isLoading}
-              className="h-12 rounded-xl border-slate-200 bg-white px-4 text-base shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus-visible:border-[#5B6CFF] focus-visible:ring-4 focus-visible:ring-[#5B6CFF]/15 sm:h-14 sm:text-lg"
+              className="h-12 rounded-xl border-slate-200 bg-white px-4 text-base shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus-visible:border-[#2CB1BC] focus-visible:ring-4 focus-visible:ring-[#2CB1BC]/15 sm:h-14 sm:text-lg"
             />
           </div>
 
@@ -190,28 +190,28 @@ export default function RegisterPage() {
               id="confirmPassword"
               name="confirmPassword"
               type="password"
-              placeholder="••••••••"
+              placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
               value={formData.confirmPassword}
               onChange={handleChange}
               required
               disabled={isLoading}
-              className="h-12 rounded-xl border-slate-200 bg-white px-4 text-base shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus-visible:border-[#5B6CFF] focus-visible:ring-4 focus-visible:ring-[#5B6CFF]/15 sm:h-14 sm:text-lg"
+              className="h-12 rounded-xl border-slate-200 bg-white px-4 text-base shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition focus-visible:border-[#2CB1BC] focus-visible:ring-4 focus-visible:ring-[#2CB1BC]/15 sm:h-14 sm:text-lg"
             />
           </div>
         </div>
 
         <Button
           type="submit"
-          className="h-12 w-full rounded-xl bg-[#5B6CFF] text-base font-semibold text-white shadow-[0_10px_24px_rgba(91,108,255,0.30)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#4a5ae0] active:bg-[#3f4ecc] sm:h-14 sm:text-xl"
+          className="h-12 w-full rounded-xl bg-[#2CB1BC] text-base font-semibold text-white shadow-[0_10px_24px_rgba(44,177,188,0.30)] transition duration-200 hover:-translate-y-0.5 hover:bg-[#239AA3] active:bg-[#1d8a94] sm:h-14 sm:text-xl"
           disabled={isLoading}
         >
-          {isLoading ? "Inscription en cours..." : "Créer un compte"}
+          {isLoading ? "Inscription en cours..." : "CrÃ©er un compte"}
         </Button>
       </form>
 
       <p className="mt-6 text-center text-base text-slate-500 sm:mt-8 sm:text-xl">
-        Vous avez déjà un compte ?{' '}
-        <Link href="/auth/login" className="font-semibold text-[#5B6CFF] transition hover:text-[#4a5ae0] hover:underline">
+        Vous avez dÃ©jÃ  un compte ?{' '}
+        <Link href="/auth/login" className="font-semibold text-[#2CB1BC] transition hover:text-[#239AA3] hover:underline">
           Connectez-vous ici
         </Link>
       </p>

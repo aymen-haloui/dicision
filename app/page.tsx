@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button'
+﻿import { Button } from '@/components/ui/button'
 import {
   ArrowRight,
   FlaskConical,
@@ -30,8 +30,8 @@ export default function LandingPage() {
           priority
           className="object-cover object-top"
         />
-        {/* Strong left-to-right gradient: dark left (90%) → lighter right (45%) */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0d0510]/92 via-[#1e0a18]/75 to-[#0f172a]/42" />
+        {/* Strong left-to-right gradient: dark left (90%) â†’ lighter right (45%) */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0f172a]/88 via-[#0f2744]/60 to-[#0f172a]/35" />
         {/* Subtle vertical vignette for polish */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/35" />
         <div className="hero-grid-bg pointer-events-none absolute inset-0 opacity-20" />
@@ -42,7 +42,7 @@ export default function LandingPage() {
             <div className="hero-headline space-y-2">
               <h1 className="text-3xl font-bold leading-[1.1] tracking-tight text-white sm:text-4xl md:text-5xl lg:text-6xl md:leading-[1.08]">
                 Anticipez le risque<br />
-                <span className="text-[#f43f6e]">toxicologique</span> et<br />
+                <span className="text-[#2CB1BC]">toxicologique</span> et<br />
                 securisez chaque decision.
               </h1>
             </div>
@@ -57,7 +57,7 @@ export default function LandingPage() {
             {/* CTAs */}
             <div className="hero-ctas flex flex-col gap-3 pt-1 sm:flex-row">
               <Link href="/auth/login" className="w-full sm:w-auto">
-                <Button className="h-12 w-full rounded-xl bg-[#BE185D] px-8 font-semibold text-white shadow-[0_10px_28px_rgba(190,24,93,0.35)] transition-all duration-250 hover:scale-[1.03] hover:bg-[#9f1239] active:scale-[0.98] sm:w-auto">
+                <Button className="h-12 w-full rounded-xl bg-[#2CB1BC] px-8 font-semibold text-white shadow-[0_10px_28px_rgba(44,177,188,0.35)] transition-all duration-250 hover:scale-[1.03] hover:bg-[#239AA3] active:scale-[0.98] sm:w-auto">
                   Acceder a la plateforme
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
@@ -70,14 +70,14 @@ export default function LandingPage() {
               </Button>
             </div>
 
-            {/* Stats cards – glassmorphism */}
+            {/* Stats cards â€“ glassmorphism */}
             <div className="hero-stats grid max-w-2xl grid-cols-3 gap-2 pt-2 sm:gap-3">
               {heroStats.map((stat, i) => (
                 <div
                   key={stat.label}
-                  className="stat-card rounded-xl border border-white/15 bg-white/8 px-3 py-3 backdrop-blur-md transition-all duration-300 hover:border-[#BE185D]/50 hover:bg-white/12 sm:px-5 sm:py-4"
+                  className="stat-card rounded-xl border border-white/15 bg-white/8 px-3 py-3 backdrop-blur-md transition-all duration-300 hover:border-[#2CB1BC]/60 hover:bg-white/12 sm:px-5 sm:py-4"
                 >
-                  <div className="mb-1 hidden text-[#f43f6e] sm:block">{stat.icon}</div>
+                  <div className="mb-1 hidden text-[#2CB1BC] sm:block">{stat.icon}</div>
                   <p className="text-lg font-bold text-white sm:text-2xl">{stat.value}</p>
                   <p className="mt-0.5 text-[10px] leading-tight text-white/65 sm:text-xs">{stat.label}</p>
                 </div>
@@ -87,11 +87,11 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="valeur" className="bg-[#fff1f2] px-4 py-14 text-slate-900 sm:px-6 sm:py-20">
-        <div className="mx-auto max-w-7xl rounded-2xl border border-rose-100 bg-white p-8 shadow-soft md:p-12">
+      <section id="valeur" className="bg-[#F7FAFC] px-4 py-14 text-slate-900 sm:px-6 sm:py-20">
+        <div className="mx-auto max-w-7xl rounded-2xl border border-teal-100 bg-white p-8 shadow-soft md:p-12">
           <div className="grid gap-10 md:grid-cols-[1.15fr_0.85fr] md:items-center">
             <div className="space-y-5">
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#BE185D]">
+              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#2CB1BC]">
                 Valeur clinique
               </p>
               <h2 className="text-3xl font-semibold leading-tight text-slate-900 md:text-4xl">
@@ -121,10 +121,10 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="features" className="bg-[#fff1f2] px-4 pb-14 text-slate-900 sm:px-6 sm:pb-20">
+      <section id="features" className="bg-[#F7FAFC] px-4 pb-14 text-slate-900 sm:px-6 sm:pb-20">
         <div className="mx-auto max-w-7xl">
           <div className="mb-10 space-y-4">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#BE185D]">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#2CB1BC]">
               Capacites
             </p>
             <h2 className="text-3xl font-semibold md:text-4xl">Fonctionnalites cles pour la pratique medicale</h2>
@@ -136,7 +136,7 @@ export default function LandingPage() {
                 key={feature.title}
                 className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-[0_16px_30px_rgba(15,23,42,0.10)]"
               >
-                <div className="mb-5 inline-flex rounded-lg border border-rose-200 bg-rose-50 p-3 text-[#BE185D] transition group-hover:bg-[#BE185D] group-hover:text-white">
+                <div className="mb-5 inline-flex rounded-lg border border-teal-200 bg-teal-50 p-3 text-[#2CB1BC] transition group-hover:bg-[#2CB1BC] group-hover:text-white">
                   {feature.icon}
                 </div>
                 <h3 className="text-lg font-semibold text-slate-900">{feature.title}</h3>
@@ -150,7 +150,7 @@ export default function LandingPage() {
       <section id="fonctionnement" className="bg-white px-4 py-14 text-slate-900 sm:px-6 sm:py-20">
         <div className="mx-auto max-w-7xl">
           <div className="mb-12 space-y-4">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#BE185D]">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#2CB1BC]">
               Comment ca fonctionne
             </p>
             <h2 className="text-3xl font-semibold md:text-4xl">
@@ -159,13 +159,13 @@ export default function LandingPage() {
           </div>
 
           <div className="relative grid gap-8 md:grid-cols-3">
-            <div className="absolute left-0 right-0 top-14 hidden h-px bg-gradient-to-r from-transparent via-rose-200 to-transparent md:block" />
+            <div className="absolute left-0 right-0 top-14 hidden h-px bg-gradient-to-r from-transparent via-teal-200 to-transparent md:block" />
             {steps.map((step, index) => (
               <div key={step.title} className="relative rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_8px_22px_rgba(15,23,42,0.07)]">
-                <div className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-lg bg-[#BE185D] text-sm font-semibold text-white">
+                <div className="mb-5 inline-flex h-11 w-11 items-center justify-center rounded-lg bg-[#2CB1BC] text-sm font-semibold text-white">
                   {index + 1}
                 </div>
-                <div className="mb-4 inline-flex rounded-lg border border-rose-200 bg-rose-50 p-2 text-[#BE185D]">
+                <div className="mb-4 inline-flex rounded-lg border border-teal-200 bg-teal-50 p-2 text-[#2CB1BC]">
                   {step.icon}
                 </div>
                 <h3 className="text-lg font-semibold text-slate-900">{step.title}</h3>
@@ -176,10 +176,10 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section id="apercu" className="bg-[#fff1f2] px-4 py-14 text-slate-900 sm:px-6 sm:py-20">
+      <section id="apercu" className="bg-[#F7FAFC] px-4 py-14 text-slate-900 sm:px-6 sm:py-20">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
           <div className="space-y-5">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#BE185D]">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#2CB1BC]">
               Apercu produit
             </p>
             <h2 className="text-3xl font-semibold leading-tight md:text-4xl">
@@ -196,7 +196,7 @@ export default function LandingPage() {
                 Niveaux de risque: faible, modere, eleve, critique
               </div>
               <div className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm text-slate-700 shadow-sm">
-                <Pill className="h-4 w-4 text-[#BE185D]" />
+                <Pill className="h-4 w-4 text-[#2CB1BC]" />
                 Vue interactions medicament / plante / metabolisme
               </div>
               <div className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm text-slate-700 shadow-sm">
@@ -207,7 +207,7 @@ export default function LandingPage() {
           </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_18px_36px_rgba(15,23,42,0.09)]">
-            <div className="mb-4 overflow-hidden rounded-xl border border-slate-200 bg-[#fff7f8]">
+            <div className="mb-4 overflow-hidden rounded-xl border border-slate-200 bg-[#F7FAFC]">
               <Image
                 src="/clinical-dashboard-preview.svg"
                 alt="Apercu visuel du tableau de bord clinique avec niveaux de risque et interactions"
@@ -218,7 +218,7 @@ export default function LandingPage() {
             </div>
             <div className="mb-4 flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
               <div className="flex items-center gap-3">
-                <div className="grid h-9 w-9 place-items-center rounded-lg bg-rose-100 text-[#BE185D]">
+                <div className="grid h-9 w-9 place-items-center rounded-lg bg-teal-100 text-[#2CB1BC]">
                   <UserRound className="h-5 w-5" />
                 </div>
                 <div>
@@ -265,7 +265,7 @@ export default function LandingPage() {
       <section className="bg-white px-4 py-14 text-slate-900 sm:px-6 sm:py-20">
         <div className="mx-auto max-w-7xl rounded-2xl border border-slate-200 bg-white p-8 shadow-soft md:p-12">
           <div className="mb-8 space-y-4">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#BE185D]">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#2CB1BC]">
               Credibilite medicale
             </p>
             <h2 className="text-3xl font-semibold md:text-4xl">
@@ -275,7 +275,7 @@ export default function LandingPage() {
           <div className="grid gap-4 md:grid-cols-3">
             {trustItems.map((item) => (
               <div key={item.title} className="rounded-2xl border border-slate-200 bg-white p-5">
-                <div className="mb-3 inline-flex rounded-lg bg-rose-50 p-2 text-[#BE185D]">{item.icon}</div>
+                <div className="mb-3 inline-flex rounded-lg bg-teal-50 p-2 text-[#2CB1BC]">{item.icon}</div>
                 <h3 className="text-base font-semibold text-slate-900">{item.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-slate-600">{item.description}</p>
               </div>
@@ -283,13 +283,13 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-8 flex flex-wrap gap-3">
-            <span className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-semibold tracking-wide text-[#BE185D]">
+            <span className="rounded-lg border border-teal-200 bg-teal-50 px-4 py-2 text-xs font-semibold tracking-wide text-[#2CB1BC]">
               Donnees pharmacologiques validees
             </span>
-            <span className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-semibold tracking-wide text-[#BE185D]">
+            <span className="rounded-lg border border-teal-200 bg-teal-50 px-4 py-2 text-xs font-semibold tracking-wide text-[#2CB1BC]">
               Workflow compatible urgence et consultation
             </span>
-            <span className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-2 text-xs font-semibold tracking-wide text-[#BE185D]">
+            <span className="rounded-lg border border-teal-200 bg-teal-50 px-4 py-2 text-xs font-semibold tracking-wide text-[#2CB1BC]">
               Logique de recommandation explicable
             </span>
           </div>
@@ -297,7 +297,7 @@ export default function LandingPage() {
       </section>
 
       <section className="px-4 pb-14 pt-6 sm:px-6 sm:pb-20">
-        <div className="mx-auto max-w-7xl rounded-2xl border border-rose-200 bg-gradient-to-r from-[#fff6f7] via-[#fff1f2] to-[#fff6f7] p-10 text-center shadow-soft">
+        <div className="mx-auto max-w-7xl rounded-2xl border border-teal-200 bg-gradient-to-r from-[#EBF8FF] via-[#F7FAFC] to-[#EBF8FF] p-10 text-center shadow-soft">
           <h2 className="text-3xl font-semibold text-slate-900 md:text-4xl">
             Optimisez vos decisions cliniques des aujourd'hui
           </h2>
@@ -307,7 +307,7 @@ export default function LandingPage() {
           </p>
           <div className="mt-8 flex justify-center">
             <Link href="/auth/login">
-              <Button className="h-12 rounded-xl bg-[#BE185D] px-8 font-semibold text-white shadow-[0_12px_24px_rgba(190,24,93,0.24)] transition hover:bg-[#9f1239]">
+              <Button className="h-12 rounded-xl bg-[#2CB1BC] px-8 font-semibold text-white shadow-[0_12px_24px_rgba(44,177,188,0.24)] transition hover:bg-[#239AA3]">
                 Commencer maintenant
               </Button>
             </Link>
@@ -326,7 +326,7 @@ export default function LandingPage() {
             <a href="#fonctionnement" className="transition hover:text-slate-900">Fonctionnement</a>
             <a href="#apercu" className="transition hover:text-slate-900">Apercu</a>
           </div>
-          <p className="text-sm text-slate-500">© 2026 HEXA. Tous droits reserves.</p>
+          <p className="text-sm text-slate-500">Â© 2026 HEXA. Tous droits reserves.</p>
         </div>
       </footer>
     </div>
@@ -335,7 +335,7 @@ export default function LandingPage() {
 
 const heroStats = [
   { value: '< 20 s', label: 'pour prioriser un risque critique', icon: <Activity className="h-4 w-4" /> },
-  { value: '360°', label: 'vision interactions et contexte patient', icon: <FlaskConical className="h-4 w-4" /> },
+  { value: '360Â°', label: 'vision interactions et contexte patient', icon: <FlaskConical className="h-4 w-4" /> },
   { value: '24/7', label: 'support decisionnel disponible', icon: <Stethoscope className="h-4 w-4" /> },
 ]
 
@@ -398,7 +398,7 @@ const steps = [
     icon: <FileCheck2 className="h-5 w-5" />,
     title: 'Recommandations cliniques exploitables',
     description:
-      'Recevez un plan d’action immediat: niveau de risque, adaptations de dose et surveillance recommandee.',
+      'Recevez un plan dâ€™action immediat: niveau de risque, adaptations de dose et surveillance recommandee.',
   },
 ]
 
@@ -412,7 +412,7 @@ const previewInteractions = [
   {
     label: 'Aspirine + Ginkgo biloba',
     level: 'Critique',
-    badgeClass: 'rounded-full bg-rose-100 px-2.5 py-1 text-xs font-semibold text-rose-700',
+    badgeClass: 'rounded-full bg-teal-100 px-2.5 py-1 text-xs font-semibold text-teal-700',
   },
   {
     label: 'Metformine + Reglisse',

@@ -1,4 +1,4 @@
-import { getServerSession } from 'next-auth'
+﻿import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import Link from 'next/link'
 import { Card } from '@/components/ui/card'
@@ -8,7 +8,7 @@ import postgres from 'postgres'
 const sql = postgres(process.env.DATABASE_URL!)
 
 export const metadata = {
-  title: 'Cases — HEXA',
+  title: 'Cases â€” HEXA',
 }
 
 async function getCasesWithPatients(userId: string) {
@@ -41,34 +41,34 @@ export default async function CasesPage() {
   return (
     <div className="space-y-6">
 
-      {/* ── HEADER ───────────────────────────────────────────── */}
+      {/* â”€â”€ HEADER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <FolderOpen className="h-6 w-6 text-[#BE185D]" />
+            <FolderOpen className="h-6 w-6 text-[#2CB1BC]" />
             Cases
           </h1>
           <p className="text-slate-500 mt-1 text-sm">
             {cases.length} total case{cases.length !== 1 ? 's' : ''}
             {emergencies > 0 && (
-              <span className="ml-2 text-red-600 font-medium">· {emergencies} emergency</span>
+              <span className="ml-2 text-red-600 font-medium">Â· {emergencies} emergency</span>
             )}
           </p>
         </div>
         <Link href="/dashboard/cases/new">
-          <button className="flex items-center gap-2 px-4 py-2 bg-[#BE185D] hover:bg-[#9f1239] text-white text-sm font-medium rounded-lg transition">
+          <button className="flex items-center gap-2 px-4 py-2 bg-[#2CB1BC] hover:bg-[#239AA3] text-white text-sm font-medium rounded-lg transition">
             <Plus className="h-4 w-4" /> New Case
           </button>
         </Link>
       </div>
 
-      {/* ── CASE LIST ────────────────────────────────────────── */}
+      {/* â”€â”€ CASE LIST â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       {cases.length === 0 ? (
         <Card className="p-16 text-center">
           <FolderOpen className="h-10 w-10 text-slate-200 mx-auto mb-3" />
           <p className="text-slate-500 font-medium">No cases yet</p>
           <Link href="/dashboard/cases/new">
-            <button className="mt-4 px-4 py-2 bg-[#BE185D] text-white text-sm font-medium rounded-lg hover:bg-[#9f1239] transition">
+            <button className="mt-4 px-4 py-2 bg-[#2CB1BC] text-white text-sm font-medium rounded-lg hover:bg-[#239AA3] transition">
               Create Case
             </button>
           </Link>
@@ -117,7 +117,7 @@ export default async function CasesPage() {
                     <span className="text-xs text-slate-400 hidden sm:inline">
                       {new Date(c.created_at).toLocaleDateString()}
                     </span>
-                    <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-[#BE185D] transition-colors" />
+                    <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-[#2CB1BC] transition-colors" />
                   </div>
                 </div>
               </Card>
