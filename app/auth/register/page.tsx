@@ -89,7 +89,7 @@ export default function RegisterPage() {
     <AuthShell
       title="Rejoignez les cliniciens qui font confiance a HEXA."
       subtitle="Creez votre espace en quelques secondes et accedez a une aide a la decision toxicologique alimentee par l'IA."
-      imageSrc="/medical-hero.jpg"
+      imageSrc="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?auto=format&fit=crop&w=1400&h=1800&q=80"
       imageAlt="Equipe clinique analysant un dossier patient"
     >
       <div className="mb-8">

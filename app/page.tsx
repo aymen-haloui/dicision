@@ -24,11 +24,11 @@ export default function LandingPage() {
 
       <section className="relative overflow-hidden px-4 pb-20 pt-16 sm:px-6 md:pb-36 md:pt-28">
         <Image
-          src="https://images.unsplash.com/photo-1631815589968-fdb09a223b1e?auto=format&fit=crop&w=2000&h=1200&q=80"
-          alt="Equipe de medecins en reunion clinique"
+          src="/medical-hero.jpg"
+          alt="Medecin en consultation avec un patient"
           fill
           priority
-          className="object-cover object-center"
+          className="object-cover object-top"
         />
         {/* Strong left-to-right gradient: dark left (90%) → lighter right (45%) */}
         <div className="absolute inset-0 bg-gradient-to-r from-[#0d0510]/92 via-[#1e0a18]/75 to-[#0f172a]/42" />

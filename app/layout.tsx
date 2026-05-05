@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   title: 'HEXA | Plateforme d\'aide à la décision en toxicologie',
   description: 'Analyse des risques, détection des interactions et ajustement personnalisé de la posologie en contexte clinique et d\'urgence.',
   icons: {
-    icon: '/favicon.ico',
+    icon: '/favicon.svg',
   },
 }
 

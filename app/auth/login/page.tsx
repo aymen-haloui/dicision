@@ -46,7 +46,7 @@ export default function LoginPage() {
     <AuthShell
       title="La plateforme d'aide a la decision pour les professionnels de sante."
       subtitle="Detectez les interactions, evaluez les risques toxicologiques et ajustez la posologie en quelques secondes."
-      imageSrc="/medical-hero.jpg"
+      imageSrc="https://images.unsplash.com/photo-1587351021759-3e566b6af7cc?auto=format&fit=crop&w=1400&h=1800&q=80"
       imageAlt="Medecin en environnement hospitalier"
     >
       <div className="mb-8">
