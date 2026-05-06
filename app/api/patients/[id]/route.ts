@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { getPatientById, updatePatient } from '@/lib/db'
+import { getPatientById, updatePatient, type PatientInput } from '@/lib/db'
 
 export async function GET(
   request: NextRequest,
@@ -40,18 +40,30 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { firstName, lastName, dateOfBirth, gender, allergies, comorbidities } =
-      await request.json()
+    const body = await request.json()
 
-    const patient = await updatePatient(id, session.user.id, {
-      firstName,
-      lastName,
-      dateOfBirth,
-      gender,
-      allergies,
-      comorbidities,
-    })
+    const updates: Partial<PatientInput> = {}
+    const numericFields = ['weight', 'height', 'renalCreatinineClearance', 'creatinine',
+      'asat', 'alat', 'bilirubin', 'sleepHours', 'glycemia', 'sodium', 'potassium', 'crp', 'lactates']
+    const boolFields = ['nightShift', 'prolongedFasting', 'restrictiveDiet', 'uncontrolledNaturalProducts',
+      'bloodDonor', 'suddenMedicationStop', 'regularCheckup', 'selfDiagnosis', 'previousIntoxication']
+    const stringFields = ['firstName', 'lastName', 'dateOfBirth', 'gender', 'medicalRecordNumber',
+      'allergies', 'comorbidities', 'renalStage', 'hepaticStatus', 'pregnancyStatus',
+      'smokingStatus', 'alcoholUse', 'substanceUse', 'professionalExposure', 'physicalActivity',
+      'dietType', 'stressLevel', 'sleepQuality', 'sunExposure', 'immunodepression',
+      'housingConditions', 'allergyReactionTypes']
 
+    for (const field of stringFields) {
+      if (body[field] !== undefined) (updates as any)[field] = body[field]
+    }
+    for (const field of numericFields) {
+      if (body[field] !== undefined && body[field] !== '') (updates as any)[field] = parseFloat(body[field])
+    }
+    for (const field of boolFields) {
+      if (body[field] !== undefined) (updates as any)[field] = body[field] === true || body[field] === 'true'
+    }
+
+    const patient = await updatePatient(id, session.user.id, updates)
     if (!patient) {
       return NextResponse.json({ error: 'Patient not found' }, { status: 404 })
     }

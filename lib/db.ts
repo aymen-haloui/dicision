@@ -64,36 +64,104 @@ export async function getPatientsByUserId(userId: string) {
   }
 }
 
-export async function createPatient(
-  userId: string,
-  firstName: string,
-  lastName: string,
-  dateOfBirth?: string,
-  gender?: string,
-  medicalRecordNumber?: string,
-  allergies?: string,
-  comorbidities?: string,
-  weight?: number,
-  renalCreatinineClearance?: number,
-  hepaticStatus?: string,
+export interface PatientInput {
+  firstName: string
+  lastName: string
+  dateOfBirth?: string
+  gender?: string
+  medicalRecordNumber?: string
+  allergies?: string
+  comorbidities?: string
+  // Anthropometric
+  weight?: number
+  height?: number
+  // Renal
+  renalCreatinineClearance?: number
+  creatinine?: number
+  renalStage?: string
+  // Hepatic
+  hepaticStatus?: string
+  asat?: number
+  alat?: number
+  bilirubin?: number
+  // Reproductive
   pregnancyStatus?: string
-) {
+  // Lifestyle
+  smokingStatus?: string
+  alcoholUse?: string
+  substanceUse?: string
+  professionalExposure?: string
+  physicalActivity?: string
+  dietType?: string
+  stressLevel?: string
+  sleepQuality?: string
+  sleepHours?: number
+  nightShift?: boolean
+  sunExposure?: string
+  prolongedFasting?: boolean
+  restrictiveDiet?: boolean
+  uncontrolledNaturalProducts?: boolean
+  // Medical factors
+  bloodDonor?: boolean
+  immunodepression?: string
+  suddenMedicationStop?: boolean
+  regularCheckup?: boolean
+  selfDiagnosis?: boolean
+  housingConditions?: string
+  previousIntoxication?: boolean
+  allergyReactionTypes?: string
+  // Biological complementary
+  glycemia?: number
+  sodium?: number
+  potassium?: number
+  crp?: number
+  lactates?: number
+}
+
+export async function createPatient(userId: string, data: PatientInput) {
   try {
     const result = await sql`
       INSERT INTO patients (
         user_id, first_name, last_name, date_of_birth, gender,
         medical_record_number, allergies, comorbidities,
-        weight, renal_creatinine_clearance, hepatic_status, pregnancy_status
+        weight, height,
+        renal_creatinine_clearance, creatinine, renal_stage,
+        hepatic_status, asat, alat, bilirubin,
+        pregnancy_status,
+        smoking_status, alcohol_use, substance_use, professional_exposure,
+        physical_activity, diet_type, stress_level, sleep_quality, sleep_hours,
+        night_shift, sun_exposure, prolonged_fasting, restrictive_diet,
+        uncontrolled_natural_products,
+        blood_donor, immunodepression, sudden_medication_stop, regular_checkup,
+        self_diagnosis, housing_conditions, previous_intoxication,
+        allergy_reaction_types,
+        glycemia, sodium, potassium, crp, lactates
       )
       VALUES (
-        ${userId}, ${firstName}, ${lastName}, ${dateOfBirth || null}, ${gender || null},
-        ${medicalRecordNumber || null}, ${allergies || null}, ${comorbidities || null},
-        ${weight ?? null}, ${renalCreatinineClearance ?? null}, ${hepaticStatus || null}, ${pregnancyStatus || null}
+        ${userId}, ${data.firstName}, ${data.lastName},
+        ${data.dateOfBirth || null}, ${data.gender || null},
+        ${data.medicalRecordNumber || null}, ${data.allergies || null}, ${data.comorbidities || null},
+        ${data.weight ?? null}, ${data.height ?? null},
+        ${data.renalCreatinineClearance ?? null}, ${data.creatinine ?? null}, ${data.renalStage || null},
+        ${data.hepaticStatus || null}, ${data.asat ?? null}, ${data.alat ?? null}, ${data.bilirubin ?? null},
+        ${data.pregnancyStatus || null},
+        ${data.smokingStatus || 'non-smoker'}, ${data.alcoholUse || 'none'},
+        ${data.substanceUse || null}, ${data.professionalExposure || null},
+        ${data.physicalActivity || null}, ${data.dietType || null},
+        ${data.stressLevel || null}, ${data.sleepQuality || null}, ${data.sleepHours ?? null},
+        ${data.nightShift ?? false}, ${data.sunExposure || null},
+        ${data.prolongedFasting ?? false}, ${data.restrictiveDiet ?? false},
+        ${data.uncontrolledNaturalProducts ?? false},
+        ${data.bloodDonor ?? false}, ${data.immunodepression || 'none'},
+        ${data.suddenMedicationStop ?? false}, ${data.regularCheckup ?? true},
+        ${data.selfDiagnosis ?? false}, ${data.housingConditions || null},
+        ${data.previousIntoxication ?? false},
+        ${data.allergyReactionTypes || null},
+        ${data.glycemia ?? null}, ${data.sodium ?? null}, ${data.potassium ?? null},
+        ${data.crp ?? null}, ${data.lactates ?? null}
       )
-      RETURNING id, first_name, last_name, date_of_birth, gender, medical_record_number,
-                allergies, comorbidities, weight, renal_creatinine_clearance, hepatic_status, pregnancy_status
+      RETURNING *
     `
-
     return result[0]
   } catch (error) {
     throw error
@@ -103,11 +171,10 @@ export async function createPatient(
 export async function getPatientById(patientId: string, userId: string) {
   try {
     const result = await sql`
-      SELECT id, first_name, last_name, date_of_birth, gender, medical_record_number, allergies, comorbidities
+      SELECT *
       FROM patients
       WHERE id = ${patientId} AND user_id = ${userId}
     `
-
     return result[0] || null
   } catch (error) {
     throw error
@@ -117,65 +184,77 @@ export async function getPatientById(patientId: string, userId: string) {
 export async function updatePatient(
   patientId: string,
   userId: string,
-  updates: {
-    firstName?: string
-    lastName?: string
-    dateOfBirth?: string
-    gender?: string
-    allergies?: string
-    comorbidities?: string
-  }
+  updates: Partial<PatientInput>
 ) {
   try {
+    const columnMap: Record<keyof PatientInput, string> = {
+      firstName: 'first_name',
+      lastName: 'last_name',
+      dateOfBirth: 'date_of_birth',
+      gender: 'gender',
+      medicalRecordNumber: 'medical_record_number',
+      allergies: 'allergies',
+      comorbidities: 'comorbidities',
+      weight: 'weight',
+      height: 'height',
+      renalCreatinineClearance: 'renal_creatinine_clearance',
+      creatinine: 'creatinine',
+      renalStage: 'renal_stage',
+      hepaticStatus: 'hepatic_status',
+      asat: 'asat',
+      alat: 'alat',
+      bilirubin: 'bilirubin',
+      pregnancyStatus: 'pregnancy_status',
+      smokingStatus: 'smoking_status',
+      alcoholUse: 'alcohol_use',
+      substanceUse: 'substance_use',
+      professionalExposure: 'professional_exposure',
+      physicalActivity: 'physical_activity',
+      dietType: 'diet_type',
+      stressLevel: 'stress_level',
+      sleepQuality: 'sleep_quality',
+      sleepHours: 'sleep_hours',
+      nightShift: 'night_shift',
+      sunExposure: 'sun_exposure',
+      prolongedFasting: 'prolonged_fasting',
+      restrictiveDiet: 'restrictive_diet',
+      uncontrolledNaturalProducts: 'uncontrolled_natural_products',
+      bloodDonor: 'blood_donor',
+      immunodepression: 'immunodepression',
+      suddenMedicationStop: 'sudden_medication_stop',
+      regularCheckup: 'regular_checkup',
+      selfDiagnosis: 'self_diagnosis',
+      housingConditions: 'housing_conditions',
+      previousIntoxication: 'previous_intoxication',
+      allergyReactionTypes: 'allergy_reaction_types',
+      glycemia: 'glycemia',
+      sodium: 'sodium',
+      potassium: 'potassium',
+      crp: 'crp',
+      lactates: 'lactates',
+    }
+
     const fields: string[] = []
     const values: any[] = []
-    let paramIndex = 1
+    let idx = 1
 
-    if (updates.firstName !== undefined) {
-      fields.push(`first_name = $${paramIndex}`)
-      values.push(updates.firstName)
-      paramIndex++
-    }
-    if (updates.lastName !== undefined) {
-      fields.push(`last_name = $${paramIndex}`)
-      values.push(updates.lastName)
-      paramIndex++
-    }
-    if (updates.dateOfBirth !== undefined) {
-      fields.push(`date_of_birth = $${paramIndex}`)
-      values.push(updates.dateOfBirth || null)
-      paramIndex++
-    }
-    if (updates.gender !== undefined) {
-      fields.push(`gender = $${paramIndex}`)
-      values.push(updates.gender || null)
-      paramIndex++
-    }
-    if (updates.allergies !== undefined) {
-      fields.push(`allergies = $${paramIndex}`)
-      values.push(updates.allergies || null)
-      paramIndex++
-    }
-    if (updates.comorbidities !== undefined) {
-      fields.push(`comorbidities = $${paramIndex}`)
-      values.push(updates.comorbidities || null)
-      paramIndex++
+    for (const [key, value] of Object.entries(updates)) {
+      const col = columnMap[key as keyof PatientInput]
+      if (col) {
+        fields.push(`${col} = $${idx}`)
+        values.push(value ?? null)
+        idx++
+      }
     }
 
-    if (fields.length === 0) {
-      return null
-    }
+    if (fields.length === 0) return null
 
-    values.push(patientId)
-    values.push(userId)
-
+    values.push(patientId, userId)
     const query = `
-      UPDATE patients
-      SET ${fields.join(', ')}
-      WHERE id = $${paramIndex} AND user_id = $${paramIndex + 1}
-      RETURNING id, first_name, last_name, date_of_birth, gender, medical_record_number, allergies, comorbidities
+      UPDATE patients SET ${fields.join(', ')}
+      WHERE id = $${idx} AND user_id = $${idx + 1}
+      RETURNING *
     `
-
     const result = await sql.unsafe(query, values)
     return result[0] || null
   } catch (error) {

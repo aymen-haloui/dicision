@@ -98,11 +98,32 @@ export async function analyzeCase(
         c.id, c.case_type, c.vital_signs, c.symptoms,
         p.allergies, p.comorbidities,
         p.date_of_birth,
-        p.weight,
+        p.weight, p.height,
         p.renal_creatinine_clearance,
         p.hepatic_status,
         p.pregnancy_status,
-        p.gender
+        p.gender,
+        -- new extended fields
+        p.smoking_status,
+        p.alcohol_use,
+        p.immunodepression,
+        p.creatinine,
+        p.renal_stage,
+        p.asat,
+        p.alat,
+        p.bilirubin,
+        p.glycemia,
+        p.sodium,
+        p.potassium,
+        p.crp,
+        p.lactates,
+        p.prolonged_fasting,
+        p.blood_donor,
+        p.sudden_medication_stop,
+        p.uncontrolled_natural_products,
+        p.previous_intoxication,
+        p.allergy_reaction_types,
+        p.night_shift
       FROM cases c
       JOIN patients p ON c.patient_id = p.id
       WHERE c.id = ${caseId} AND c.user_id = ${userId}
@@ -425,7 +446,330 @@ export async function analyzeCase(
       }
     }
 
-    // ── 9. RISK CLASSIFICATION ─────────────────────────────────────────────
+    // ── 9. ALCOHOL + HEPATOTOXIC DRUGS ────────────────────────────────────
+    const alcoholUse: string = caseData.alcohol_use ?? 'none'
+    if (alcoholUse === 'heavy' || alcoholUse === 'moderate') {
+      const hepatotoxicMeds = ['paracetamol', 'acetaminophen', 'isoniazide', 'methotrexate',
+        'amoxicillin-clavulanate', 'ketoconazole', 'fluconazole', 'amiodarone', 'statines',
+        'atorvastatin', 'simvastatin', 'valproate', 'valproic acid', 'rifampicine']
+      for (const med of medications) {
+        const mn = med.name.toLowerCase()
+        if (hepatotoxicMeds.some(h => mn.includes(h))) {
+          const score = alcoholUse === 'heavy' ? 30 : 15
+          addFinding({
+            type: 'alcohol_hepatotoxicity',
+            severity: alcoholUse === 'heavy' ? 'critical' : 'high',
+            description: `${med.name} + consommation ${alcoholUse === 'heavy' ? 'excessive' : 'moderee'} d'alcool — risque eleve d'hepatotoxicite`,
+            recommendation: `Eviter ${med.name} en cas de consommation d'alcool significative. Surveiller ASAT/ALAT. Considerez dose reduite ou alternative.`,
+          }, score)
+          addRec({
+            title: `Interaction Alcool + ${med.name}`,
+            description: `Hepatotoxicite potentialisee par l'alcool`,
+            priority: alcoholUse === 'heavy' ? 'high' : 'medium',
+            action: `Bilan hepatique avant et pendant traitement. Abstinence alcoolique recommandee.`,
+          })
+        }
+      }
+    }
+
+    // ── 10. SMOKING → CYP1A2 INDUCTION ────────────────────────────────────
+    const smokingStatus: string = caseData.smoking_status ?? 'non-smoker'
+    if (smokingStatus === 'smoker' || smokingStatus === 'former') {
+      // CYP1A2-metabolised drugs with narrow therapeutic index
+      const cyp1a2Drugs: Record<string, string> = {
+        theophylline: 'La fumee de cigarette induit CYP1A2 → taux plasmatiques reduits. Ajuster la dose.',
+        clozapine: 'CYP1A2 induit par tabac → efficacite reduite. Attention si arret tabac soudain.',
+        olanzapine: 'Metabolisme CYP1A2 accelere chez fumeur — dose superieure necessaire.',
+        haloperidol: 'Clearance acceleree chez fumeur (CYP1A2).',
+        warfarine: 'Induction CYP1A2/CYP3A4 par tabac → INR altere. Surveillance rapprochee.',
+        warfarin: 'Induction CYP1A2 par tabac → INR altere. Surveillance rapprochee.',
+        caffeine: 'Metabolisme accelere par induction CYP1A2.',
+        ropivacaine: 'Induction CYP1A2 peut reduire l\'efficacite anesthesique.',
+      }
+      for (const med of medications) {
+        const mn = med.name.toLowerCase()
+        for (const [drug, note] of Object.entries(cyp1a2Drugs)) {
+          if (mn.includes(drug)) {
+            addFinding({
+              type: 'cyp1a2_interaction',
+              severity: smokingStatus === 'former' ? 'moderate' : 'high',
+              description: `${med.name} — patient ${smokingStatus === 'former' ? 'ancien fumeur' : 'fumeur actif'} : ${note}`,
+              recommendation: smokingStatus === 'former'
+                ? `Attention si arret recent du tabac : le taux plasmatique de ${med.name} peut augmenter rapidement. Monitorer et reduire la dose.`
+                : `Ajuster la dose de ${med.name} en tenant compte de l'induction CYP1A2. Monitorer a l'arret du tabac.`,
+            }, smokingStatus === 'former' ? 10 : 8)
+          }
+        }
+      }
+    }
+
+    // ── 11. BMI EXTREMES ───────────────────────────────────────────────────
+    const weightKgBMI = caseData.weight ? parseFloat(caseData.weight) : undefined
+    const heightCm = caseData.height ? parseFloat(caseData.height) : undefined
+    if (weightKgBMI && heightCm && heightCm > 10) {
+      const bmi = weightKgBMI / ((heightCm / 100) ** 2)
+      if (bmi >= 35) {
+        addFinding({
+          type: 'bmi_obesity',
+          severity: bmi >= 40 ? 'high' : 'moderate',
+          description: `Obesite severe (IMC ${bmi.toFixed(1)}) — distribution et elimination de certains medicaments modifiees`,
+          recommendation: `Ajuster les doses selon le poids ideal ou ajuste pour les medicaments lipophiles (benzodiazepines, antibiotiques). Risque thromboembolique accru.`,
+        }, bmi >= 40 ? 10 : 5)
+      } else if (bmi < 18.5) {
+        addFinding({
+          type: 'bmi_underweight',
+          severity: 'moderate',
+          description: `Insuffisance ponderale (IMC ${bmi.toFixed(1)}) — volume de distribution reduit, liaison proteique alteree`,
+          recommendation: `Commencer avec doses reduites. Surveiller les medicaments a faible marge therapeutique.`,
+        }, 5)
+      }
+    }
+
+    // ── 12. ELECTROLYTE IMBALANCES ─────────────────────────────────────────
+    const potassium = caseData.potassium ? parseFloat(caseData.potassium) : undefined
+    const sodium    = caseData.sodium    ? parseFloat(caseData.sodium)    : undefined
+
+    if (potassium !== undefined) {
+      if (potassium < 3.5) {
+        const hypoKSeverity = potassium < 3.0 ? 'critical' : 'high'
+        const hypoKScore    = potassium < 3.0 ? 25 : 15
+        addFinding({
+          type: 'hypokalemia',
+          severity: hypoKSeverity,
+          description: `Hypokaliemie (K+ ${potassium} mEq/L) — risque de troubles du rythme cardiaque, potentialisation des effets de la digoxine et des medicaments allongeant le QT`,
+          recommendation: `Corriger la kaliemie avant toute administration de digitale ou medicament pro-arythmique. Supplement potassique. ECG de surveillance.`,
+        }, hypoKScore)
+        // Extra check: digoxin + hypokalemia
+        for (const med of medications) {
+          if (med.name.toLowerCase().includes('digoxin') || med.name.toLowerCase().includes('digitale')) {
+            addFinding({
+              type: 'digoxin_hypokalemia',
+              severity: 'critical',
+              description: `DANGER — Digoxine + hypokaliemie (K+ ${potassium}) = risque de toxicite digitalique letale`,
+              recommendation: `Arreter la digoxine jusqu'a normalisation du potassium. Monitoring cardiaque en continu.`,
+            }, 40)
+          }
+        }
+      } else if (potassium > 5.5) {
+        addFinding({
+          type: 'hyperkalemia',
+          severity: 'high',
+          description: `Hyperkaliemie (K+ ${potassium} mEq/L) — risque accru avec IEC, ARA2, diuretiques epargneurs de potassium, trimethoprime`,
+          recommendation: `Eviter les medicaments elevateurss du K+. ECG urgent. Traitement de l'hyperkaliemie si K+ > 6.0.`,
+        }, 20)
+        const hyperKMeds = ['enalapril', 'lisinopril', 'ramipril', 'captopril', 'losartan',
+          'valsartan', 'spironolactone', 'eplerenone', 'trimethoprim', 'heparin', 'heparine']
+        for (const med of medications) {
+          if (hyperKMeds.some(m => med.name.toLowerCase().includes(m))) {
+            addFinding({
+              type: 'hyperkalemia_drug',
+              severity: 'high',
+              description: `${med.name} peut aggraver l'hyperkaliemie (K+ ${potassium} mEq/L)`,
+              recommendation: `Reevaler l'indication de ${med.name} et surveiller le potassium quotidiennement.`,
+            }, 15)
+          }
+        }
+      }
+    }
+
+    if (sodium !== undefined) {
+      if (sodium < 135) {
+        addFinding({
+          type: 'hyponatremia',
+          severity: sodium < 125 ? 'critical' : 'moderate',
+          description: `Hyponatremie (Na+ ${sodium} mEq/L) — certains medicaments peuvent aggraver cette condition`,
+          recommendation: `Eviter AINS, IRS, carbamazepine, diuretiques thiazidiques. Correction progressive de la natremia.`,
+        }, sodium < 125 ? 20 : 10)
+      }
+    }
+
+    // ── 13. ELEVATED LIVER ENZYMES ─────────────────────────────────────────
+    const asatVal  = caseData.asat  ? parseFloat(caseData.asat)  : undefined
+    const alatVal  = caseData.alat  ? parseFloat(caseData.alat)  : undefined
+    const ULN = 40 // Upper Limit of Normal for ASAT/ALAT
+
+    if (asatVal !== undefined || alatVal !== undefined) {
+      const maxTransaminase = Math.max(asatVal ?? 0, alatVal ?? 0)
+      const foldULN = maxTransaminase / ULN
+
+      if (foldULN >= 10) {
+        addFinding({
+          type: 'severe_hepatocellular_damage',
+          severity: 'critical',
+          description: `Cytolyse hepatique severe (ASAT ${asatVal ?? '?'} / ALAT ${alatVal ?? '?'} U/L — > 10× LSN) — hepatotoxicite majeure`,
+          recommendation: `ARRETER tous les medicaments hepatotoxiques immediatement. Bilan hepatique complet. Avis hepatologique urgent.`,
+        }, 40)
+      } else if (foldULN >= 3) {
+        // Flag all hepatotoxic meds
+        const htMeds = ['paracetamol', 'acetaminophen', 'isoniazide', 'methotrexate',
+          'valproate', 'amiodarone', 'statines', 'atorvastatin', 'simvastatin',
+          'ketoconazole', 'fluconazole', 'rifampicine', 'tetracycline']
+        for (const med of medications) {
+          if (htMeds.some(h => med.name.toLowerCase().includes(h))) {
+            addFinding({
+              type: 'transaminase_hepatotoxic_drug',
+              severity: 'high',
+              description: `${med.name} est hepatotoxique et les transaminases sont elevees (>${foldULN.toFixed(1)}× LSN)`,
+              recommendation: `Envisager l'arret de ${med.name}. Bilan hepatique hebdomadaire. Criteres d'arret: transaminases > 3× LSN.`,
+            }, 20)
+          }
+        }
+      }
+    }
+
+    // ── 14. GLYCEMIA ABNORMALITIES ─────────────────────────────────────────
+    const glycemia = caseData.glycemia ? parseFloat(caseData.glycemia) : undefined
+    if (glycemia !== undefined) {
+      const antidiabeticMeds = ['metformin', 'metformine', 'insulin', 'insuline', 'glibenclamide',
+        'glipizide', 'gliclazide', 'glimepiride', 'sitagliptin', 'empagliflozin', 'dapagliflozin']
+      const hasAntidiabetic = medications.some(m =>
+        antidiabeticMeds.some(a => m.name.toLowerCase().includes(a))
+      )
+
+      if (glycemia < 0.7) {
+        addFinding({
+          type: 'hypoglycemia_critical',
+          severity: 'critical',
+          description: `Hypoglycemie severe (glycemie ${glycemia} g/L < 0.7 g/L) — urgence medicale`,
+          recommendation: `Resucrage immédiat. Si traitement antidiabetique en cours, ajuster la dose. Monitoring glucometrique continu.`,
+        }, 35)
+      } else if (glycemia < 0.9 && hasAntidiabetic) {
+        addFinding({
+          type: 'hypoglycemia_risk',
+          severity: 'high',
+          description: `Glycemie limite basse (${glycemia} g/L) chez patient sous antidiabetique — risque d'hypoglycemie`,
+          recommendation: `Surveiller la glycemie capillaire. Adapter les doses d'antidiabetiques. Eviter le jeune prolonge.`,
+        }, 15)
+      } else if (glycemia > 2.0) {
+        addFinding({
+          type: 'hyperglycemia',
+          severity: 'moderate',
+          description: `Hyperglycemie (${glycemia} g/L > 2.0 g/L) — efficacite des antidiabetiques a reevaluer, certains medicaments peuvent aggraver`,
+          recommendation: `Reajuster traitement antidiabetique. Eviter corticoides et diuretiques thiazidiques si possible. Controler HbA1c.`,
+        }, 8)
+      }
+
+      // Fasting + antidiabetics
+      if (caseData.prolonged_fasting && hasAntidiabetic) {
+        addFinding({
+          type: 'fasting_antidiabetic',
+          severity: 'high',
+          description: `Jeune prolonge + traitement antidiabetique — risque d'hypoglycemie potentiellement severe`,
+          recommendation: `Suspendre ou adapter les antidiabetiques pendant le jeune. Monitorer la glycemie toutes les 4h.`,
+        }, 20)
+      }
+    }
+
+    // ── 15. LACTATES + METFORMIN (LACTIC ACIDOSIS) ────────────────────────
+    const lactates = caseData.lactates ? parseFloat(caseData.lactates) : undefined
+    if (lactates !== undefined && lactates > 2) {
+      addFinding({
+        type: 'hyperlactatemia',
+        severity: lactates > 4 ? 'critical' : 'high',
+        description: `Hyperlactatemie (lactates ${lactates} mmol/L > 2 mmol/L) — risque d'acidose lactique`,
+        recommendation: `Recherche de cause (sepsis, hepatopathie, ischemic). Arreter tout biguanide (Metformine).`,
+      }, lactates > 4 ? 30 : 15)
+
+      for (const med of medications) {
+        if (med.name.toLowerCase().includes('metformin') || med.name.toLowerCase().includes('metformine')) {
+          addFinding({
+            type: 'metformin_lactic_acidosis',
+            severity: 'critical',
+            description: `CONTRE-INDICATION ABSOLUE — Metformine + lactates ${lactates} mmol/L > 2 mmol/L = risque d'acidose lactique fatale`,
+            recommendation: `ARRETER la Metformine immediatement. Rehydratation IV. Bilan metabolique urgent. Ne pas reprendre tant que les lactates restent eleves.`,
+          }, 50)
+          addRec({
+            title: 'Arret urgent Metformine',
+            description: 'Hyperlactatemie incompatible avec la Metformine',
+            priority: 'high',
+            action: 'Arreter Metformine. Mesurer les lactates toutes les 2h.',
+          })
+        }
+      }
+    }
+
+    // ── 16. IMMUNODEPRESSION ───────────────────────────────────────────────
+    const immunodepression: string = caseData.immunodepression ?? 'none'
+    if (immunodepression !== 'none') {
+      // Live vaccines
+      const liveVaccines = ['bcg', 'mmr', 'varicella', 'varicelle', 'rotavirus', 'yellow fever',
+        'fievre jaune', 'oral polio', 'nasal flu', 'vaccin vivant']
+      for (const med of medications) {
+        if (liveVaccines.some(v => med.name.toLowerCase().includes(v))) {
+          addFinding({
+            type: 'live_vaccine_immunodepressed',
+            severity: 'critical',
+            description: `${med.name} est un vaccin vivant attenue — CONTRE-INDIQUE chez patient immunodeprime (${immunodepression})`,
+            recommendation: `Utiliser uniquement des vaccins inactives. Consulter un infectiologue ou un specialiste en vaccinologie.`,
+          }, 45)
+        }
+      }
+      // NSAIDs in immunodepressed (mask infection signs)
+      const nsaids = ['ibuprofen', 'ibuprofene', 'ketoprofen', 'ketoprofene', 'naproxen',
+        'diclofenac', 'aspirin', 'aspirine', 'celebrex', 'celecoxib']
+      for (const med of medications) {
+        if (nsaids.some(n => med.name.toLowerCase().includes(n))) {
+          addFinding({
+            type: 'nsaid_immunodepressed',
+            severity: 'moderate',
+            description: `${med.name} (AINS) chez patient immunodeprime — risque de masquer les signes d'infection, de reduire la reponse immunitaire`,
+            recommendation: `Preferer le paracetamol comme antipyretique. Si AINS indispensable, surveiller de pres les signes infectieux.`,
+          }, 10)
+        }
+      }
+    }
+
+    // ── 17. BREASTFEEDING — DRUG EXCRETION RISK ───────────────────────────
+    if (caseData.pregnancy_status === 'breastfeeding') {
+      const breastfeedingRiskDrugs: Record<string, string> = {
+        amiodarone: 'Passage important dans le lait maternel — thyrotoxicose neonatale possible',
+        lithium: 'Concentrations elevees dans le lait — toxicite neonatale',
+        methotrexate: 'Contre-indique — antimetabolite',
+        cyclophosphamide: 'Contre-indique — immunosuppresseur',
+        chloramphenicol: 'Risque de syndrome gris du nourrisson',
+        ergotamine: 'Vasospasme et vomissements chez nourrisson',
+        bromocriptine: 'Inhibe la lactation',
+        tetracycline: 'Coloration dentaire permanente chez nourrisson',
+        doxycycline: 'Coloration dentaire chez nourrisson',
+        fluoroquinolone: 'Risque articulaire chez nourrisson',
+        ciprofloxacin: 'Risque articulaire chez nourrisson',
+        codeine: 'Metabolite morphinique — sedation/apnee neonatale (si mere metaboliseuse rapide)',
+      }
+      for (const med of medications) {
+        const mn = med.name.toLowerCase()
+        for (const [drug, note] of Object.entries(breastfeedingRiskDrugs)) {
+          if (mn.includes(drug)) {
+            addFinding({
+              type: 'breastfeeding_risk',
+              severity: 'high',
+              description: `${med.name} — Allaitement : ${note}`,
+              recommendation: `Evaluer le rapport benefice/risque. Envisager l'arret de l'allaitement ou le remplacement du medicament. Consulter LactMed/CRAT.`,
+            }, 20)
+          }
+        }
+      }
+    }
+
+    // ── 18. SUDDEN MEDICATION STOP + WITHDRAWAL RISK ─────────────────────
+    if (caseData.sudden_medication_stop) {
+      const withdrawalRiskMeds = ['benzodiazepine', 'diazepam', 'alprazolam', 'clonazepam',
+        'lorazepam', 'beta-blocker', 'atenolol', 'metoprolol', 'propranolol', 'bisoprolol',
+        'corticoides', 'prednisone', 'prednisolone', 'dexamethasone', 'ssri', 'paroxetine',
+        'venlafaxine', 'antiepileptic', 'valproate', 'carbamazepine', 'clonidine']
+      for (const med of medications) {
+        const mn = med.name.toLowerCase()
+        if (withdrawalRiskMeds.some(w => mn.includes(w))) {
+          addFinding({
+            type: 'withdrawal_risk',
+            severity: 'high',
+            description: `${med.name} — arret brutal signal. Risque de syndrome de sevrage (convulsions, rebond, instabilite hemodynamique)`,
+            recommendation: `Ne jamais arreter ${med.name} brutalement. Decroissance progressive obligatoire. Surveillance medicale.`,
+          }, 15)
+        }
+      }
+    }
+
+    // ── 19. RISK CLASSIFICATION ────────────────────────────────────────────
     riskScore = Math.min(riskScore, 100)
     let riskLevel: 'low' | 'moderate' | 'high' | 'critical' = 'low'
     if (riskScore >= 80)      riskLevel = 'critical'
