@@ -26,6 +26,29 @@ export default function RiskAssessmentDisplay({
 }: {
   assessment: RiskAssessment
 }) {
+  const getProgressWidthClass = (score: number) => {
+    if (score >= 95) return 'w-[95%]'
+    if (score >= 90) return 'w-[90%]'
+    if (score >= 85) return 'w-[85%]'
+    if (score >= 80) return 'w-[80%]'
+    if (score >= 75) return 'w-[75%]'
+    if (score >= 70) return 'w-[70%]'
+    if (score >= 65) return 'w-[65%]'
+    if (score >= 60) return 'w-[60%]'
+    if (score >= 55) return 'w-[55%]'
+    if (score >= 50) return 'w-[50%]'
+    if (score >= 45) return 'w-[45%]'
+    if (score >= 40) return 'w-[40%]'
+    if (score >= 35) return 'w-[35%]'
+    if (score >= 30) return 'w-[30%]'
+    if (score >= 25) return 'w-[25%]'
+    if (score >= 20) return 'w-[20%]'
+    if (score >= 15) return 'w-[15%]'
+    if (score >= 10) return 'w-[10%]'
+    if (score >= 5) return 'w-[5%]'
+    return 'w-0'
+  }
+
   const getRiskColor = (level: string) => {
     switch (level) {
       case 'critical':
@@ -89,7 +112,7 @@ export default function RiskAssessmentDisplay({
         </div>
         <div className="w-full bg-slate-200 rounded-full h-3">
           <div
-            className={`h-3 rounded-full transition-all ${
+            className={`h-3 rounded-full transition-all ${getProgressWidthClass(assessment.risk_score)} ${
               assessment.risk_level === 'critical'
                 ? 'bg-red-500'
                 : assessment.risk_level === 'high'
@@ -98,7 +121,6 @@ export default function RiskAssessmentDisplay({
                     ? 'bg-yellow-500'
                     : 'bg-green-500'
             }`}
-            style={{ width: `${assessment.risk_score}%` }}
           />
         </div>
       </div>

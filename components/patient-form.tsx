@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -17,10 +17,20 @@ interface PatientFormProps {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function Field({ label, children, unit }: { label: string; children: React.ReactNode; unit?: string }) {
+function Field({
+  label,
+  children,
+  unit,
+  controlId,
+}: {
+  label: string
+  children: React.ReactNode
+  unit?: string
+  controlId: string
+}) {
   return (
     <div className="flex flex-col gap-1">
-      <Label className="text-sm font-medium text-slate-700">
+      <Label htmlFor={controlId} className="text-sm font-medium text-slate-700">
         {label}{unit && <span className="ml-1 text-xs text-slate-400">({unit})</span>}
       </Label>
       {children}
@@ -208,20 +218,22 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <SectionTitle>Etat civil</SectionTitle>
 
-            <Field label="Prenom *">
-              <input name="firstName" value={f.firstName} onChange={handleChange}
+            <Field label="Prenom *" controlId="firstName">
+              <input id="firstName" title="Prenom" placeholder="Prenom"
+                name="firstName" value={f.firstName} onChange={handleChange}
                 className={inputClass} required disabled={isLoading} />
             </Field>
-            <Field label="Nom *">
-              <input name="lastName" value={f.lastName} onChange={handleChange}
+            <Field label="Nom *" controlId="lastName">
+              <input id="lastName" title="Nom" placeholder="Nom"
+                name="lastName" value={f.lastName} onChange={handleChange}
                 className={inputClass} required disabled={isLoading} />
             </Field>
-            <Field label="Date de naissance">
-              <input type="date" name="dateOfBirth" value={f.dateOfBirth}
+            <Field label="Date de naissance" controlId="dateOfBirth">
+              <input id="dateOfBirth" title="Date de naissance" type="date" name="dateOfBirth" value={f.dateOfBirth}
                 onChange={handleChange} className={inputClass} disabled={isLoading} />
             </Field>
-            <Field label="Sexe">
-              <select name="gender" value={f.gender} onChange={handleChange}
+            <Field label="Sexe" controlId="gender">
+              <select id="gender" title="Sexe" name="gender" value={f.gender} onChange={handleChange}
                 className={selectClass} disabled={isLoading}>
                 <option value="">-- Selectionnez --</option>
                 <option value="male">Masculin</option>
@@ -229,12 +241,13 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                 <option value="other">Autre</option>
               </select>
             </Field>
-            <Field label="Numero de dossier medical">
-              <input name="medicalRecordNumber" value={f.medicalRecordNumber}
+            <Field label="Numero de dossier medical" controlId="medicalRecordNumber">
+              <input id="medicalRecordNumber" title="Numero de dossier medical" placeholder="Numero de dossier"
+                name="medicalRecordNumber" value={f.medicalRecordNumber}
                 onChange={handleChange} className={inputClass} disabled={isLoading} />
             </Field>
-            <Field label="Statut reproductif">
-              <select name="pregnancyStatus" value={f.pregnancyStatus}
+            <Field label="Statut reproductif" controlId="pregnancyStatus">
+              <select id="pregnancyStatus" title="Statut reproductif" name="pregnancyStatus" value={f.pregnancyStatus}
                 onChange={handleChange} className={selectClass} disabled={isLoading}>
                 <option value="">-- Selectionnez --</option>
                 <option value="not_applicable">Non applicable</option>
@@ -248,12 +261,12 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
 
             <SectionTitle>Anthropometrie</SectionTitle>
 
-            <Field label="Poids" unit="kg">
+            <Field label="Poids" unit="kg" controlId="weight">
               <input type="number" step="0.1" min="1" name="weight" value={f.weight}
                 onChange={handleChange} className={inputClass} disabled={isLoading}
                 placeholder="ex. 70.5" />
             </Field>
-            <Field label="Taille" unit="cm">
+            <Field label="Taille" unit="cm" controlId="height">
               <input type="number" step="0.5" min="50" name="height" value={f.height}
                 onChange={handleChange} className={inputClass} disabled={isLoading}
                 placeholder="ex. 175" />
@@ -276,8 +289,8 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <SectionTitle>Consommations</SectionTitle>
 
-            <Field label="Tabac">
-              <select name="smokingStatus" value={f.smokingStatus}
+            <Field label="Tabac" controlId="smokingStatus">
+              <select id="smokingStatus" title="Tabac" name="smokingStatus" value={f.smokingStatus}
                 onChange={handleChange} className={selectClass} disabled={isLoading}>
                 <option value="non-smoker">Non-fumeur</option>
                 <option value="smoker">Fumeur actif</option>
@@ -286,8 +299,8 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                 <option value="former">Ancien fumeur</option>
               </select>
             </Field>
-            <Field label="Alcool">
-              <select name="alcoholUse" value={f.alcoholUse}
+            <Field label="Alcool" controlId="alcoholUse">
+              <select id="alcoholUse" title="Alcool" name="alcoholUse" value={f.alcoholUse}
                 onChange={handleChange} className={selectClass} disabled={isLoading}>
                 <option value="none">Aucun</option>
                 <option value="occasional">Occasionnel</option>
@@ -295,12 +308,12 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                 <option value="heavy">Excessif (&gt;3 verres/j)</option>
               </select>
             </Field>
-            <Field label="Substances psychoactives">
+            <Field label="Substances psychoactives" controlId="substanceUse">
               <textarea name="substanceUse" value={f.substanceUse}
                 onChange={handleChange} rows={2} className={inputClass} disabled={isLoading}
                 placeholder="Cannabis, stimulants, opioides, etc." />
             </Field>
-            <Field label="Expositions professionnelles / domestiques">
+            <Field label="Expositions professionnelles / domestiques" controlId="professionalExposure">
               <textarea name="professionalExposure" value={f.professionalExposure}
                 onChange={handleChange} rows={2} className={inputClass} disabled={isLoading}
                 placeholder="Pesticides, solvants, plomb, arsenic, etc." />
@@ -308,8 +321,8 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
 
             <SectionTitle>Hygiene de vie</SectionTitle>
 
-            <Field label="Activite physique">
-              <select name="physicalActivity" value={f.physicalActivity}
+            <Field label="Activite physique" controlId="physicalActivity">
+              <select id="physicalActivity" title="Activite physique" name="physicalActivity" value={f.physicalActivity}
                 onChange={handleChange} className={selectClass} disabled={isLoading}>
                 <option value="">-- Selectionnez --</option>
                 <option value="sedentary">Sedentaire</option>
@@ -319,13 +332,13 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                 <option value="athlete">Athlete de haut niveau</option>
               </select>
             </Field>
-            <Field label="Regime alimentaire special">
+            <Field label="Regime alimentaire special" controlId="dietType">
               <input name="dietType" value={f.dietType}
                 onChange={handleChange} className={inputClass} disabled={isLoading}
                 placeholder="Vegetarien, vegan, sans gluten, etc." />
             </Field>
-            <Field label="Niveau de stress chronique">
-              <select name="stressLevel" value={f.stressLevel}
+            <Field label="Niveau de stress chronique" controlId="stressLevel">
+              <select id="stressLevel" title="Niveau de stress chronique" name="stressLevel" value={f.stressLevel}
                 onChange={handleChange} className={selectClass} disabled={isLoading}>
                 <option value="">-- Selectionnez --</option>
                 <option value="low">Faible</option>
@@ -333,8 +346,8 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                 <option value="high">Eleve</option>
               </select>
             </Field>
-            <Field label="Qualite du sommeil">
-              <select name="sleepQuality" value={f.sleepQuality}
+            <Field label="Qualite du sommeil" controlId="sleepQuality">
+              <select id="sleepQuality" title="Qualite du sommeil" name="sleepQuality" value={f.sleepQuality}
                 onChange={handleChange} className={selectClass} disabled={isLoading}>
                 <option value="">-- Selectionnez --</option>
                 <option value="good">Bonne</option>
@@ -342,13 +355,13 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                 <option value="insomnia">Insomnie</option>
               </select>
             </Field>
-            <Field label="Heures de sommeil / nuit" unit="h">
+            <Field label="Heures de sommeil / nuit" unit="h" controlId="sleepHours">
               <input type="number" step="0.5" min="0" max="24" name="sleepHours"
                 value={f.sleepHours} onChange={handleChange} className={inputClass}
                 disabled={isLoading} placeholder="ex. 6.5" />
             </Field>
-            <Field label="Exposition solaire">
-              <select name="sunExposure" value={f.sunExposure}
+            <Field label="Exposition solaire" controlId="sunExposure">
+              <select id="sunExposure" title="Exposition solaire" name="sunExposure" value={f.sunExposure}
                 onChange={handleChange} className={selectClass} disabled={isLoading}>
                 <option value="">-- Selectionnez --</option>
                 <option value="low">Faible</option>
@@ -377,15 +390,15 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <SectionTitle>Terrain immunologique</SectionTitle>
 
-            <Field label="Immunodepression">
-              <select name="immunodepression" value={f.immunodepression}
+            <Field label="Immunodepression" controlId="immunodepression">
+              <select id="immunodepression" title="Immunodepression" name="immunodepression" value={f.immunodepression}
                 onChange={handleChange} className={selectClass} disabled={isLoading}>
                 <option value="none">Aucune</option>
                 <option value="disease">Liee a une maladie (VIH, cancer, etc.)</option>
                 <option value="treatment">Liee a un traitement (corticoides, chimio)</option>
               </select>
             </Field>
-            <Field label="Conditions de logement">
+            <Field label="Conditions de logement" controlId="housingConditions">
               <input name="housingConditions" value={f.housingConditions}
                 onChange={handleChange} className={inputClass} disabled={isLoading}
                 placeholder="Humidite, moisissures, surpeuplement, etc." />
@@ -414,19 +427,19 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <SectionTitle>Fonction renale</SectionTitle>
 
-            <Field label="Creatininemie" unit="mg/dL">
+            <Field label="Creatininemie" unit="mg/dL" controlId="creatinine">
               <input type="number" step="0.01" min="0" name="creatinine"
                 value={f.creatinine} onChange={handleChange} className={inputClass}
                 disabled={isLoading} placeholder="norme &lt;1.2" />
             </Field>
-            <Field label="Clairance creatinine (CrCl)" unit="mL/min">
+            <Field label="Clairance creatinine (CrCl)" unit="mL/min" controlId="renalCreatinineClearance">
               <input type="number" step="0.1" min="0" name="renalCreatinineClearance"
                 value={f.renalCreatinineClearance} onChange={handleChange}
                 className={inputClass} disabled={isLoading} placeholder="ex. 80" />
             </Field>
             <div className="col-span-full">
-              <Field label="Stade insuffisance renale (CKD-KDIGO)">
-                <select name="renalStage" value={f.renalStage}
+              <Field label="Stade insuffisance renale (CKD-KDIGO)" controlId="renalStage">
+                <select id="renalStage" title="Stade insuffisance renale" name="renalStage" value={f.renalStage}
                   onChange={handleChange} className={selectClass} disabled={isLoading}>
                   <option value="">-- Selectionnez --</option>
                   <option value="none">Aucune (G1/G2 normal)</option>
@@ -441,23 +454,23 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
 
             <SectionTitle>Fonction hepatique</SectionTitle>
 
-            <Field label="ASAT (TGO)" unit="U/L">
+            <Field label="ASAT (TGO)" unit="U/L" controlId="asat">
               <input type="number" step="0.1" min="0" name="asat" value={f.asat}
                 onChange={handleChange} className={inputClass} disabled={isLoading}
                 placeholder="norme &lt;40" />
             </Field>
-            <Field label="ALAT (TGP)" unit="U/L">
+            <Field label="ALAT (TGP)" unit="U/L" controlId="alat">
               <input type="number" step="0.1" min="0" name="alat" value={f.alat}
                 onChange={handleChange} className={inputClass} disabled={isLoading}
                 placeholder="norme &lt;40" />
             </Field>
-            <Field label="Bilirubine totale" unit="mg/dL">
+            <Field label="Bilirubine totale" unit="mg/dL" controlId="bilirubin">
               <input type="number" step="0.01" min="0" name="bilirubin" value={f.bilirubin}
                 onChange={handleChange} className={inputClass} disabled={isLoading}
                 placeholder="norme &lt;1.2" />
             </Field>
-            <Field label="Insuffisance hepatique">
-              <select name="hepaticStatus" value={f.hepaticStatus}
+            <Field label="Insuffisance hepatique" controlId="hepaticStatus">
+              <select id="hepaticStatus" title="Insuffisance hepatique" name="hepaticStatus" value={f.hepaticStatus}
                 onChange={handleChange} className={selectClass} disabled={isLoading}>
                 <option value="">Normale</option>
                 <option value="mild">Legere (Child-Pugh A)</option>
@@ -468,27 +481,27 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
 
             <SectionTitle>Bilan complementaire</SectionTitle>
 
-            <Field label="Glycemie" unit="g/L">
+            <Field label="Glycemie" unit="g/L" controlId="glycemia">
               <input type="number" step="0.01" min="0" name="glycemia" value={f.glycemia}
                 onChange={handleChange} className={inputClass} disabled={isLoading}
                 placeholder="norme 0.7-1.1" />
             </Field>
-            <Field label="Sodium (Na+)" unit="mEq/L">
+            <Field label="Sodium (Na+)" unit="mEq/L" controlId="sodium">
               <input type="number" step="0.1" min="0" name="sodium" value={f.sodium}
                 onChange={handleChange} className={inputClass} disabled={isLoading}
                 placeholder="norme 135-145" />
             </Field>
-            <Field label="Potassium (K+)" unit="mEq/L">
+            <Field label="Potassium (K+)" unit="mEq/L" controlId="potassium">
               <input type="number" step="0.01" min="0" name="potassium" value={f.potassium}
                 onChange={handleChange} className={inputClass} disabled={isLoading}
                 placeholder="norme 3.5-5.0" />
             </Field>
-            <Field label="CRP" unit="mg/L">
+            <Field label="CRP" unit="mg/L" controlId="crp">
               <input type="number" step="0.1" min="0" name="crp" value={f.crp}
                 onChange={handleChange} className={inputClass} disabled={isLoading}
                 placeholder="norme &lt;5" />
             </Field>
-            <Field label="Lactates" unit="mmol/L">
+            <Field label="Lactates" unit="mmol/L" controlId="lactates">
               <input type="number" step="0.01" min="0" name="lactates" value={f.lactates}
                 onChange={handleChange} className={inputClass} disabled={isLoading}
                 placeholder="norme &lt;2" />
@@ -501,13 +514,13 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
           <div className="grid grid-cols-1 gap-4">
             <SectionTitle>Allergies</SectionTitle>
 
-            <Field label="Allergies connues (medicaments, aliments, latex, etc.)">
+            <Field label="Allergies connues (medicaments, aliments, latex, etc.)" controlId="allergies">
               <textarea name="allergies" value={f.allergies} onChange={handleChange}
                 rows={3} className={inputClass} disabled={isLoading}
                 placeholder="ex. Penicilline — eruption cutanee, Arachides — anaphylaxie" />
             </Field>
-            <Field label="Type de reaction allergique">
-              <select name="allergyReactionTypes" value={f.allergyReactionTypes}
+            <Field label="Type de reaction allergique" controlId="allergyReactionTypes">
+              <select id="allergyReactionTypes" title="Type de reaction allergique" name="allergyReactionTypes" value={f.allergyReactionTypes}
                 onChange={handleChange} className={selectClass} disabled={isLoading}>
                 <option value="">-- Selectionnez --</option>
                 <option value="cutaneous">Cutanee (urticaire, rash, eczema)</option>
@@ -520,7 +533,7 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
 
             <SectionTitle>Antecedents medicaux</SectionTitle>
 
-            <Field label="Comorbidites / Antecedents (maladies chroniques, chirurgies, hospitalisations)">
+            <Field label="Comorbidites / Antecedents (maladies chroniques, chirurgies, hospitalisations)" controlId="comorbidities">
               <textarea name="comorbidities" value={f.comorbidities} onChange={handleChange}
                 rows={4} className={inputClass} disabled={isLoading}
                 placeholder="ex. Diabete type 2, HTA, insuffisance renale chronique, asthme..." />
