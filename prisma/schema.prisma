@@ -1,0 +1,172 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model case_medications {
+  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  case_id       String      @db.Uuid
+  medication_id String      @db.Uuid
+  dosage        String?     @db.VarChar(100)
+  frequency     String?     @db.VarChar(100)
+  duration      String?     @db.VarChar(100)
+  route         String?     @db.VarChar(100)
+  created_at    DateTime?   @default(now()) @db.Timestamptz(6)
+  cases         cases       @relation(fields: [case_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  medications   medications @relation(fields: [medication_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model cases {
+  id               String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id          String             @db.Uuid
+  patient_id       String             @db.Uuid
+  case_type        String             @db.VarChar(50)
+  chief_complaint  String?
+  symptoms         String?
+  vital_signs      Json?              @default("{}")
+  status           String?            @default("active") @db.VarChar(50)
+  created_at       DateTime?          @default(now()) @db.Timestamptz(6)
+  case_medications case_medications[]
+  patients         patients           @relation(fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users            users              @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  risk_assessments risk_assessments[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model interactions {
+  id                                                    String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  medication_id_1                                       String      @db.Uuid
+  medication_id_2                                       String      @db.Uuid
+  interaction_type                                      String?     @db.VarChar(255)
+  severity                                              String?     @db.VarChar(50)
+  description                                           String?
+  recommendation                                        String?
+  created_at                                            DateTime?   @default(now()) @db.Timestamptz(6)
+  medications_interactions_medication_id_1Tomedications medications @relation("interactions_medication_id_1Tomedications", fields: [medication_id_1], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  medications_interactions_medication_id_2Tomedications medications @relation("interactions_medication_id_2Tomedications", fields: [medication_id_2], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model medications {
+  id                                                     String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                                                   String                    @unique @db.VarChar(255)
+  generic_name                                           String?                   @db.VarChar(255)
+  category                                               String?                   @db.VarChar(255)
+  dosage_form                                            String?                   @db.VarChar(100)
+  default_dosage                                         String?                   @db.VarChar(100)
+  warnings                                               String?
+  created_at                                             DateTime?                 @default(now()) @db.Timestamptz(6)
+  contraindications                                      Json?                     @default("[]")
+  max_daily_dose_adult                                   Decimal?                  @db.Decimal
+  max_daily_dose_child                                   Decimal?                  @db.Decimal
+  toxicity_thresholds                                    Json?                     @default("{}")
+  overdose_management                                    String?
+  pharmacological_data                                   Json?                     @default("{}")
+  case_medications                                       case_medications[]
+  interactions_interactions_medication_id_1Tomedications interactions[]            @relation("interactions_medication_id_1Tomedications")
+  interactions_interactions_medication_id_2Tomedications interactions[]            @relation("interactions_medication_id_2Tomedications")
+  plant_drug_interactions                                plant_drug_interactions[]
+}
+
+model patients {
+  id                            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id                       String    @db.Uuid
+  first_name                    String    @db.VarChar(255)
+  last_name                     String    @db.VarChar(255)
+  date_of_birth                 DateTime? @db.Date
+  gender                        String?   @db.VarChar(50)
+  medical_record_number         String?   @db.VarChar(100)
+  allergies                     String?
+  comorbidities                 String?
+  created_at                    DateTime? @default(now()) @db.Timestamptz(6)
+  weight                        Decimal?  @db.Decimal
+  renal_creatinine_clearance    Decimal?  @db.Decimal
+  hepatic_status                String?   @db.VarChar(50)
+  pregnancy_status              String?   @db.VarChar(50)
+  height                        Decimal?  @db.Decimal(5, 1)
+  smoking_status                String?   @default("non-smoker") @db.VarChar(50)
+  alcohol_use                   String?   @default("none") @db.VarChar(50)
+  substance_use                 String?
+  professional_exposure         String?
+  physical_activity             String?   @db.VarChar(50)
+  diet_type                     String?
+  stress_level                  String?   @db.VarChar(50)
+  sleep_quality                 String?   @db.VarChar(50)
+  sleep_hours                   Decimal?  @db.Decimal(3, 1)
+  night_shift                   Boolean?  @default(false)
+  sun_exposure                  String?   @db.VarChar(50)
+  prolonged_fasting             Boolean?  @default(false)
+  restrictive_diet              Boolean?  @default(false)
+  uncontrolled_natural_products Boolean?  @default(false)
+  blood_donor                   Boolean?  @default(false)
+  immunodepression              String?   @default("none") @db.VarChar(50)
+  sudden_medication_stop        Boolean?  @default(false)
+  regular_checkup               Boolean?  @default(true)
+  self_diagnosis                Boolean?  @default(false)
+  housing_conditions            String?
+  previous_intoxication         Boolean?  @default(false)
+  allergy_reaction_types        String?
+  creatinine                    Decimal?  @db.Decimal(6, 2)
+  renal_stage                   String?   @db.VarChar(20)
+  asat                          Decimal?  @db.Decimal(8, 2)
+  alat                          Decimal?  @db.Decimal(8, 2)
+  bilirubin                     Decimal?  @db.Decimal(6, 2)
+  glycemia                      Decimal?  @db.Decimal(6, 2)
+  sodium                        Decimal?  @db.Decimal(6, 2)
+  potassium                     Decimal?  @db.Decimal(5, 2)
+  crp                           Decimal?  @db.Decimal(8, 2)
+  lactates                      Decimal?  @db.Decimal(6, 2)
+  cases                         cases[]
+  users                         users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model plant_drug_interactions {
+  id             String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  plant_id       String      @db.Uuid
+  medication_id  String      @db.Uuid
+  severity       String?     @db.VarChar(50)
+  description    String?
+  recommendation String?
+  created_at     DateTime?   @default(now()) @db.Timestamptz(6)
+  medications    medications @relation(fields: [medication_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  plants         plants      @relation(fields: [plant_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model plants {
+  id                      String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                    String                    @unique @db.VarChar(255)
+  common_name             String?                   @db.VarChar(255)
+  toxic_parts             String?
+  toxic_compounds         String?
+  toxicity_data           Json?                     @default("{}")
+  overdose_management     String?
+  created_at              DateTime?                 @default(now()) @db.Timestamptz(6)
+  plant_drug_interactions plant_drug_interactions[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model risk_assessments {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  case_id         String    @db.Uuid
+  risk_score      Decimal?  @db.Decimal(5, 2)
+  risk_level      String?   @db.VarChar(50)
+  findings        Json?     @default("{}")
+  recommendations Json?     @default("{}")
+  created_at      DateTime? @default(now()) @db.Timestamptz(6)
+  cases           cases     @relation(fields: [case_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model users {
+  id             String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email          String     @unique @db.VarChar(255)
+  password_hash  String     @db.VarChar(255)
+  full_name      String     @db.VarChar(255)
+  specialization String?    @db.VarChar(255)
+  created_at     DateTime?  @default(now()) @db.Timestamptz(6)
+  cases          cases[]
+  patients       patients[]
+}

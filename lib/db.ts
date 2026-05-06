@@ -1,5 +1,6 @@
 import postgres from 'postgres'
 import bcryptjs from 'bcryptjs'
+import { prisma } from '@/lib/prisma'
 
 const sql = postgres(process.env.DATABASE_URL!)
 
@@ -10,26 +11,34 @@ export async function createUser(
   specialization?: string
 ) {
   try {
-    // Check if user exists
-    const existing = await sql`
-      SELECT id FROM users WHERE email = ${email}
-    `
+    const existing = await prisma.users.findUnique({
+      where: { email },
+      select: { id: true },
+    })
 
-    if (existing.length > 0) {
+    if (existing) {
       throw new Error('User already exists')
     }
 
     // Hash password
     const passwordHash = await bcryptjs.hash(password, 10)
 
-    // Create user
-    const result = await sql`
-      INSERT INTO users (email, password_hash, full_name, specialization)
-      VALUES (${email}, ${passwordHash}, ${fullName}, ${specialization || null})
-      RETURNING id, email, full_name, specialization
-    `
+    const result = await prisma.users.create({
+      data: {
+        email,
+        password_hash: passwordHash,
+        full_name: fullName,
+        specialization: specialization || null,
+      },
+      select: {
+        id: true,
+        email: true,
+        full_name: true,
+        specialization: true,
+      },
+    })
 
-    return result[0]
+    return result
   } catch (error) {
     throw error
   }
@@ -37,13 +46,17 @@ export async function createUser(
 
 export async function getUserById(userId: string) {
   try {
-    const result = await sql`
-      SELECT id, email, full_name, specialization
-      FROM users
-      WHERE id = ${userId}
-    `
+    const result = await prisma.users.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        full_name: true,
+        specialization: true,
+      },
+    })
 
-    return result[0] || null
+    return result || null
   } catch (error) {
     throw error
   }
