@@ -1,7 +1,7 @@
 import bcryptjs from 'bcryptjs'
-import postgres from 'postgres'
+import { PrismaClient } from '@prisma/client'
 
-const sql = postgres(process.env.DATABASE_URL)
+const prisma = new PrismaClient()
 
 const accounts = [
   {
@@ -19,23 +19,25 @@ const accounts = [
 ]
 
 async function run() {
-  if (!process.env.DATABASE_URL) {
-    throw new Error('DATABASE_URL is missing')
-  }
-
-  console.log('Seeding user accounts...')
+  console.log('Seeding user accounts with Prisma...')
 
   for (const account of accounts) {
     const passwordHash = await bcryptjs.hash(account.password, 10)
 
-    await sql`
-      INSERT INTO users (email, password_hash, full_name, specialization)
-      VALUES (${account.email}, ${passwordHash}, ${account.fullName}, ${account.specialization})
-      ON CONFLICT (email) DO UPDATE SET
-        password_hash = EXCLUDED.password_hash,
-        full_name = EXCLUDED.full_name,
-        specialization = EXCLUDED.specialization
-    `
+    await prisma.users.upsert({
+      where: { email: account.email },
+      update: {
+        password_hash: passwordHash,
+        full_name: account.fullName,
+        specialization: account.specialization,
+      },
+      create: {
+        email: account.email,
+        password_hash: passwordHash,
+        full_name: account.fullName,
+        specialization: account.specialization,
+      },
+    })
 
     console.log(`  - ${account.email} (${account.specialization}) ready`)
   }
@@ -46,11 +48,13 @@ async function run() {
   }
 
   console.log('\nIMPORTANT: change these passwords after first login.')
-  await sql.end()
 }
 
-run().catch(async (error) => {
-  console.error('Failed to seed users:', error.message)
-  await sql.end()
-  process.exit(1)
-})
+run()
+  .catch((error) => {
+    console.error('Failed to seed users:', error.message)
+    process.exit(1)
+  })
+  .finally(async () => {
+    await prisma.$disconnect()
+  })

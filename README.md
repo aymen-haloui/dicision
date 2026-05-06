@@ -99,8 +99,9 @@ Visit `http://localhost:3000` and sign up or login.
 │   ├── auth.ts                # NextAuth configuration
 │   ├── db.ts                  # Database functions
 │   └── decision-engine.ts     # Risk analysis logic
-└── scripts/
-    └── seed-medications.ts    # Database seeding script
+└── prisma/
+  ├── schema.prisma          # Prisma schema (introspected)
+  └── seed.mjs               # Prisma-based seeding script
 ```
 
 ## Database Schema
