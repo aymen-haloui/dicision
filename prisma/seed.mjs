@@ -1,7 +1,26 @@
 import bcryptjs from 'bcryptjs'
-import { PrismaClient } from '@prisma/client'
+import postgres from 'postgres'
+import { readFileSync } from 'fs'
+import { resolve, dirname } from 'path'
+import { fileURLToPath } from 'url'
 
-const prisma = new PrismaClient()
+// Load .env.local manually
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const envPath = resolve(__dirname, '../.env.local')
+try {
+  const envContent = readFileSync(envPath, 'utf8')
+  for (const line of envContent.split('\n')) {
+    const trimmed = line.trim()
+    if (!trimmed || trimmed.startsWith('#')) continue
+    const eqIdx = trimmed.indexOf('=')
+    if (eqIdx === -1) continue
+    const key = trimmed.slice(0, eqIdx).trim()
+    const val = trimmed.slice(eqIdx + 1).trim()
+    if (!process.env[key]) process.env[key] = val
+  }
+} catch {}
+
+const sql = postgres(process.env.DATABASE_URL)
 
 const accounts = [
   {
@@ -19,25 +38,19 @@ const accounts = [
 ]
 
 async function run() {
-  console.log('Seeding user accounts with Prisma...')
+  console.log('Seeding user accounts...')
 
   for (const account of accounts) {
     const passwordHash = await bcryptjs.hash(account.password, 10)
 
-    await prisma.users.upsert({
-      where: { email: account.email },
-      update: {
-        password_hash: passwordHash,
-        full_name: account.fullName,
-        specialization: account.specialization,
-      },
-      create: {
-        email: account.email,
-        password_hash: passwordHash,
-        full_name: account.fullName,
-        specialization: account.specialization,
-      },
-    })
+    await sql`
+      INSERT INTO users (email, password_hash, full_name, specialization)
+      VALUES (${account.email}, ${passwordHash}, ${account.fullName}, ${account.specialization})
+      ON CONFLICT (email) DO UPDATE SET
+        password_hash = EXCLUDED.password_hash,
+        full_name = EXCLUDED.full_name,
+        specialization = EXCLUDED.specialization
+    `
 
     console.log(`  - ${account.email} (${account.specialization}) ready`)
   }
@@ -56,5 +69,5 @@ run()
     process.exit(1)
   })
   .finally(async () => {
-    await prisma.$disconnect()
+    await sql.end()
   })
