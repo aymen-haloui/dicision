@@ -64,6 +64,9 @@ export async function POST(request: NextRequest) {
       potassium: body.potassium ? parseFloat(body.potassium) : undefined,
       crp: body.crp ? parseFloat(body.crp) : undefined,
       lactates: body.lactates ? parseFloat(body.lactates) : undefined,
+      extendedProfile: body.extendedProfile && typeof body.extendedProfile === 'object'
+        ? body.extendedProfile
+        : undefined,
     }
 
     const patient = await createPatient(session.user.id, data)

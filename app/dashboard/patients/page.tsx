@@ -6,7 +6,7 @@ import { Users, Plus, ArrowRight, AlertCircle } from 'lucide-react'
 import { getPatientsByUserId } from '@/lib/db'
 
 export const metadata = {
-  title: 'Patients â€” HEXA',
+  title: 'Patients - HEXA',
 }
 
 function getInitials(first: string, last: string) {
@@ -28,12 +28,12 @@ export default async function PatientsPage() {
             Patients
           </h1>
           <p className="text-slate-500 mt-1 text-sm">
-            {patients.length} registered patient{patients.length !== 1 ? 's' : ''}
+            {patients.length} patient{patients.length !== 1 ? 's' : ''} enregistres
           </p>
         </div>
         <Link href="/dashboard/patients/new">
           <button className="flex items-center gap-2 px-4 py-2 bg-[#2CB1BC] hover:bg-[#239AA3] text-white text-sm font-medium rounded-lg transition">
-            <Plus className="h-4 w-4" /> New Patient
+            <Plus className="h-4 w-4" /> Nouveau patient
           </button>
         </Link>
       </div>
@@ -42,10 +42,10 @@ export default async function PatientsPage() {
       {patients.length === 0 ? (
         <Card className="p-16 text-center">
           <Users className="h-10 w-10 text-slate-200 mx-auto mb-3" />
-          <p className="text-slate-500 font-medium">No patients yet</p>
+          <p className="text-slate-500 font-medium">Aucun patient pour le moment</p>
           <Link href="/dashboard/patients/new">
             <button className="mt-4 px-4 py-2 bg-[#2CB1BC] text-white text-sm font-medium rounded-lg hover:bg-[#239AA3] transition">
-              Add Patient
+              Ajouter un patient
             </button>
           </Link>
         </Card>
@@ -65,10 +65,10 @@ export default async function PatientsPage() {
                     </p>
                     <div className="flex items-center gap-3 mt-0.5 text-xs text-slate-500 flex-wrap">
                       {p.medical_record_number && (
-                        <span>MRN: <strong className="text-slate-700">{p.medical_record_number}</strong></span>
+                        <span>Dossier : <strong className="text-slate-700">{p.medical_record_number}</strong></span>
                       )}
                       {p.date_of_birth && (
-                        <span>DOB: {new Date(p.date_of_birth).toLocaleDateString()}</span>
+                        <span>Naissance : {new Date(p.date_of_birth).toLocaleDateString()}</span>
                       )}
                       {p.gender && (
                         <span className="capitalize">{p.gender}</span>

@@ -77,6 +77,7 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const initialExtended = (initialData?.extended_profile ?? initialData?.extendedProfile ?? {}) as Record<string, any>
 
   const [f, setF] = useState<Record<string, any>>({
     // Demographics
@@ -90,8 +91,8 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
     weight: initialData?.weight ?? '',
     height: initialData?.height ?? '',
     // Lifestyle
-    smokingStatus: initialData?.smoking_status ?? initialData?.smokingStatus ?? 'non-smoker',
-    alcoholUse: initialData?.alcohol_use ?? initialData?.alcoholUse ?? 'none',
+    smokingStatus: initialData?.smoking_status ?? initialData?.smokingStatus ?? '',
+    alcoholUse: initialData?.alcohol_use ?? initialData?.alcoholUse ?? '',
     substanceUse: initialData?.substance_use ?? initialData?.substanceUse ?? '',
     professionalExposure: initialData?.professional_exposure ?? initialData?.professionalExposure ?? '',
     physicalActivity: initialData?.physical_activity ?? initialData?.physicalActivity ?? '',
@@ -106,7 +107,7 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
     uncontrolledNaturalProducts:
       initialData?.uncontrolled_natural_products ?? initialData?.uncontrolledNaturalProducts ?? false,
     // Medical factors
-    immunodepression: initialData?.immunodepression ?? 'none',
+    immunodepression: initialData?.immunodepression ?? '',
     bloodDonor: initialData?.blood_donor ?? initialData?.bloodDonor ?? false,
     suddenMedicationStop: initialData?.sudden_medication_stop ?? initialData?.suddenMedicationStop ?? false,
     regularCheckup: initialData?.regular_checkup ?? initialData?.regularCheckup ?? true,
@@ -133,6 +134,73 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
     potassium: initialData?.potassium ?? '',
     crp: initialData?.crp ?? '',
     lactates: initialData?.lactates ?? '',
+    // Extended validated profile
+    extendedProfile: {
+      exactAgeYears: initialExtended.exactAgeYears ?? '',
+      infantAgeMonths: initialExtended.infantAgeMonths ?? '',
+      pregnancyWeeks: initialExtended.pregnancyWeeks ?? '',
+      breastfeeding: initialExtended.breastfeeding ?? '',
+      breastfeedingInfantAge: initialExtended.breastfeedingInfantAge ?? '',
+      breastfeedingMode: initialExtended.breastfeedingMode ?? '',
+      bloodPressure: initialExtended.bloodPressure ?? '',
+      heartRate: initialExtended.heartRate ?? '',
+      heartRhythmSymptoms: initialExtended.heartRhythmSymptoms ?? '',
+      temperatureValue: initialExtended.temperatureValue ?? '',
+      feverSensation: initialExtended.feverSensation ?? '',
+      respiratoryRateStatus: initialExtended.respiratoryRateStatus ?? '',
+      spo2Value: initialExtended.spo2Value ?? '',
+      consciousnessState: initialExtended.consciousnessState ?? '',
+      consciousnessDetails: initialExtended.consciousnessDetails ?? '',
+      cardiovascularHistory: initialExtended.cardiovascularHistory ?? '',
+      diabetesHistory: initialExtended.diabetesHistory ?? '',
+      asthmaCopdHistory: initialExtended.asthmaCopdHistory ?? '',
+      neurologicalHistory: initialExtended.neurologicalHistory ?? '',
+      intoxicationOverdoseHistory: initialExtended.intoxicationOverdoseHistory ?? '',
+      specialConditionHistory: initialExtended.specialConditionHistory ?? '',
+      chronicDiseaseHistory: initialExtended.chronicDiseaseHistory ?? '',
+      treatmentsCurrentList: initialExtended.treatmentsCurrentList ?? '',
+      selfMedicationDetails: initialExtended.selfMedicationDetails ?? '',
+      phytotherapyDetails: initialExtended.phytotherapyDetails ?? '',
+      therapeuticIndication: initialExtended.therapeuticIndication ?? '',
+      consultationReason: initialExtended.consultationReason ?? '',
+      mainSymptomsDetails: initialExtended.mainSymptomsDetails ?? '',
+      nfsValue: initialExtended.nfsValue ?? '',
+      ionogramValue: initialExtended.ionogramValue ?? '',
+      bloodGasValue: initialExtended.bloodGasValue ?? '',
+      otherAnalyses: initialExtended.otherAnalyses ?? '',
+      suspectedSubstanceType: initialExtended.suspectedSubstanceType ?? '',
+      estimatedDose: initialExtended.estimatedDose ?? '',
+      intakeTime: initialExtended.intakeTime ?? '',
+      exposureRoute: initialExtended.exposureRoute ?? '',
+      observedSymptomsType: initialExtended.observedSymptomsType ?? '',
+      delaySinceExposure: initialExtended.delaySinceExposure ?? '',
+      symptomsStartDateTime: initialExtended.symptomsStartDateTime ?? '',
+      exposureDelayUnit: initialExtended.exposureDelayUnit ?? '',
+      clinicalEvolution: initialExtended.clinicalEvolution ?? '',
+      cypInteractions: initialExtended.cypInteractions ?? '',
+      qtLongRisk: initialExtended.qtLongRisk ?? '',
+      serotonergicRisk: initialExtended.serotonergicRisk ?? '',
+      hiddenSelfMedication: initialExtended.hiddenSelfMedication ?? '',
+      phytotherapyScientificName: initialExtended.phytotherapyScientificName ?? '',
+      phytotherapyUsedPart: initialExtended.phytotherapyUsedPart ?? '',
+      phytotherapyConcentration: initialExtended.phytotherapyConcentration ?? '',
+      phytotherapyOriginQuality: initialExtended.phytotherapyOriginQuality ?? '',
+      phytotherapyCypInteractionKnown: initialExtended.phytotherapyCypInteractionKnown ?? '',
+      phytotherapyToxicityReported: initialExtended.phytotherapyToxicityReported ?? '',
+      symptomEvolutionNotes: initialExtended.symptomEvolutionNotes ?? '',
+      initialTreatmentResponse: initialExtended.initialTreatmentResponse ?? '',
+      reboundAfterImprovement: initialExtended.reboundAfterImprovement ?? '',
+      convulsionsPresent: initialExtended.convulsionsPresent ?? false,
+      respiratoryDistressPresent: initialExtended.respiratoryDistressPresent ?? false,
+      shockPresent: initialExtended.shockPresent ?? false,
+      consciousnessDisorderPresent: initialExtended.consciousnessDisorderPresent ?? false,
+      cardiacArrestPresent: initialExtended.cardiacArrestPresent ?? false,
+      arrhythmiaPresent: initialExtended.arrhythmiaPresent ?? false,
+      severeAllergicReactionPresent: initialExtended.severeAllergicReactionPresent ?? false,
+      severeHemorrhagePresent: initialExtended.severeHemorrhagePresent ?? false,
+      severeDehydrationPresent: initialExtended.severeDehydrationPresent ?? false,
+      severeNeurologicalDamagePresent: initialExtended.severeNeurologicalDamagePresent ?? false,
+    },
   })
 
   // BMI auto-calculation
@@ -153,6 +221,9 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
     return 'Obesite classe II+'
   }, [bmi])
 
+  const isPregnancyActive = ['trimester_1', 'trimester_2', 'trimester_3'].includes(f.pregnancyStatus)
+  const isBreastfeedingActive = f.pregnancyStatus === 'allaitement_oui' || f.extendedProfile?.breastfeeding === 'oui'
+
   function set(name: string, value: any) {
     setF(prev => ({ ...prev, [name]: value }))
   }
@@ -160,6 +231,18 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
     set(e.target.name, e.target.value)
   }
   function handleCheck(name: string, value: boolean) { set(name, value) }
+  function setExtended(name: string, value: any) {
+    setF(prev => ({
+      ...prev,
+      extendedProfile: {
+        ...(prev.extendedProfile || {}),
+        [name]: value,
+      },
+    }))
+  }
+  function handleExtendedCheck(name: string, value: boolean) {
+    setExtended(name, value)
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -202,6 +285,7 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
             { value: 'medical',   label: 'Facteurs medicaux' },
             { value: 'biology',   label: 'Biologie' },
             { value: 'history',   label: 'Allergies & Antecedents' },
+            { value: 'clinical',  label: 'Clinique & Toxicologie' },
           ].map(tab => (
             <TabsTrigger
               key={tab.value}
@@ -236,9 +320,8 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
               <select id="gender" title="Sexe" name="gender" value={f.gender} onChange={handleChange}
                 className={selectClass} disabled={isLoading}>
                 <option value="">-- Selectionnez --</option>
-                <option value="male">Masculin</option>
-                <option value="female">Feminin</option>
-                <option value="other">Autre</option>
+                <option value="femme">Femme</option>
+                <option value="homme">Homme</option>
               </select>
             </Field>
             <Field label="Numero de dossier medical" controlId="medicalRecordNumber">
@@ -246,16 +329,15 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                 name="medicalRecordNumber" value={f.medicalRecordNumber}
                 onChange={handleChange} className={inputClass} disabled={isLoading} />
             </Field>
-            <Field label="Statut reproductif" controlId="pregnancyStatus">
+            <Field label="Grossesse" controlId="pregnancyStatus">
               <select id="pregnancyStatus" title="Statut reproductif" name="pregnancyStatus" value={f.pregnancyStatus}
                 onChange={handleChange} className={selectClass} disabled={isLoading}>
                 <option value="">-- Selectionnez --</option>
-                <option value="not_applicable">Non applicable</option>
-                <option value="not_pregnant">Non enceinte</option>
-                <option value="trimester_1">Grossesse T1 (0-3 mois)</option>
-                <option value="trimester_2">Grossesse T2 (3-6 mois)</option>
-                <option value="trimester_3">Grossesse T3 (6-9 mois)</option>
-                <option value="breastfeeding">Allaitement</option>
+                <option value="non">Grossesse: Non</option>
+                <option value="trimester_1">Grossesse: Oui (1er trimestre)</option>
+                <option value="trimester_2">Grossesse: Oui (2e trimestre)</option>
+                <option value="trimester_3">Grossesse: Oui (3e trimestre)</option>
+                <option value="allaitement_oui">Allaitement: Oui</option>
               </select>
             </Field>
 
@@ -289,23 +371,23 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <SectionTitle>Consommations</SectionTitle>
 
-            <Field label="Tabac" controlId="smokingStatus">
-              <select id="smokingStatus" title="Tabac" name="smokingStatus" value={f.smokingStatus}
+            <Field label="Tabagisme / e-cigarette / chicha" controlId="smokingStatus">
+              <select id="smokingStatus" title="Tabagisme / e-cigarette / chicha" name="smokingStatus" value={f.smokingStatus}
                 onChange={handleChange} className={selectClass} disabled={isLoading}>
-                <option value="non-smoker">Non-fumeur</option>
-                <option value="smoker">Fumeur actif</option>
-                <option value="e-cigarette">Cigarette electronique</option>
-                <option value="hookah">Nargile / chicha</option>
-                <option value="former">Ancien fumeur</option>
+                <option value="">-- Selectionnez --</option>
+                <option value="non">Non</option>
+                <option value="oui">Oui</option>
+                <option value="ex-fumeur">Ex-fumeur</option>
               </select>
             </Field>
-            <Field label="Alcool" controlId="alcoholUse">
-              <select id="alcoholUse" title="Alcool" name="alcoholUse" value={f.alcoholUse}
+            <Field label="Consommation d'alcool" controlId="alcoholUse">
+              <select id="alcoholUse" title="Consommation d'alcool" name="alcoholUse" value={f.alcoholUse}
                 onChange={handleChange} className={selectClass} disabled={isLoading}>
-                <option value="none">Aucun</option>
-                <option value="occasional">Occasionnel</option>
-                <option value="moderate">Modere (1-2 verres/j)</option>
-                <option value="heavy">Excessif (&gt;3 verres/j)</option>
+                <option value="">-- Selectionnez --</option>
+                <option value="non">Non</option>
+                <option value="oui">Oui</option>
+                <option value="occasionnel">Occasionnel</option>
+                <option value="ex-consommateur">Ex-consommateur</option>
               </select>
             </Field>
             <Field label="Substances psychoactives" controlId="substanceUse">
@@ -321,16 +403,10 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
 
             <SectionTitle>Hygiene de vie</SectionTitle>
 
-            <Field label="Activite physique" controlId="physicalActivity">
-              <select id="physicalActivity" title="Activite physique" name="physicalActivity" value={f.physicalActivity}
-                onChange={handleChange} className={selectClass} disabled={isLoading}>
-                <option value="">-- Selectionnez --</option>
-                <option value="sedentary">Sedentaire</option>
-                <option value="light">Legere (1-2x/sem)</option>
-                <option value="moderate">Moderee (3-4x/sem)</option>
-                <option value="intense">Intense (&gt;4x/sem)</option>
-                <option value="athlete">Athlete de haut niveau</option>
-              </select>
+            <Field label="Activite physique / sport" controlId="physicalActivity">
+              <input id="physicalActivity" title="Activite physique / sport" name="physicalActivity" value={f.physicalActivity}
+                onChange={handleChange} className={inputClass} disabled={isLoading}
+                placeholder="Preciser l'activite physique ou sportive" />
             </Field>
             <Field label="Regime alimentaire special" controlId="dietType">
               <input name="dietType" value={f.dietType}
@@ -341,18 +417,17 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
               <select id="stressLevel" title="Niveau de stress chronique" name="stressLevel" value={f.stressLevel}
                 onChange={handleChange} className={selectClass} disabled={isLoading}>
                 <option value="">-- Selectionnez --</option>
-                <option value="low">Faible</option>
-                <option value="moderate">Modere</option>
-                <option value="high">Eleve</option>
+                <option value="faible">Faible</option>
+                <option value="modere">Modere</option>
+                <option value="eleve">Eleve</option>
               </select>
             </Field>
             <Field label="Qualite du sommeil" controlId="sleepQuality">
               <select id="sleepQuality" title="Qualite du sommeil" name="sleepQuality" value={f.sleepQuality}
                 onChange={handleChange} className={selectClass} disabled={isLoading}>
                 <option value="">-- Selectionnez --</option>
-                <option value="good">Bonne</option>
-                <option value="fragmented">Fragmentee</option>
-                <option value="insomnia">Insomnie</option>
+                <option value="bonne">Bonne</option>
+                <option value="mauvaise">Mauvaise</option>
               </select>
             </Field>
             <Field label="Heures de sommeil / nuit" unit="h" controlId="sleepHours">
@@ -360,13 +435,13 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                 value={f.sleepHours} onChange={handleChange} className={inputClass}
                 disabled={isLoading} placeholder="ex. 6.5" />
             </Field>
-            <Field label="Exposition solaire" controlId="sunExposure">
-              <select id="sunExposure" title="Exposition solaire" name="sunExposure" value={f.sunExposure}
+            <Field label="Exposition au soleil" controlId="sunExposure">
+              <select id="sunExposure" title="Exposition au soleil" name="sunExposure" value={f.sunExposure}
                 onChange={handleChange} className={selectClass} disabled={isLoading}>
                 <option value="">-- Selectionnez --</option>
-                <option value="low">Faible</option>
-                <option value="moderate">Moderee</option>
-                <option value="high">Forte</option>
+                <option value="faible">Faible</option>
+                <option value="moderee">Moderee</option>
+                <option value="forte">Forte</option>
               </select>
             </Field>
 
@@ -391,12 +466,9 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
             <SectionTitle>Terrain immunologique</SectionTitle>
 
             <Field label="Immunodepression" controlId="immunodepression">
-              <select id="immunodepression" title="Immunodepression" name="immunodepression" value={f.immunodepression}
-                onChange={handleChange} className={selectClass} disabled={isLoading}>
-                <option value="none">Aucune</option>
-                <option value="disease">Liee a une maladie (VIH, cancer, etc.)</option>
-                <option value="treatment">Liee a un traitement (corticoides, chimio)</option>
-              </select>
+              <input id="immunodepression" title="Immunodepression" name="immunodepression" value={f.immunodepression}
+                onChange={handleChange} className={inputClass} disabled={isLoading}
+                placeholder="Due a une maladie ou a un traitement" />
             </Field>
             <Field label="Conditions de logement" controlId="housingConditions">
               <input name="housingConditions" value={f.housingConditions}
@@ -438,17 +510,10 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                 className={inputClass} disabled={isLoading} placeholder="ex. 80" />
             </Field>
             <div className="col-span-full">
-              <Field label="Stade insuffisance renale (CKD-KDIGO)" controlId="renalStage">
-                <select id="renalStage" title="Stade insuffisance renale" name="renalStage" value={f.renalStage}
-                  onChange={handleChange} className={selectClass} disabled={isLoading}>
-                  <option value="">-- Selectionnez --</option>
-                  <option value="none">Aucune (G1/G2 normal)</option>
-                  <option value="G2">G2 — Legere (CrCl 60-89)</option>
-                  <option value="G3a">G3a — Moderee (CrCl 45-59)</option>
-                  <option value="G3b">G3b — Moderee-severe (CrCl 30-44)</option>
-                  <option value="G4">G4 — Severe (CrCl 15-29)</option>
-                  <option value="G5">G5 — Terminale (CrCl &lt;15)</option>
-                </select>
+              <Field label="Insuffisance renale / stade" controlId="renalStage">
+                <input id="renalStage" title="Insuffisance renale / stade" name="renalStage" value={f.renalStage}
+                  onChange={handleChange} className={inputClass} disabled={isLoading}
+                  placeholder="Oui/non, stade si connu" />
               </Field>
             </div>
 
@@ -470,13 +535,9 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                 placeholder="norme &lt;1.2" />
             </Field>
             <Field label="Insuffisance hepatique" controlId="hepaticStatus">
-              <select id="hepaticStatus" title="Insuffisance hepatique" name="hepaticStatus" value={f.hepaticStatus}
-                onChange={handleChange} className={selectClass} disabled={isLoading}>
-                <option value="">Normale</option>
-                <option value="mild">Legere (Child-Pugh A)</option>
-                <option value="moderate">Moderee (Child-Pugh B)</option>
-                <option value="severe">Severe (Child-Pugh C)</option>
-              </select>
+              <input id="hepaticStatus" title="Insuffisance hepatique" name="hepaticStatus" value={f.hepaticStatus}
+                onChange={handleChange} className={inputClass} disabled={isLoading}
+                placeholder="Oui/non, severite si connue" />
             </Field>
 
             <SectionTitle>Bilan complementaire</SectionTitle>
@@ -520,15 +581,9 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                 placeholder="ex. Penicilline — eruption cutanee, Arachides — anaphylaxie" />
             </Field>
             <Field label="Type de reaction allergique" controlId="allergyReactionTypes">
-              <select id="allergyReactionTypes" title="Type de reaction allergique" name="allergyReactionTypes" value={f.allergyReactionTypes}
-                onChange={handleChange} className={selectClass} disabled={isLoading}>
-                <option value="">-- Selectionnez --</option>
-                <option value="cutaneous">Cutanee (urticaire, rash, eczema)</option>
-                <option value="respiratory">Respiratoire (bronchospasme, rhinite)</option>
-                <option value="anaphylaxis">Anaphylaxie / choc anaphylactique</option>
-                <option value="digestive">Digestive (nausees, vomissements)</option>
-                <option value="mixed">Mixte (plusieurs types)</option>
-              </select>
+              <input id="allergyReactionTypes" title="Type de reaction allergique" name="allergyReactionTypes" value={f.allergyReactionTypes}
+                onChange={handleChange} className={inputClass} disabled={isLoading}
+                placeholder="Cutanee, respiratoire, choc anaphylactique, etc." />
             </Field>
 
             <SectionTitle>Antecedents medicaux</SectionTitle>
@@ -537,6 +592,354 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
               <textarea name="comorbidities" value={f.comorbidities} onChange={handleChange}
                 rows={4} className={inputClass} disabled={isLoading}
                 placeholder="ex. Diabete type 2, HTA, insuffisance renale chronique, asthme..." />
+            </Field>
+          </div>
+        </TabsContent>
+
+        {/* ══ TAB 6 — CLINIQUE & TOXICOLOGIE ═══════════════════════════════ */}
+        <TabsContent value="clinical">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <SectionTitle>Donnees demographiques detaillees</SectionTitle>
+
+            <Field label="Age exact (ans)" controlId="exactAgeYears">
+              <input id="exactAgeYears" name="exactAgeYears" value={f.extendedProfile?.exactAgeYears ?? ''}
+                onChange={(e) => setExtended('exactAgeYears', e.target.value)} className={inputClass} disabled={isLoading}
+                placeholder="Ex: 45" />
+            </Field>
+            <Field label="Age nourrisson (mois)" controlId="infantAgeMonths">
+              <input id="infantAgeMonths" name="infantAgeMonths" value={f.extendedProfile?.infantAgeMonths ?? ''}
+                onChange={(e) => setExtended('infantAgeMonths', e.target.value)} className={inputClass} disabled={isLoading}
+                placeholder="Ex: 8" />
+            </Field>
+            {isPregnancyActive && (
+              <Field label="Duree de grossesse (semaines)" controlId="pregnancyWeeks">
+                <input id="pregnancyWeeks" title="Duree de grossesse (semaines)" name="pregnancyWeeks" value={f.extendedProfile?.pregnancyWeeks ?? ''}
+                  onChange={(e) => setExtended('pregnancyWeeks', e.target.value)} className={inputClass} disabled={isLoading}
+                  placeholder="Si grossesse" />
+              </Field>
+            )}
+            <Field label="Allaitement" controlId="breastfeeding">
+              <select id="breastfeeding" title="Allaitement" name="breastfeeding" value={f.extendedProfile?.breastfeeding ?? ''}
+                onChange={(e) => setExtended('breastfeeding', e.target.value)} className={selectClass} disabled={isLoading}>
+                <option value="">-- Selectionnez --</option>
+                <option value="oui">Oui</option>
+                <option value="non">Non</option>
+              </select>
+            </Field>
+            {isBreastfeedingActive && (
+              <Field label="Age du nourrisson" controlId="breastfeedingInfantAge">
+                <input id="breastfeedingInfantAge" title="Age du nourrisson" name="breastfeedingInfantAge" value={f.extendedProfile?.breastfeedingInfantAge ?? ''}
+                  onChange={(e) => setExtended('breastfeedingInfantAge', e.target.value)} className={inputClass} disabled={isLoading}
+                  placeholder="Si allaitement" />
+              </Field>
+            )}
+            {isBreastfeedingActive && (
+              <Field label="Allaitement exclusif ou mixte" controlId="breastfeedingMode">
+                <input id="breastfeedingMode" title="Allaitement exclusif ou mixte" name="breastfeedingMode" value={f.extendedProfile?.breastfeedingMode ?? ''}
+                  onChange={(e) => setExtended('breastfeedingMode', e.target.value)} className={inputClass} disabled={isLoading}
+                  placeholder="Exclusif / mixte" />
+              </Field>
+            )}
+
+            <SectionTitle>Donnees cliniques generales</SectionTitle>
+
+            <Field label="Tension arterielle" controlId="bloodPressure">
+              <input id="bloodPressure" name="bloodPressure" value={f.extendedProfile?.bloodPressure ?? ''}
+                onChange={(e) => setExtended('bloodPressure', e.target.value)} className={inputClass} disabled={isLoading}
+                placeholder="Ex: 13/8 ou je ne sais pas" />
+            </Field>
+            <Field label="Frequence cardiaque" controlId="heartRate">
+              <input id="heartRate" title="Frequence cardiaque" name="heartRate" value={f.extendedProfile?.heartRate ?? ''}
+                onChange={(e) => setExtended('heartRate', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+            <Field label="Palpitations / tachycardie / rythme irregulier" controlId="heartRhythmSymptoms">
+              <input id="heartRhythmSymptoms" title="Palpitations / tachycardie / rythme irregulier" name="heartRhythmSymptoms" value={f.extendedProfile?.heartRhythmSymptoms ?? ''}
+                onChange={(e) => setExtended('heartRhythmSymptoms', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+            <Field label="Temperature" controlId="temperatureValue">
+              <input id="temperatureValue" name="temperatureValue" value={f.extendedProfile?.temperatureValue ?? ''}
+                onChange={(e) => setExtended('temperatureValue', e.target.value)} className={inputClass} disabled={isLoading}
+                placeholder="Ex: 38.5C" />
+            </Field>
+            <Field label="Sensation de fievre" controlId="feverSensation">
+              <select id="feverSensation" title="Sensation de fievre" name="feverSensation" value={f.extendedProfile?.feverSensation ?? ''}
+                onChange={(e) => setExtended('feverSensation', e.target.value)} className={selectClass} disabled={isLoading}>
+                <option value="">-- Selectionnez --</option>
+                <option value="oui">Oui</option>
+                <option value="non">Non</option>
+              </select>
+            </Field>
+            <Field label="Frequence respiratoire" controlId="respiratoryRateStatus">
+              <select id="respiratoryRateStatus" title="Frequence respiratoire" name="respiratoryRateStatus" value={f.extendedProfile?.respiratoryRateStatus ?? ''}
+                onChange={(e) => setExtended('respiratoryRateStatus', e.target.value)} className={selectClass} disabled={isLoading}>
+                <option value="">-- Selectionnez --</option>
+                <option value="normale">Normale</option>
+                <option value="difficile">Difficile</option>
+                <option value="rapide">Rapide</option>
+              </select>
+            </Field>
+            <Field label="SpO2" controlId="spo2Value">
+              <input id="spo2Value" name="spo2Value" value={f.extendedProfile?.spo2Value ?? ''}
+                onChange={(e) => setExtended('spo2Value', e.target.value)} className={inputClass} disabled={isLoading}
+                placeholder="Valeur ou non connue" />
+            </Field>
+            <Field label="Etat de conscience" controlId="consciousnessState">
+              <select id="consciousnessState" title="Etat de conscience" name="consciousnessState" value={f.extendedProfile?.consciousnessState ?? ''}
+                onChange={(e) => setExtended('consciousnessState', e.target.value)} className={selectClass} disabled={isLoading}>
+                <option value="">-- Selectionnez --</option>
+                <option value="normal">Normal</option>
+                <option value="confusion">Confusion</option>
+                <option value="perte">Perte de connaissance</option>
+              </select>
+            </Field>
+            <Field label="Details conscience (duree + contexte)" controlId="consciousnessDetails">
+              <textarea id="consciousnessDetails" title="Details conscience (duree + contexte)" name="consciousnessDetails" rows={2} value={f.extendedProfile?.consciousnessDetails ?? ''}
+                onChange={(e) => setExtended('consciousnessDetails', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+
+            <SectionTitle>Antecedents et traitements</SectionTitle>
+
+            <Field label="Maladies cardiovasculaires" controlId="cardiovascularHistory">
+              <textarea id="cardiovascularHistory" title="Maladies cardiovasculaires" rows={2} value={f.extendedProfile?.cardiovascularHistory ?? ''}
+                onChange={(e) => setExtended('cardiovascularHistory', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+            <Field label="Diabete" controlId="diabetesHistory">
+              <textarea id="diabetesHistory" title="Diabete" rows={2} value={f.extendedProfile?.diabetesHistory ?? ''}
+                onChange={(e) => setExtended('diabetesHistory', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+            <Field label="Asthme / BPCO" controlId="asthmaCopdHistory">
+              <textarea id="asthmaCopdHistory" title="Asthme / BPCO" rows={2} value={f.extendedProfile?.asthmaCopdHistory ?? ''}
+                onChange={(e) => setExtended('asthmaCopdHistory', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+            <Field label="Maladies neurologiques" controlId="neurologicalHistory">
+              <textarea id="neurologicalHistory" title="Maladies neurologiques" rows={2} value={f.extendedProfile?.neurologicalHistory ?? ''}
+                onChange={(e) => setExtended('neurologicalHistory', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+            <Field label="Intoxication / surdosage anterieur" controlId="intoxicationOverdoseHistory">
+              <textarea id="intoxicationOverdoseHistory" title="Intoxication / surdosage anterieur" rows={2} value={f.extendedProfile?.intoxicationOverdoseHistory ?? ''}
+                onChange={(e) => setExtended('intoxicationOverdoseHistory', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+            <Field label="Terrain particulier (immunodepression, cancer...)" controlId="specialConditionHistory">
+              <textarea id="specialConditionHistory" title="Terrain particulier (immunodepression, cancer...)" rows={2} value={f.extendedProfile?.specialConditionHistory ?? ''}
+                onChange={(e) => setExtended('specialConditionHistory', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+            <Field label="Maladie chronique" controlId="chronicDiseaseHistory">
+              <textarea id="chronicDiseaseHistory" title="Maladie chronique" rows={2} value={f.extendedProfile?.chronicDiseaseHistory ?? ''}
+                onChange={(e) => setExtended('chronicDiseaseHistory', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+            <Field label="Traitements en cours" controlId="treatmentsCurrentList">
+              <textarea id="treatmentsCurrentList" rows={3} value={f.extendedProfile?.treatmentsCurrentList ?? ''}
+                onChange={(e) => setExtended('treatmentsCurrentList', e.target.value)} className={inputClass} disabled={isLoading}
+                placeholder="Nom, dose, frequence, voie, duree" />
+            </Field>
+            <Field label="Automedication (details)" controlId="selfMedicationDetails">
+              <textarea id="selfMedicationDetails" title="Automedication (details)" rows={2} value={f.extendedProfile?.selfMedicationDetails ?? ''}
+                onChange={(e) => setExtended('selfMedicationDetails', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+            <Field label="Phytotherapie (details)" controlId="phytotherapyDetails">
+              <textarea id="phytotherapyDetails" title="Phytotherapie (details)" rows={2} value={f.extendedProfile?.phytotherapyDetails ?? ''}
+                onChange={(e) => setExtended('phytotherapyDetails', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+
+            <SectionTitle>Motif actuel et donnees toxicologiques</SectionTitle>
+
+            <Field label="Motif therapeutique actuel" controlId="therapeuticIndication">
+              <textarea id="therapeuticIndication" title="Motif therapeutique actuel" rows={2} value={f.extendedProfile?.therapeuticIndication ?? ''}
+                onChange={(e) => setExtended('therapeuticIndication', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+            <Field label="Motif de consultation actuel" controlId="consultationReason">
+              <select id="consultationReason" title="Motif de consultation actuel" value={f.extendedProfile?.consultationReason ?? ''}
+                onChange={(e) => setExtended('consultationReason', e.target.value)} className={selectClass} disabled={isLoading}>
+                <option value="">-- Selectionnez --</option>
+                <option value="douleur">Douleur</option>
+                <option value="fievre">Fievre</option>
+                <option value="intoxication">Intoxication</option>
+                <option value="difficulte_respiratoire">Difficulte respiratoire</option>
+                <option value="malaise">Malaise</option>
+                <option value="autre">Autre</option>
+              </select>
+            </Field>
+            <Field label="Symptomes principaux" controlId="mainSymptomsDetails">
+              <textarea id="mainSymptomsDetails" title="Symptomes principaux" rows={2} value={f.extendedProfile?.mainSymptomsDetails ?? ''}
+                onChange={(e) => setExtended('mainSymptomsDetails', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+            <Field label="Substance suspectee" controlId="suspectedSubstanceType">
+              <select id="suspectedSubstanceType" title="Substance suspectee" value={f.extendedProfile?.suspectedSubstanceType ?? ''}
+                onChange={(e) => setExtended('suspectedSubstanceType', e.target.value)} className={selectClass} disabled={isLoading}>
+                <option value="">-- Selectionnez --</option>
+                <option value="medicament">Medicament</option>
+                <option value="produit_chimique">Produit chimique</option>
+                <option value="plante">Plante</option>
+                <option value="drogue">Drogue</option>
+                <option value="metaux_lourds">Metaux lourds</option>
+                <option value="inconnue">Inconnue</option>
+              </select>
+            </Field>
+            <Field label="Dose estimee" controlId="estimatedDose">
+              <input id="estimatedDose" title="Dose estimee" value={f.extendedProfile?.estimatedDose ?? ''}
+                onChange={(e) => setExtended('estimatedDose', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+            <Field label="Heure de prise" controlId="intakeTime">
+              <input id="intakeTime" title="Heure de prise" value={f.extendedProfile?.intakeTime ?? ''}
+                onChange={(e) => setExtended('intakeTime', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+            <Field label="Voie d'exposition" controlId="exposureRoute">
+              <select id="exposureRoute" title="Voie d'exposition" value={f.extendedProfile?.exposureRoute ?? ''}
+                onChange={(e) => setExtended('exposureRoute', e.target.value)} className={selectClass} disabled={isLoading}>
+                <option value="">-- Selectionnez --</option>
+                <option value="orale">Orale</option>
+                <option value="injectable">Injectable</option>
+                <option value="inhalation">Inhalation</option>
+                <option value="cutanee">Cutanee</option>
+              </select>
+            </Field>
+            <Field label="Symptomes observes" controlId="observedSymptomsType">
+              <input id="observedSymptomsType" value={f.extendedProfile?.observedSymptomsType ?? ''}
+                onChange={(e) => setExtended('observedSymptomsType', e.target.value)} className={inputClass} disabled={isLoading}
+                placeholder="Digestifs, neurologiques, respiratoires..." />
+            </Field>
+            <Field label="Delai depuis exposition" controlId="delaySinceExposure">
+              <input id="delaySinceExposure" title="Delai depuis exposition" value={f.extendedProfile?.delaySinceExposure ?? ''}
+                onChange={(e) => setExtended('delaySinceExposure', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+
+            <SectionTitle>Chronologie, gravite et interactions</SectionTitle>
+
+            <Field label="Debut des symptomes (date/heure)" controlId="symptomsStartDateTime">
+              <input id="symptomsStartDateTime" title="Debut des symptomes (date/heure)" value={f.extendedProfile?.symptomsStartDateTime ?? ''}
+                onChange={(e) => setExtended('symptomsStartDateTime', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+            <Field label="Unite delai exposition" controlId="exposureDelayUnit">
+              <select id="exposureDelayUnit" title="Unite delai exposition" value={f.extendedProfile?.exposureDelayUnit ?? ''}
+                onChange={(e) => setExtended('exposureDelayUnit', e.target.value)} className={selectClass} disabled={isLoading}>
+                <option value="">-- Selectionnez --</option>
+                <option value="minutes">Minutes</option>
+                <option value="heures">Heures</option>
+                <option value="jours">Jours</option>
+              </select>
+            </Field>
+            <Field label="Evolution clinique" controlId="clinicalEvolution">
+              <select id="clinicalEvolution" title="Evolution clinique" value={f.extendedProfile?.clinicalEvolution ?? ''}
+                onChange={(e) => setExtended('clinicalEvolution', e.target.value)} className={selectClass} disabled={isLoading}>
+                <option value="">-- Selectionnez --</option>
+                <option value="stable">Stable</option>
+                <option value="amelioration">Amelioration</option>
+                <option value="aggravation">Aggravation</option>
+              </select>
+            </Field>
+            <Field label="Inhibiteurs/inducteurs CYP450" controlId="cypInteractions">
+              <textarea id="cypInteractions" title="Inhibiteurs/inducteurs CYP450" rows={2} value={f.extendedProfile?.cypInteractions ?? ''}
+                onChange={(e) => setExtended('cypInteractions', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+            <Field label="Risque QT long" controlId="qtLongRisk">
+              <textarea id="qtLongRisk" title="Risque QT long" rows={2} value={f.extendedProfile?.qtLongRisk ?? ''}
+                onChange={(e) => setExtended('qtLongRisk', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+            <Field label="Risque serotoninergique" controlId="serotonergicRisk">
+              <textarea id="serotonergicRisk" title="Risque serotoninergique" rows={2} value={f.extendedProfile?.serotonergicRisk ?? ''}
+                onChange={(e) => setExtended('serotonergicRisk', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+            <Field label="Automedication cachee" controlId="hiddenSelfMedication">
+              <textarea id="hiddenSelfMedication" title="Automedication cachee" rows={2} value={f.extendedProfile?.hiddenSelfMedication ?? ''}
+                onChange={(e) => setExtended('hiddenSelfMedication', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+
+            <SectionTitle>Phytotherapie specifique</SectionTitle>
+
+            <Field label="Nom scientifique exact" controlId="phytotherapyScientificName">
+              <input id="phytotherapyScientificName" title="Nom scientifique exact" value={f.extendedProfile?.phytotherapyScientificName ?? ''}
+                onChange={(e) => setExtended('phytotherapyScientificName', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+            <Field label="Partie utilisee" controlId="phytotherapyUsedPart">
+              <input id="phytotherapyUsedPart" title="Partie utilisee" value={f.extendedProfile?.phytotherapyUsedPart ?? ''}
+                onChange={(e) => setExtended('phytotherapyUsedPart', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+            <Field label="Concentration / standardisation" controlId="phytotherapyConcentration">
+              <input id="phytotherapyConcentration" title="Concentration / standardisation" value={f.extendedProfile?.phytotherapyConcentration ?? ''}
+                onChange={(e) => setExtended('phytotherapyConcentration', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+            <Field label="Origine / qualite / contamination" controlId="phytotherapyOriginQuality">
+              <textarea id="phytotherapyOriginQuality" title="Origine / qualite / contamination" rows={2} value={f.extendedProfile?.phytotherapyOriginQuality ?? ''}
+                onChange={(e) => setExtended('phytotherapyOriginQuality', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+            <Field label="Interaction CYP connue" controlId="phytotherapyCypInteractionKnown">
+              <select id="phytotherapyCypInteractionKnown" title="Interaction CYP connue" value={f.extendedProfile?.phytotherapyCypInteractionKnown ?? ''}
+                onChange={(e) => setExtended('phytotherapyCypInteractionKnown', e.target.value)} className={selectClass} disabled={isLoading}>
+                <option value="">-- Selectionnez --</option>
+                <option value="oui">Oui</option>
+                <option value="non">Non</option>
+              </select>
+            </Field>
+            <Field label="Donnees de toxicite rapportees" controlId="phytotherapyToxicityReported">
+              <textarea id="phytotherapyToxicityReported" title="Donnees de toxicite rapportees" rows={2} value={f.extendedProfile?.phytotherapyToxicityReported ?? ''}
+                onChange={(e) => setExtended('phytotherapyToxicityReported', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+
+            <SectionTitle>Dynamique temporelle</SectionTitle>
+
+            <Field label="Evolution des symptomes" controlId="symptomEvolutionNotes">
+              <textarea id="symptomEvolutionNotes" title="Evolution des symptomes" rows={2} value={f.extendedProfile?.symptomEvolutionNotes ?? ''}
+                onChange={(e) => setExtended('symptomEvolutionNotes', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+            <Field label="Reponse aux traitements initiaux" controlId="initialTreatmentResponse">
+              <textarea id="initialTreatmentResponse" title="Reponse aux traitements initiaux" rows={2} value={f.extendedProfile?.initialTreatmentResponse ?? ''}
+                onChange={(e) => setExtended('initialTreatmentResponse', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+            <Field label="Reapparition apres amelioration" controlId="reboundAfterImprovement">
+              <textarea id="reboundAfterImprovement" title="Reapparition apres amelioration" rows={2} value={f.extendedProfile?.reboundAfterImprovement ?? ''}
+                onChange={(e) => setExtended('reboundAfterImprovement', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+
+            <SectionTitle>Evaluation rapide de gravite (urgence)</SectionTitle>
+            <div className="col-span-full grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <CheckField label="Convulsions presentes" name="convulsionsPresent"
+                value={Boolean(f.extendedProfile?.convulsionsPresent)}
+                onChange={(name, v) => handleExtendedCheck(name, v)} disabled={isLoading} />
+              <CheckField label="Detresse respiratoire presente" name="respiratoryDistressPresent"
+                value={Boolean(f.extendedProfile?.respiratoryDistressPresent)}
+                onChange={(name, v) => handleExtendedCheck(name, v)} disabled={isLoading} />
+              <CheckField label="Choc / instabilite hemodynamique" name="shockPresent"
+                value={Boolean(f.extendedProfile?.shockPresent)}
+                onChange={(name, v) => handleExtendedCheck(name, v)} disabled={isLoading} />
+              <CheckField label="Trouble de conscience / coma" name="consciousnessDisorderPresent"
+                value={Boolean(f.extendedProfile?.consciousnessDisorderPresent)}
+                onChange={(name, v) => handleExtendedCheck(name, v)} disabled={isLoading} />
+              <CheckField label="Arret cardiaque" name="cardiacArrestPresent"
+                value={Boolean(f.extendedProfile?.cardiacArrestPresent)}
+                onChange={(name, v) => handleExtendedCheck(name, v)} disabled={isLoading} />
+              <CheckField label="Trouble du rythme cardiaque" name="arrhythmiaPresent"
+                value={Boolean(f.extendedProfile?.arrhythmiaPresent)}
+                onChange={(name, v) => handleExtendedCheck(name, v)} disabled={isLoading} />
+              <CheckField label="Reaction allergique severe / anaphylaxie" name="severeAllergicReactionPresent"
+                value={Boolean(f.extendedProfile?.severeAllergicReactionPresent)}
+                onChange={(name, v) => handleExtendedCheck(name, v)} disabled={isLoading} />
+              <CheckField label="Hemorragie importante" name="severeHemorrhagePresent"
+                value={Boolean(f.extendedProfile?.severeHemorrhagePresent)}
+                onChange={(name, v) => handleExtendedCheck(name, v)} disabled={isLoading} />
+              <CheckField label="Deshydratation severe" name="severeDehydrationPresent"
+                value={Boolean(f.extendedProfile?.severeDehydrationPresent)}
+                onChange={(name, v) => handleExtendedCheck(name, v)} disabled={isLoading} />
+              <CheckField label="Atteinte neurologique severe" name="severeNeurologicalDamagePresent"
+                value={Boolean(f.extendedProfile?.severeNeurologicalDamagePresent)}
+                onChange={(name, v) => handleExtendedCheck(name, v)} disabled={isLoading} />
+            </div>
+
+            <SectionTitle>Donnees biologiques complementaires</SectionTitle>
+            <Field label="NFS" controlId="nfsValue">
+              <input id="nfsValue" title="NFS" value={f.extendedProfile?.nfsValue ?? ''}
+                onChange={(e) => setExtended('nfsValue', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+            <Field label="Ionogramme" controlId="ionogramValue">
+              <input id="ionogramValue" title="Ionogramme" value={f.extendedProfile?.ionogramValue ?? ''}
+                onChange={(e) => setExtended('ionogramValue', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+            <Field label="Gaz du sang" controlId="bloodGasValue">
+              <input id="bloodGasValue" title="Gaz du sang" value={f.extendedProfile?.bloodGasValue ?? ''}
+                onChange={(e) => setExtended('bloodGasValue', e.target.value)} className={inputClass} disabled={isLoading} />
+            </Field>
+            <Field label="Autres analyses" controlId="otherAnalyses">
+              <textarea id="otherAnalyses" title="Autres analyses" rows={2} value={f.extendedProfile?.otherAnalyses ?? ''}
+                onChange={(e) => setExtended('otherAnalyses', e.target.value)} className={inputClass} disabled={isLoading} />
             </Field>
           </div>
         </TabsContent>

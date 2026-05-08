@@ -1,95 +1,210 @@
 ﻿import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
+import { Activity, FlaskConical, HeartPulse, Pencil, ShieldAlert, User } from 'lucide-react'
+
+import { authOptions } from '@/lib/auth'
+import { getCasesByPatientId, getPatientById } from '@/lib/db'
 import { Card } from '@/components/ui/card'
-import { Users, Plus, ArrowRight, AlertCircle } from 'lucide-react'
-import { getPatientsByUserId } from '@/lib/db'
 
 export const metadata = {
-  title: 'Patients â€” HEXA',
+  title: 'Details du patient - Aide a la decision medicale',
 }
 
-function getInitials(first: string, last: string) {
-  return `${first?.[0] ?? ''}${last?.[0] ?? ''}`.toUpperCase()
+function formatDate(value?: string | Date | null) {
+  if (!value) return 'Non renseigne'
+  return new Date(value).toLocaleDateString()
 }
 
-export default async function PatientsPage() {
+function formatValue(value: unknown, fallback = 'Non renseigne') {
+  if (value === null || value === undefined || value === '') return fallback
+  if (typeof value === 'boolean') return value ? 'Oui' : 'Non'
+  return String(value)
+}
+
+function Section({
+  title,
+  icon,
+  fields,
+}: {
+  title: string
+  icon: React.ReactNode
+  fields: Array<{ label: string; value: unknown }>
+}) {
+  return (
+    <Card className="p-6">
+      <div className="mb-4 flex items-center gap-2">
+        <span className="text-[#2CB1BC]">{icon}</span>
+        <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
+      </div>
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        {fields.map((field) => (
+          <div key={field.label} className="rounded-lg border border-slate-200 p-3">
+            <p className="text-xs font-medium uppercase tracking-wide text-slate-500">{field.label}</p>
+            <p className="mt-1 text-sm text-slate-900">{formatValue(field.value)}</p>
+          </div>
+        ))}
+      </div>
+    </Card>
+  )
+}
+
+export default async function PatientDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
+  const { id } = await params
   const session = await getServerSession(authOptions)
-  const patients = await getPatientsByUserId(session?.user?.id || '')
+  const userId = session?.user?.id || ''
+
+  const patient = await getPatientById(id, userId)
+  if (!patient) {
+    notFound()
+  }
+  const ep = (patient.extended_profile || {}) as Record<string, any>
+
+  const cases = await getCasesByPatientId(id, userId)
 
   return (
     <div className="space-y-6">
-
-      {/* â”€â”€ HEADER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-      <div className="flex items-start justify-between gap-4 flex-wrap">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <Users className="h-6 w-6 text-[#2CB1BC]" />
-            Patients
+          <h1 className="text-3xl font-bold text-slate-900">
+            {patient.first_name} {patient.last_name}
           </h1>
-          <p className="text-slate-500 mt-1 text-sm">
-            {patients.length} registered patient{patients.length !== 1 ? 's' : ''}
+          <p className="mt-1 text-sm text-slate-500">
+            Dossier : {formatValue(patient.medical_record_number)}
           </p>
         </div>
-        <Link href="/dashboard/patients/new">
-          <button className="flex items-center gap-2 px-4 py-2 bg-[#2CB1BC] hover:bg-[#239AA3] text-white text-sm font-medium rounded-lg transition">
-            <Plus className="h-4 w-4" /> New Patient
-          </button>
+
+        <Link
+          href={`/dashboard/patients/${id}/edit`}
+          className="inline-flex items-center gap-2 rounded-lg bg-[#2CB1BC] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#239AA3]"
+        >
+          <Pencil className="h-4 w-4" />
+          Modifier le patient
         </Link>
       </div>
 
-      {/* â”€â”€ PATIENT LIST â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-      {patients.length === 0 ? (
-        <Card className="p-16 text-center">
-          <Users className="h-10 w-10 text-slate-200 mx-auto mb-3" />
-          <p className="text-slate-500 font-medium">No patients yet</p>
-          <Link href="/dashboard/patients/new">
-            <button className="mt-4 px-4 py-2 bg-[#2CB1BC] text-white text-sm font-medium rounded-lg hover:bg-[#239AA3] transition">
-              Add Patient
-            </button>
-          </Link>
-        </Card>
-      ) : (
-        <div className="space-y-2">
-          {patients.map((p: any) => (
-            <Link key={p.id} href={`/dashboard/patients/${p.id}`}>
-              <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer group">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#2CB1BC] to-[#239AA3] flex items-center justify-center text-white text-sm font-bold shrink-0">
-                    {getInitials(p.first_name, p.last_name)}
-                  </div>
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <Section
+          title="Identite"
+          icon={<User className="h-5 w-5" />}
+          fields={[
+            { label: 'Prenom', value: patient.first_name },
+            { label: 'Nom', value: patient.last_name },
+            { label: 'Date de naissance', value: formatDate(patient.date_of_birth) },
+            { label: 'Sexe', value: patient.gender },
+            { label: 'Grossesse / allaitement', value: patient.pregnancy_status },
+            { label: 'Poids (kg)', value: patient.weight },
+            { label: 'Taille (cm)', value: patient.height },
+          ]}
+        />
 
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-slate-900">
-                      {p.first_name} {p.last_name}
-                    </p>
-                    <div className="flex items-center gap-3 mt-0.5 text-xs text-slate-500 flex-wrap">
-                      {p.medical_record_number && (
-                        <span>MRN: <strong className="text-slate-700">{p.medical_record_number}</strong></span>
-                      )}
-                      {p.date_of_birth && (
-                        <span>DOB: {new Date(p.date_of_birth).toLocaleDateString()}</span>
-                      )}
-                      {p.gender && (
-                        <span className="capitalize">{p.gender}</span>
-                      )}
+        <Section
+          title="Mode de vie"
+          icon={<HeartPulse className="h-5 w-5" />}
+          fields={[
+            { label: 'Tabagisme', value: patient.smoking_status },
+            { label: 'Consommation d\'alcool', value: patient.alcohol_use },
+            { label: 'Usage de substances', value: patient.substance_use },
+            { label: 'Exposition professionnelle', value: patient.professional_exposure },
+            { label: 'Activite physique', value: patient.physical_activity },
+            { label: 'Regime alimentaire', value: patient.diet_type },
+            { label: 'Niveau de stress', value: patient.stress_level },
+            { label: 'Qualite du sommeil', value: patient.sleep_quality },
+            { label: 'Heures de sommeil', value: patient.sleep_hours },
+            { label: 'Travail de nuit', value: patient.night_shift },
+            { label: 'Exposition au soleil', value: patient.sun_exposure },
+            { label: 'Jeune prolonge', value: patient.prolonged_fasting },
+            { label: 'Regime restrictif', value: patient.restrictive_diet },
+            { label: 'Produits naturels non controles', value: patient.uncontrolled_natural_products },
+          ]}
+        />
+
+        <Section
+          title="Facteurs medicaux"
+          icon={<ShieldAlert className="h-5 w-5" />}
+          fields={[
+            { label: 'Allergies', value: patient.allergies },
+            { label: 'Type de reaction allergique', value: patient.allergy_reaction_types },
+            { label: 'Comorbidites', value: patient.comorbidities },
+            { label: 'Immunodepression', value: patient.immunodepression },
+            { label: 'Donneur de sang', value: patient.blood_donor },
+            { label: 'Arret brutal de traitement', value: patient.sudden_medication_stop },
+            { label: 'Suivi medical regulier', value: patient.regular_checkup },
+            { label: 'Autodiagnostic', value: patient.self_diagnosis },
+            { label: 'Conditions de logement', value: patient.housing_conditions },
+            { label: 'Antecedent d\'intoxication', value: patient.previous_intoxication },
+          ]}
+        />
+
+        <Section
+          title="Biologie"
+          icon={<FlaskConical className="h-5 w-5" />}
+          fields={[
+            { label: 'Creatinine', value: patient.creatinine },
+            { label: 'Clairance de la creatinine', value: patient.renal_creatinine_clearance },
+            { label: 'Stade renal', value: patient.renal_stage },
+            { label: 'Statut hepatique', value: patient.hepatic_status },
+            { label: 'ASAT', value: patient.asat },
+            { label: 'ALAT', value: patient.alat },
+            { label: 'Bilirubin', value: patient.bilirubin },
+            { label: 'Glycemie', value: patient.glycemia },
+            { label: 'Sodium', value: patient.sodium },
+            { label: 'Potassium', value: patient.potassium },
+            { label: 'CRP', value: patient.crp },
+            { label: 'Lactates', value: patient.lactates },
+          ]}
+        />
+
+        <Section
+          title="Clinique et toxicologie"
+          icon={<Activity className="h-5 w-5" />}
+          fields={[
+            { label: 'Tension arterielle', value: ep.bloodPressure },
+            { label: 'Frequence cardiaque', value: ep.heartRate },
+            { label: 'SpO2', value: ep.spo2Value },
+            { label: 'Etat de conscience', value: ep.consciousnessState },
+            { label: 'Motif de consultation', value: ep.consultationReason },
+            { label: 'Substance suspectee', value: ep.suspectedSubstanceType },
+            { label: 'Voie d\'exposition', value: ep.exposureRoute },
+            { label: 'Evolution clinique', value: ep.clinicalEvolution },
+          ]}
+        />
+      </div>
+
+      <Card className="p-6">
+        <div className="mb-4 flex items-center gap-2">
+          <Activity className="h-5 w-5 text-[#2CB1BC]" />
+          <h2 className="text-lg font-semibold text-slate-900">Cas</h2>
+        </div>
+
+        {cases.length === 0 ? (
+          <p className="text-sm text-slate-500">Aucun cas enregistre pour ce patient pour le moment.</p>
+        ) : (
+          <div className="space-y-3">
+            {cases.map((patientCase: any) => (
+              <Link key={patientCase.id} href={`/dashboard/cases/${patientCase.id}`}>
+                <div className="rounded-lg border border-slate-200 p-4 transition hover:border-[#2CB1BC] hover:bg-slate-50">
+                  <div className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="font-medium text-slate-900">
+                        {formatValue(patientCase.chief_complaint, 'Aucun motif principal')}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {formatValue(patientCase.case_type)} · {formatValue(patientCase.status)} · {formatDate(patientCase.created_at)}
+                      </p>
                     </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 shrink-0">
-                    {p.allergies && (
-                      <span className="hidden sm:flex items-center gap-1 text-xs text-amber-600 bg-amber-50 border border-amber-100 px-2 py-1 rounded-lg">
-                        <AlertCircle className="h-3 w-3" /> Allergies
-                      </span>
-                    )}
-                    <ArrowRight className="h-4 w-4 text-slate-300 group-hover:text-[#2CB1BC] transition-colors" />
+                    <span className="text-sm font-medium text-[#2CB1BC]">Ouvert</span>
                   </div>
                 </div>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      )}
+              </Link>
+            ))}
+          </div>
+        )}
+      </Card>
     </div>
   )
 }

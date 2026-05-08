@@ -129,6 +129,8 @@ export interface PatientInput {
   potassium?: number
   crp?: number
   lactates?: number
+  // Full validated clinical/toxicology profile
+  extendedProfile?: Record<string, any>
 }
 
 export async function createPatient(userId: string, data: PatientInput) {
@@ -148,7 +150,8 @@ export async function createPatient(userId: string, data: PatientInput) {
         blood_donor, immunodepression, sudden_medication_stop, regular_checkup,
         self_diagnosis, housing_conditions, previous_intoxication,
         allergy_reaction_types,
-        glycemia, sodium, potassium, crp, lactates
+        glycemia, sodium, potassium, crp, lactates,
+        extended_profile
       )
       VALUES (
         ${userId}, ${data.firstName}, ${data.lastName},
@@ -158,20 +161,21 @@ export async function createPatient(userId: string, data: PatientInput) {
         ${data.renalCreatinineClearance ?? null}, ${data.creatinine ?? null}, ${data.renalStage || null},
         ${data.hepaticStatus || null}, ${data.asat ?? null}, ${data.alat ?? null}, ${data.bilirubin ?? null},
         ${data.pregnancyStatus || null},
-        ${data.smokingStatus || 'non-smoker'}, ${data.alcoholUse || 'none'},
+        ${data.smokingStatus || null}, ${data.alcoholUse || null},
         ${data.substanceUse || null}, ${data.professionalExposure || null},
         ${data.physicalActivity || null}, ${data.dietType || null},
         ${data.stressLevel || null}, ${data.sleepQuality || null}, ${data.sleepHours ?? null},
         ${data.nightShift ?? false}, ${data.sunExposure || null},
         ${data.prolongedFasting ?? false}, ${data.restrictiveDiet ?? false},
         ${data.uncontrolledNaturalProducts ?? false},
-        ${data.bloodDonor ?? false}, ${data.immunodepression || 'none'},
+        ${data.bloodDonor ?? false}, ${data.immunodepression || null},
         ${data.suddenMedicationStop ?? false}, ${data.regularCheckup ?? true},
         ${data.selfDiagnosis ?? false}, ${data.housingConditions || null},
         ${data.previousIntoxication ?? false},
         ${data.allergyReactionTypes || null},
         ${data.glycemia ?? null}, ${data.sodium ?? null}, ${data.potassium ?? null},
-        ${data.crp ?? null}, ${data.lactates ?? null}
+        ${data.crp ?? null}, ${data.lactates ?? null},
+        ${JSON.stringify(data.extendedProfile ?? {})}::jsonb
       )
       RETURNING *
     `
@@ -245,6 +249,7 @@ export async function updatePatient(
       potassium: 'potassium',
       crp: 'crp',
       lactates: 'lactates',
+      extendedProfile: 'extended_profile',
     }
 
     const fields: string[] = []
@@ -254,6 +259,12 @@ export async function updatePatient(
     for (const [key, value] of Object.entries(updates)) {
       const col = columnMap[key as keyof PatientInput]
       if (col) {
+        if (key === 'extendedProfile') {
+          fields.push(`${col} = $${idx}::jsonb`)
+          values.push(JSON.stringify(value ?? {}))
+          idx++
+          continue
+        }
         fields.push(`${col} = $${idx}`)
         values.push(value ?? null)
         idx++

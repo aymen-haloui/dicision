@@ -52,6 +52,7 @@ export async function PUT(
       'smokingStatus', 'alcoholUse', 'substanceUse', 'professionalExposure', 'physicalActivity',
       'dietType', 'stressLevel', 'sleepQuality', 'sunExposure', 'immunodepression',
       'housingConditions', 'allergyReactionTypes']
+    const objectFields = ['extendedProfile']
 
     for (const field of stringFields) {
       if (body[field] !== undefined) (updates as any)[field] = body[field]
@@ -61,6 +62,11 @@ export async function PUT(
     }
     for (const field of boolFields) {
       if (body[field] !== undefined) (updates as any)[field] = body[field] === true || body[field] === 'true'
+    }
+    for (const field of objectFields) {
+      if (body[field] !== undefined && body[field] && typeof body[field] === 'object') {
+        (updates as any)[field] = body[field]
+      }
     }
 
     const patient = await updatePatient(id, session.user.id, updates)

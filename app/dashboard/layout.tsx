@@ -4,8 +4,8 @@ import { redirect } from 'next/navigation'
 import DashboardNav from '@/components/dashboard-nav'
 
 export const metadata = {
-  title: 'Dashboard - Medical Decision Support',
-  description: 'Manage cases and patients',
+  title: 'Tableau de bord - Aide a la decision medicale',
+  description: 'Gerer les cas et les patients',
 }
 
 export default async function DashboardLayout({
@@ -20,9 +20,9 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#f6f8f7]">
       <DashboardNav user={session.user} />
-      <main className="max-w-7xl mx-auto px-4 py-8">
+      <main className="mx-auto max-w-7xl px-4 py-6 lg:px-6 lg:py-8">
         {children}
       </main>
     </div>

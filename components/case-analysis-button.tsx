@@ -22,7 +22,7 @@ export default function CaseAnalysisButton({ caseId }: { caseId: string }) {
 
       if (!response.ok) {
         const data = await response.json()
-        setError(data.error || 'Analysis failed')
+        setError(data.error || 'Echec de l\'analyse')
         setIsLoading(false)
         return
       }
@@ -30,7 +30,7 @@ export default function CaseAnalysisButton({ caseId }: { caseId: string }) {
       // Refresh page to show updated assessment
       router.refresh()
     } catch (err) {
-      setError('An error occurred during analysis')
+      setError('Une erreur est survenue pendant l\'analyse')
       setIsLoading(false)
     }
   }
@@ -47,7 +47,7 @@ export default function CaseAnalysisButton({ caseId }: { caseId: string }) {
         className="bg-purple-600 hover:bg-purple-700"
         disabled={isLoading}
       >
-        {isLoading ? 'Analyzing...' : 'Run Analysis'}
+        {isLoading ? 'Analyse en cours...' : 'Lancer l\'analyse'}
       </Button>
     </>
   )

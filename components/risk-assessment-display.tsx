@@ -94,7 +94,7 @@ export default function RiskAssessmentDisplay({
   return (
     <div className={`border-2 rounded-lg p-6 ${getRiskColor(assessment.risk_level)}`}>
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-2xl font-bold text-slate-900">Risk Assessment</h3>
+        <h3 className="text-2xl font-bold text-slate-900">Evaluation du risque</h3>
         <span
           className={`inline-flex items-center px-4 py-2 rounded-full text-lg font-bold ${getRiskBadgeColor(assessment.risk_level)}`}
         >
@@ -105,7 +105,7 @@ export default function RiskAssessmentDisplay({
       {/* Risk Score */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-sm font-medium text-slate-600">Risk Score</p>
+          <p className="text-sm font-medium text-slate-600">Score de risque</p>
           <p className="text-3xl font-bold text-slate-900">
             {assessment.risk_score.toFixed(1)}/100
           </p>
@@ -128,7 +128,7 @@ export default function RiskAssessmentDisplay({
       {/* Findings */}
       {findings.length > 0 && (
         <div className="mb-6">
-          <h4 className="font-semibold text-slate-900 mb-3">Key Findings</h4>
+          <h4 className="font-semibold text-slate-900 mb-3">Constats cles</h4>
           <div className="space-y-3">
             {findings.map((finding, index) => (
               <div
@@ -153,7 +153,7 @@ export default function RiskAssessmentDisplay({
                 </div>
                 <p className="text-slate-700 mb-2">{finding.description}</p>
                 <p className="text-sm text-slate-600 italic">
-                  Recommendation: {finding.recommendation}
+                  Recommandation : {finding.recommendation}
                 </p>
               </div>
             ))}
@@ -164,7 +164,7 @@ export default function RiskAssessmentDisplay({
       {/* Recommendations */}
       {recommendations.length > 0 && (
         <div>
-          <h4 className="font-semibold text-slate-900 mb-3">Clinical Recommendations</h4>
+          <h4 className="font-semibold text-slate-900 mb-3">Recommandations cliniques</h4>
           <div className="space-y-3">
             {recommendations.map((rec, index) => (
               <div
@@ -186,7 +186,7 @@ export default function RiskAssessmentDisplay({
                   </span>
                 </div>
                 <p className="text-slate-700 mb-2">{rec.description}</p>
-                <p className="text-sm font-semibold text-slate-800">Action: {rec.action}</p>
+                <p className="text-sm font-semibold text-slate-800">Action : {rec.action}</p>
               </div>
             ))}
           </div>
@@ -194,7 +194,7 @@ export default function RiskAssessmentDisplay({
       )}
 
       <p className="text-xs text-slate-500 mt-6">
-        Assessment created: {new Date(assessment.created_at).toLocaleString()}
+        Evaluation creee le : {new Date(assessment.created_at).toLocaleString()}
       </p>
     </div>
   )

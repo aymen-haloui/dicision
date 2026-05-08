@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 })
     }
 
     const interactions = await sql`
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     `
     return NextResponse.json(interactions)
   } catch (error: any) {
-    return NextResponse.json({ error: 'Failed to fetch interactions' }, { status: 500 })
+    return NextResponse.json({ error: 'Echec du chargement des interactions' }, { status: 500 })
   }
 }
 
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 })
     }
 
     const { medicationId1, medicationId2, interactionType, severity, description, recommendation } =
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     if (!medicationId1 || !medicationId2 || !severity) {
       return NextResponse.json(
-        { error: 'Both medications and severity are required' },
+        { error: 'Les deux medicaments et la gravite sont obligatoires' },
         { status: 400 }
       )
     }
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     `
     return NextResponse.json(result[0], { status: 201 })
   } catch (error: any) {
-    return NextResponse.json({ error: 'Failed to create interaction rule' }, { status: 500 })
+    return NextResponse.json({ error: 'Echec de la creation de la regle d\'interaction' }, { status: 500 })
   }
 }
 
@@ -62,13 +62,13 @@ export async function DELETE(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 })
     }
 
     const { id } = await request.json()
     await sql`DELETE FROM interactions WHERE id = ${id}`
     return NextResponse.json({ success: true })
   } catch (error: any) {
-    return NextResponse.json({ error: 'Failed to delete interaction' }, { status: 500 })
+    return NextResponse.json({ error: 'Echec de la suppression de l\'interaction' }, { status: 500 })
   }
 }

@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 })
     }
 
     const medications = await sql`
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     `
     return NextResponse.json(medications)
   } catch (error: any) {
-    return NextResponse.json({ error: 'Failed to fetch medications' }, { status: 500 })
+    return NextResponse.json({ error: 'Echec du chargement des medicaments' }, { status: 500 })
   }
 }
 
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 })
     }
 
     const body = await request.json()
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     } = body
 
     if (!name) {
-      return NextResponse.json({ error: 'Name is required' }, { status: 400 })
+      return NextResponse.json({ error: 'Le nom est obligatoire' }, { status: 400 })
     }
 
     const result = await sql`
@@ -63,8 +63,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(result[0], { status: 201 })
   } catch (error: any) {
     if (error.code === '23505') {
-      return NextResponse.json({ error: 'A medication with this name already exists' }, { status: 409 })
+      return NextResponse.json({ error: 'Un medicament portant ce nom existe deja' }, { status: 409 })
     }
-    return NextResponse.json({ error: 'Failed to create medication' }, { status: 500 })
+    return NextResponse.json({ error: 'Echec de la creation du medicament' }, { status: 500 })
   }
 }

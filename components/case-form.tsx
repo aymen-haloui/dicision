@@ -76,7 +76,7 @@ export default function CaseForm() {
         }
       } catch (err) {
         console.error('Error loading data:', err)
-        setError('Failed to load data')
+        setError('Echec du chargement des donnees')
       } finally {
         setIsLoadingData(false)
       }
@@ -141,13 +141,13 @@ export default function CaseForm() {
 
     try {
       if (!formData.patientId) {
-        setError('Please select a patient')
+        setError('Veuillez selectionner un patient')
         setIsLoading(false)
         return
       }
 
       if (!formData.chiefComplaint) {
-        setError('Chief complaint is required')
+        setError('Le motif principal est obligatoire')
         setIsLoading(false)
         return
       }
@@ -167,7 +167,7 @@ export default function CaseForm() {
 
       if (!response.ok) {
         const data = await response.json()
-        setError(data.error || 'Failed to create case')
+        setError(data.error || 'Echec de la creation du cas')
         setIsLoading(false)
         return
       }
@@ -175,7 +175,7 @@ export default function CaseForm() {
       const data = await response.json()
       router.push(`/dashboard/cases/${data.id}`)
     } catch (err) {
-      setError('An error occurred. Please try again.')
+      setError('Une erreur est survenue. Veuillez reessayer.')
       setIsLoading(false)
     }
   }
@@ -184,6 +184,7 @@ export default function CaseForm() {
     return (
       <div className="text-center py-8">
         <p className="text-slate-600">Loading...</p>
+        <p className="text-slate-600">Chargement...</p>
       </div>
     )
   }
@@ -196,10 +197,10 @@ export default function CaseForm() {
         </Alert>
       )}
 
-      {/* Step 1: Basic Information */}
+      {/* Etape 1 : Informations generales */}
       {step === 1 && (
         <Card className="p-6 space-y-6">
-          <h2 className="text-2xl font-bold text-slate-900">Case Information</h2>
+          <h2 className="text-2xl font-bold text-slate-900">Informations du cas</h2>
 
           <div>
             <Label htmlFor="patientId" className="text-sm font-medium text-slate-900 mb-2 block">
@@ -214,7 +215,7 @@ export default function CaseForm() {
               disabled={isLoading}
               className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">Select a patient</option>
+              <option value="">Selectionner un patient</option>
               {patients.map((patient) => (
                 <option key={patient.id} value={patient.id}>
                   {patient.first_name} {patient.last_name}
@@ -225,32 +226,32 @@ export default function CaseForm() {
 
           <div>
             <Label htmlFor="caseType" className="text-sm font-medium text-slate-900 mb-2 block">
-              Case Type *
+              Type de cas *
             </Label>
             <select
               id="caseType"
               name="caseType"
-              aria-label="Case Type"
+              aria-label="Type de cas"
               value={formData.caseType}
               onChange={handleChange}
               disabled={isLoading}
               className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="clinical">Clinical</option>
-              <option value="emergency">Emergency</option>
+              <option value="clinical">Clinique</option>
+              <option value="emergency">Urgence</option>
             </select>
           </div>
 
           <div>
             <Label htmlFor="chiefComplaint" className="text-sm font-medium text-slate-900 mb-2 block">
-              Chief Complaint *
+              Motif principal *
             </Label>
             <textarea
               id="chiefComplaint"
               name="chiefComplaint"
               value={formData.chiefComplaint}
               onChange={handleChange}
-              placeholder="Describe the patient's main complaint..."
+              placeholder="Decrivez le motif principal du patient..."
               rows={4}
               disabled={isLoading}
               className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -259,14 +260,14 @@ export default function CaseForm() {
 
           <div>
             <Label htmlFor="symptoms" className="text-sm font-medium text-slate-900 mb-2 block">
-              Symptoms
+              Symptomes
             </Label>
             <textarea
               id="symptoms"
               name="symptoms"
               value={formData.symptoms}
               onChange={handleChange}
-              placeholder="List associated symptoms..."
+              placeholder="Listez les symptomes associes..."
               rows={3}
               disabled={isLoading}
               className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -274,11 +275,11 @@ export default function CaseForm() {
           </div>
 
           <div className="bg-slate-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-slate-900 mb-4">Vital Signs</h3>
+            <h3 className="font-semibold text-slate-900 mb-4">Constantes vitales</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="text-sm font-medium text-slate-900 mb-2 block">
-                  Heart Rate (bpm)
+                  Frequence cardiaque (bpm)
                 </Label>
                 <Input
                   type="number"
@@ -291,7 +292,7 @@ export default function CaseForm() {
               </div>
               <div>
                 <Label className="text-sm font-medium text-slate-900 mb-2 block">
-                  Blood Pressure
+                  Tension arterielle
                 </Label>
                 <Input
                   type="text"
@@ -318,7 +319,7 @@ export default function CaseForm() {
               </div>
               <div>
                 <Label className="text-sm font-medium text-slate-900 mb-2 block">
-                  Respiratory Rate (breaths/min)
+                  Frequence respiratoire (resp/min)
                 </Label>
                 <Input
                   type="number"
@@ -338,36 +339,36 @@ export default function CaseForm() {
             className="w-full bg-blue-600 hover:bg-blue-700"
             disabled={isLoading}
           >
-            Next: Add Medications
+            Suivant : ajouter les medicaments
           </Button>
         </Card>
       )}
 
-      {/* Step 2: Medications */}
+      {/* Etape 2 : Medicaments */}
       {step === 2 && (
         <Card className="p-6 space-y-6">
-          <h2 className="text-2xl font-bold text-slate-900">Medications</h2>
+          <h2 className="text-2xl font-bold text-slate-900">Medicaments</h2>
 
           {selectedMedications.map((med, index) => (
             <Card key={index} className="p-4 bg-slate-50 space-y-4">
               <div className="flex justify-between items-start">
-                <h3 className="font-semibold text-slate-900">Medication {index + 1}</h3>
+                <h3 className="font-semibold text-slate-900">Medicament {index + 1}</h3>
                 <Button
                   type="button"
                   variant="ghost"
                   onClick={() => handleRemoveMedication(index)}
                   disabled={isLoading}
                 >
-                  Remove
+                  Retirer
                 </Button>
               </div>
 
               <div>
                 <Label className="text-sm font-medium text-slate-900 mb-2 block">
-                  Medication *
+                  Medicament *
                 </Label>
                 <select
-                  aria-label="Medication"
+                  aria-label="Medicament"
                   value={med.medicationId}
                   onChange={(e) =>
                     handleMedicationChange(index, 'medicationId', e.target.value)
@@ -375,7 +376,7 @@ export default function CaseForm() {
                   disabled={isLoading}
                   className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">Select medication</option>
+                  <option value="">Selectionner un medicament</option>
                   {medications.map((medication) => (
                     <option key={medication.id} value={medication.id}>
                       {medication.name} ({medication.generic_name})
@@ -387,7 +388,7 @@ export default function CaseForm() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label className="text-sm font-medium text-slate-900 mb-2 block">
-                    Dosage
+                    Dose
                   </Label>
                   <Input
                     type="text"
@@ -401,7 +402,7 @@ export default function CaseForm() {
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-slate-900 mb-2 block">
-                    Frequency
+                    Frequence
                   </Label>
                   <Input
                     type="text"
@@ -409,13 +410,13 @@ export default function CaseForm() {
                     onChange={(e) =>
                       handleMedicationChange(index, 'frequency', e.target.value)
                     }
-                    placeholder="Once daily"
+                    placeholder="Une fois par jour"
                     disabled={isLoading}
                   />
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-slate-900 mb-2 block">
-                    Duration
+                    Duree
                   </Label>
                   <Input
                     type="text"
@@ -423,13 +424,13 @@ export default function CaseForm() {
                     onChange={(e) =>
                       handleMedicationChange(index, 'duration', e.target.value)
                     }
-                    placeholder="7 days"
+                    placeholder="7 jours"
                     disabled={isLoading}
                   />
                 </div>
                 <div>
                   <Label className="text-sm font-medium text-slate-900 mb-2 block">
-                    Route
+                    Voie
                   </Label>
                   <Input
                     type="text"
@@ -437,7 +438,7 @@ export default function CaseForm() {
                     onChange={(e) =>
                       handleMedicationChange(index, 'route', e.target.value)
                     }
-                    placeholder="Oral"
+                    placeholder="Orale"
                     disabled={isLoading}
                   />
                 </div>
@@ -452,7 +453,7 @@ export default function CaseForm() {
             className="w-full"
             disabled={isLoading}
           >
-            + Add Another Medication
+            + Ajouter un autre medicament
           </Button>
 
           <div className="flex gap-4">
@@ -463,14 +464,14 @@ export default function CaseForm() {
               className="flex-1"
               disabled={isLoading}
             >
-              Back
+              Retour
             </Button>
             <Button
               type="submit"
               className="flex-1 bg-green-600 hover:bg-green-700"
               disabled={isLoading}
             >
-              {isLoading ? 'Creating Case...' : 'Create Case'}
+              {isLoading ? 'Creation du cas...' : 'Creer le cas'}
             </Button>
           </div>
         </Card>

@@ -66,7 +66,7 @@ export default function LandingPage() {
                 variant="outline"
                 className="h-12 w-full rounded-xl border border-white/25 bg-white/8 px-8 font-medium text-white backdrop-blur-sm transition-all duration-250 hover:scale-[1.03] hover:border-white/50 hover:bg-white/16 active:scale-[0.98] sm:w-auto"
               >
-                Voir la demonstration
+                Voir une demonstration
               </Button>
             </div>
 

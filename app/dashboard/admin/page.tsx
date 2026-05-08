@@ -47,6 +47,12 @@ const SEV_DOT: Record<string, string> = {
   moderate: 'bg-yellow-500',
   mild:     'bg-emerald-500',
 }
+const SEV_LABEL: Record<string, string> = {
+  critical: 'Critique',
+  severe: 'Severe',
+  moderate: 'Moderee',
+  mild: 'Faible',
+}
 const CATEGORY_COLORS: Record<string, string> = {
   nsaid:        'bg-blue-100 text-blue-700',
   antibiotic:   'bg-violet-100 text-violet-700',
@@ -111,7 +117,7 @@ export default function AdminRulesPage() {
       setNewMed({ name: '', genericName: '', category: '', dosageForm: '', defaultDosage: '', warnings: '', maxDailyDoseAdult: '', maxDailyDoseChild: '', overdoseManagement: '' })
       setShowAddMed(false)
       await loadData()
-    } else { setError((await res.json()).error || 'Failed to add medication') }
+    } else { setError((await res.json()).error || 'Echec de l\'ajout du medicament') }
     setSaving(false)
   }
 
@@ -126,18 +132,18 @@ export default function AdminRulesPage() {
       setNewInt({ medicationId1: '', medicationId2: '', interactionType: '', severity: 'moderate', description: '', recommendation: '' })
       setShowAddInt(false)
       await loadData()
-    } else { setError((await res.json()).error || 'Failed to add rule') }
+    } else { setError((await res.json()).error || 'Echec de l\'ajout de la regle') }
     setSaving(false)
   }
 
   async function handleDeleteMedication(id: string) {
-    if (!confirm('Delete this medication? All related interaction rules and case data will also be removed.')) return
+    if (!confirm('Supprimer ce medicament ? Toutes les regles d\'interaction et les donnees de cas associees seront egalement supprimees.')) return
     await fetch(`/api/admin/medications/${id}`, { method: 'DELETE' })
     await loadData()
   }
 
   async function handleDeleteInteraction(id: string) {
-    if (!confirm('Delete this interaction rule?')) return
+    if (!confirm('Supprimer cette regle d\'interaction ?')) return
     await fetch('/api/admin/interactions', {
       method: 'DELETE', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
@@ -169,7 +175,7 @@ export default function AdminRulesPage() {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-3">
         <div className="w-8 h-8 border-4 border-slate-200 border-t-[#2CB1BC] rounded-full animate-spin" />
-        <p className="text-slate-500 text-sm">Loading clinical rules database...</p>
+        <p className="text-slate-500 text-sm">Chargement de la base des regles cliniques...</p>
       </div>
     )
   }
@@ -185,23 +191,23 @@ export default function AdminRulesPage() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
             <ShieldAlert className={`h-6 w-6 ${accentTextCls}`} />
-            Clinical Rules Engine
+            Moteur de regles cliniques
           </h1>
           <p className="text-slate-500 mt-1 text-sm">
-            Manage the medications, contraindications and interaction rules that power the decision engine.
+            Gere les medicaments, les contre-indications et les regles d\'interaction qui alimentent le moteur de decision.
           </p>
         </div>
         <div className="flex gap-2">
           {criticalCount > 0 && (
             <span className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-700 border border-red-200 rounded-full text-xs font-semibold">
               <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block" />
-              {criticalCount} critical
+              {criticalCount} critique{criticalCount > 1 ? 's' : ''}
             </span>
           )}
           {severeCount > 0 && (
             <span className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-50 text-orange-700 border border-orange-200 rounded-full text-xs font-semibold">
               <span className="w-1.5 h-1.5 rounded-full bg-orange-500 inline-block" />
-              {severeCount} severe
+              {severeCount} severe{severeCount > 1 ? 's' : ''}
             </span>
           )}
         </div>
@@ -210,10 +216,10 @@ export default function AdminRulesPage() {
       {/* â”€â”€ STATS ROW â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'Medications', value: medications.length, icon: <Pill className="h-5 w-5" />, color: 'text-blue-600 bg-blue-50' },
-          { label: 'Interaction Rules', value: interactions.length, icon: <Zap className="h-5 w-5" />, color: 'text-violet-600 bg-violet-50' },
-          { label: 'Critical Interactions', value: criticalCount, icon: <AlertTriangle className="h-5 w-5" />, color: 'text-red-600 bg-red-50' },
-          { label: 'Contraindication Sets', value: medications.reduce((n, m) => n + (m.contraindications?.length || 0), 0), icon: <FlaskConical className="h-5 w-5" />, color: 'text-amber-600 bg-amber-50' },
+          { label: 'Medicaments', value: medications.length, icon: <Pill className="h-5 w-5" />, color: 'text-blue-600 bg-blue-50' },
+          { label: 'Regles d\'interaction', value: interactions.length, icon: <Zap className="h-5 w-5" />, color: 'text-violet-600 bg-violet-50' },
+          { label: 'Interactions critiques', value: criticalCount, icon: <AlertTriangle className="h-5 w-5" />, color: 'text-red-600 bg-red-50' },
+          { label: 'Contre-indications', value: medications.reduce((n, m) => n + (m.contraindications?.length || 0), 0), icon: <FlaskConical className="h-5 w-5" />, color: 'text-amber-600 bg-amber-50' },
         ].map(s => (
           <Card key={s.label} className="p-4 flex items-center gap-3">
             <div className={`p-2 rounded-lg ${s.color}`}>{s.icon}</div>
@@ -229,7 +235,7 @@ export default function AdminRulesPage() {
         <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
           <AlertTriangle className="h-4 w-4 shrink-0" />
           {error}
-          <button type="button" aria-label="Dismiss error" title="Dismiss error" onClick={() => setError('')} className="ml-auto"><X className="h-4 w-4" /></button>
+          <button type="button" aria-label="Fermer l'erreur" title="Fermer l'erreur" onClick={() => setError('')} className="ml-auto"><X className="h-4 w-4" /></button>
         </div>
       )}
 
@@ -246,7 +252,7 @@ export default function AdminRulesPage() {
             }`}
           >
             {t === 'medications'
-              ? <span className="flex items-center gap-2"><Pill className="h-4 w-4" />Medications ({medications.length})</span>
+              ? <span className="flex items-center gap-2"><Pill className="h-4 w-4" />Medicaments ({medications.length})</span>
               : <span className="flex items-center gap-2"><Zap className="h-4 w-4" />Interactions ({interactions.length})</span>
             }
           </button>
@@ -266,7 +272,7 @@ export default function AdminRulesPage() {
               <Input
                 value={medSearch}
                 onChange={e => setMedSearch(e.target.value)}
-                placeholder="Search by name or category..."
+                placeholder="Rechercher par nom ou categorie..."
                 className="pl-9 h-9"
               />
             </div>
@@ -275,7 +281,7 @@ export default function AdminRulesPage() {
               className={`${accentButtonCls} h-9 gap-2`}
             >
               <Plus className="h-4 w-4" />
-              Add Medication
+              Ajouter un medicament
             </Button>
           </div>
 
@@ -284,50 +290,50 @@ export default function AdminRulesPage() {
             <Card className={`p-6 ${accentPanelCls}`}>
               <div className="flex items-center justify-between mb-5">
                 <h3 className="font-bold text-slate-900 flex items-center gap-2">
-                  <Plus className={`h-4 w-4 ${accentTextCls}`} /> New Medication
+                  <Plus className={`h-4 w-4 ${accentTextCls}`} /> Nouveau medicament
                 </h3>
-                <button type="button" aria-label="Close add medication form" title="Close add medication form" onClick={() => setShowAddMed(false)} className="text-slate-400 hover:text-slate-600">
+                <button type="button" aria-label="Fermer le formulaire d'ajout de medicament" title="Fermer le formulaire d'ajout de medicament" onClick={() => setShowAddMed(false)} className="text-slate-400 hover:text-slate-600">
                   <X className="h-4 w-4" />
                 </button>
               </div>
               <form onSubmit={handleAddMedication} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className={labelCls}>Name *</label>
-                  <input className={inputCls} value={newMed.name} onChange={e => setNewMed(p => ({ ...p, name: e.target.value }))} placeholder="e.g. Ibuprofen" required />
+                  <label className={labelCls}>Nom *</label>
+                  <input className={inputCls} value={newMed.name} onChange={e => setNewMed(p => ({ ...p, name: e.target.value }))} placeholder="ex. Ibuprofene" required />
                 </div>
                 <div>
-                  <label className={labelCls}>Generic Name</label>
-                  <input className={inputCls} value={newMed.genericName} onChange={e => setNewMed(p => ({ ...p, genericName: e.target.value }))} placeholder="e.g. Ibuprofen" />
+                  <label className={labelCls}>Nom generique</label>
+                  <input className={inputCls} value={newMed.genericName} onChange={e => setNewMed(p => ({ ...p, genericName: e.target.value }))} placeholder="ex. Ibuprofene" />
                 </div>
                 <div>
-                  <label className={labelCls}>Category</label>
-                  <input className={inputCls} value={newMed.category} onChange={e => setNewMed(p => ({ ...p, category: e.target.value }))} placeholder="e.g. NSAID, Antibiotic" />
+                  <label className={labelCls}>Categorie</label>
+                  <input className={inputCls} value={newMed.category} onChange={e => setNewMed(p => ({ ...p, category: e.target.value }))} placeholder="ex. AINS, antibiotique" />
                 </div>
                 <div>
-                  <label className={labelCls}>Default Dosage</label>
-                  <input className={inputCls} value={newMed.defaultDosage} onChange={e => setNewMed(p => ({ ...p, defaultDosage: e.target.value }))} placeholder="e.g. 400mg" />
+                  <label className={labelCls}>Posologie par defaut</label>
+                  <input className={inputCls} value={newMed.defaultDosage} onChange={e => setNewMed(p => ({ ...p, defaultDosage: e.target.value }))} placeholder="ex. 400 mg" />
                 </div>
                 <div>
-                  <label className={labelCls}>Max Daily Dose â€” Adult (mg)</label>
-                  <input type="number" className={inputCls} value={newMed.maxDailyDoseAdult} onChange={e => setNewMed(p => ({ ...p, maxDailyDoseAdult: e.target.value }))} placeholder="e.g. 3200" />
+                  <label className={labelCls}>Dose maximale journaliere adulte (mg)</label>
+                  <input type="number" className={inputCls} value={newMed.maxDailyDoseAdult} onChange={e => setNewMed(p => ({ ...p, maxDailyDoseAdult: e.target.value }))} placeholder="ex. 3200" />
                 </div>
                 <div>
-                  <label className={labelCls}>Max Daily Dose â€” Child (mg/day)</label>
-                  <input type="number" className={inputCls} value={newMed.maxDailyDoseChild} onChange={e => setNewMed(p => ({ ...p, maxDailyDoseChild: e.target.value }))} placeholder="e.g. 40" />
+                  <label className={labelCls}>Dose maximale journaliere enfant (mg/jour)</label>
+                  <input type="number" className={inputCls} value={newMed.maxDailyDoseChild} onChange={e => setNewMed(p => ({ ...p, maxDailyDoseChild: e.target.value }))} placeholder="ex. 40" />
                 </div>
                 <div className="md:col-span-2">
-                  <label className={labelCls}>Warnings</label>
-                  <textarea className={inputCls} value={newMed.warnings} onChange={e => setNewMed(p => ({ ...p, warnings: e.target.value }))} rows={2} placeholder="Known clinical risks..." />
+                  <label className={labelCls}>Avertissements</label>
+                  <textarea className={inputCls} value={newMed.warnings} onChange={e => setNewMed(p => ({ ...p, warnings: e.target.value }))} rows={2} placeholder="Risques cliniques connus..." />
                 </div>
                 <div className="md:col-span-2">
-                  <label className={labelCls}>Overdose Management</label>
-                  <textarea className={inputCls} value={newMed.overdoseManagement} onChange={e => setNewMed(p => ({ ...p, overdoseManagement: e.target.value }))} rows={2} placeholder="Protocol for managing overdose..." />
+                  <label className={labelCls}>Prise en charge du surdosage</label>
+                  <textarea className={inputCls} value={newMed.overdoseManagement} onChange={e => setNewMed(p => ({ ...p, overdoseManagement: e.target.value }))} rows={2} placeholder="Protocole de prise en charge du surdosage..." />
                 </div>
                 <div className="md:col-span-2 flex gap-3 pt-1">
                   <Button type="submit" disabled={saving} className={accentButtonCls}>
-                    {saving ? 'Saving...' : 'Save Medication'}
+                    {saving ? 'Enregistrement...' : 'Enregistrer le medicament'}
                   </Button>
-                  <Button type="button" variant="outline" onClick={() => setShowAddMed(false)}>Cancel</Button>
+                  <Button type="button" variant="outline" onClick={() => setShowAddMed(false)}>Annuler</Button>
                 </div>
               </form>
             </Card>
@@ -338,8 +344,8 @@ export default function AdminRulesPage() {
             {filteredMeds.length === 0 && (
               <div className="text-center py-16 text-slate-400">
                 <Pill className="h-10 w-10 mx-auto mb-3 opacity-30" />
-                <p className="font-medium">No medications found</p>
-                <p className="text-sm mt-1">Add one above or adjust your search</p>
+                <p className="font-medium">Aucun medicament trouve</p>
+                <p className="text-sm mt-1">Ajoutez-en un ci-dessus ou ajustez votre recherche</p>
               </div>
             )}
             {filteredMeds.map(med => {
@@ -366,9 +372,9 @@ export default function AdminRulesPage() {
                       </div>
 
                       <div className="mt-1.5 flex gap-4 text-xs text-slate-500 flex-wrap">
-                        {med.default_dosage && <span>Default: <strong className="text-slate-700">{med.default_dosage}</strong></span>}
-                        {med.max_daily_dose_adult != null && <span>Max adult: <strong className="text-slate-700">{med.max_daily_dose_adult} mg/day</strong></span>}
-                        {med.max_daily_dose_child != null && <span>Max child: <strong className="text-slate-700">{med.max_daily_dose_child} mg/day</strong></span>}
+                        {med.default_dosage && <span>Posologie par defaut : <strong className="text-slate-700">{med.default_dosage}</strong></span>}
+                        {med.max_daily_dose_adult != null && <span>Max adulte : <strong className="text-slate-700">{med.max_daily_dose_adult} mg/jour</strong></span>}
+                        {med.max_daily_dose_child != null && <span>Max enfant : <strong className="text-slate-700">{med.max_daily_dose_child} mg/jour</strong></span>}
                       </div>
 
                       {med.warnings && (
@@ -382,8 +388,8 @@ export default function AdminRulesPage() {
                       {(med.contraindications?.length > 0 || med.overdose_management) && (
                         <button
                           type="button"
-                          aria-label={isExpanded ? 'Collapse medication details' : 'Expand medication details'}
-                          title={isExpanded ? 'Collapse medication details' : 'Expand medication details'}
+                          aria-label={isExpanded ? 'Replier les details du medicament' : 'Afficher les details du medicament'}
+                          title={isExpanded ? 'Replier les details du medicament' : 'Afficher les details du medicament'}
                           onClick={() => setExpandedMed(isExpanded ? null : med.id)}
                           className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition"
                         >
@@ -392,8 +398,8 @@ export default function AdminRulesPage() {
                       )}
                       <button
                         type="button"
-                        aria-label={`Delete medication ${med.name}`}
-                        title={`Delete medication ${med.name}`}
+                        aria-label={`Supprimer le medicament ${med.name}`}
+                        title={`Supprimer le medicament ${med.name}`}
                         onClick={() => handleDeleteMedication(med.id)}
                         className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition"
                       >
@@ -407,7 +413,7 @@ export default function AdminRulesPage() {
                     <div className="border-t border-slate-100 bg-slate-50/60 px-4 py-4 space-y-3">
                       {med.contraindications?.length > 0 && (
                         <div>
-                          <p className="text-xs font-bold text-slate-600 uppercase tracking-wide mb-2">Contraindications</p>
+                          <p className="text-xs font-bold text-slate-600 uppercase tracking-wide mb-2">Contre-indications</p>
                           <div className="flex flex-wrap gap-2">
                             {med.contraindications.map((ci, i) => (
                               <span key={i} className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg border ${ci.severity === 'absolute' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-orange-50 text-orange-700 border-orange-200'}`}>
@@ -421,7 +427,7 @@ export default function AdminRulesPage() {
                       )}
                       {med.overdose_management && (
                         <div>
-                          <p className="text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">Overdose Protocol</p>
+                          <p className="text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">Protocole de surdosage</p>
                           <p className="text-xs text-slate-600 leading-relaxed">{med.overdose_management}</p>
                         </div>
                       )}
@@ -447,7 +453,7 @@ export default function AdminRulesPage() {
               <Input
                 value={intSearch}
                 onChange={e => setIntSearch(e.target.value)}
-                placeholder="Search drug name or severity..."
+                placeholder="Rechercher un nom de medicament ou une gravite..."
                 className="pl-9 h-9"
               />
             </div>
@@ -456,7 +462,7 @@ export default function AdminRulesPage() {
               className={`${accentButtonCls} h-9 gap-2`}
             >
               <Plus className="h-4 w-4" />
-              Add Rule
+              Ajouter une regle
             </Button>
           </div>
 
@@ -465,53 +471,53 @@ export default function AdminRulesPage() {
             <Card className={`p-6 ${accentPanelCls}`}>
               <div className="flex items-center justify-between mb-5">
                 <h3 className="font-bold text-slate-900 flex items-center gap-2">
-                  <Zap className={`h-4 w-4 ${accentTextCls}`} /> New Interaction Rule
+                  <Zap className={`h-4 w-4 ${accentTextCls}`} /> Nouvelle regle d\'interaction
                 </h3>
-                <button type="button" aria-label="Close add interaction form" title="Close add interaction form" onClick={() => setShowAddInt(false)} className="text-slate-400 hover:text-slate-600">
+                <button type="button" aria-label="Fermer le formulaire d'ajout d'interaction" title="Fermer le formulaire d'ajout d'interaction" onClick={() => setShowAddInt(false)} className="text-slate-400 hover:text-slate-600">
                   <X className="h-4 w-4" />
                 </button>
               </div>
               <form onSubmit={handleAddInteraction} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className={labelCls}>Drug 1 *</label>
-                  <select aria-label="Drug 1" value={newInt.medicationId1} onChange={e => setNewInt(p => ({ ...p, medicationId1: e.target.value }))} required className={inputCls}>
-                    <option value="">Select medication...</option>
+                  <label className={labelCls}>Medicament 1 *</label>
+                  <select aria-label="Medicament 1" value={newInt.medicationId1} onChange={e => setNewInt(p => ({ ...p, medicationId1: e.target.value }))} required className={inputCls}>
+                    <option value="">Selectionner un medicament...</option>
                     {medications.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className={labelCls}>Drug 2 *</label>
-                  <select aria-label="Drug 2" value={newInt.medicationId2} onChange={e => setNewInt(p => ({ ...p, medicationId2: e.target.value }))} required className={inputCls}>
-                    <option value="">Select medication...</option>
+                  <label className={labelCls}>Medicament 2 *</label>
+                  <select aria-label="Medicament 2" value={newInt.medicationId2} onChange={e => setNewInt(p => ({ ...p, medicationId2: e.target.value }))} required className={inputCls}>
+                    <option value="">Selectionner un medicament...</option>
                     {medications.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className={labelCls}>Interaction Type</label>
-                  <input className={inputCls} value={newInt.interactionType} onChange={e => setNewInt(p => ({ ...p, interactionType: e.target.value }))} placeholder="e.g. Hemorrhage risk" />
+                  <label className={labelCls}>Type d\'interaction</label>
+                  <input className={inputCls} value={newInt.interactionType} onChange={e => setNewInt(p => ({ ...p, interactionType: e.target.value }))} placeholder="ex. Risque hemorragique" />
                 </div>
                 <div>
-                  <label className={labelCls}>Severity *</label>
-                  <select aria-label="Severity" value={newInt.severity} onChange={e => setNewInt(p => ({ ...p, severity: e.target.value }))} className={inputCls}>
-                    <option value="mild">Mild</option>
-                    <option value="moderate">Moderate</option>
+                  <label className={labelCls}>Gravite *</label>
+                  <select aria-label="Gravite" value={newInt.severity} onChange={e => setNewInt(p => ({ ...p, severity: e.target.value }))} className={inputCls}>
+                    <option value="mild">Faible</option>
+                    <option value="moderate">Moderee</option>
                     <option value="severe">Severe</option>
-                    <option value="critical">Critical</option>
+                    <option value="critical">Critique</option>
                   </select>
                 </div>
                 <div className="md:col-span-2">
                   <label className={labelCls}>Description</label>
-                  <textarea className={inputCls} value={newInt.description} onChange={e => setNewInt(p => ({ ...p, description: e.target.value }))} rows={2} placeholder="Mechanism of interaction..." />
+                  <textarea className={inputCls} value={newInt.description} onChange={e => setNewInt(p => ({ ...p, description: e.target.value }))} rows={2} placeholder="Mecanisme de l'interaction..." />
                 </div>
                 <div className="md:col-span-2">
-                  <label className={labelCls}>Clinical Recommendation</label>
-                  <textarea className={inputCls} value={newInt.recommendation} onChange={e => setNewInt(p => ({ ...p, recommendation: e.target.value }))} rows={2} placeholder="What the clinician should do..." />
+                  <label className={labelCls}>Recommandation clinique</label>
+                  <textarea className={inputCls} value={newInt.recommendation} onChange={e => setNewInt(p => ({ ...p, recommendation: e.target.value }))} rows={2} placeholder="Que doit faire le clinicien..." />
                 </div>
                 <div className="md:col-span-2 flex gap-3 pt-1">
                   <Button type="submit" disabled={saving} className={accentButtonCls}>
-                    {saving ? 'Saving...' : 'Save Rule'}
+                    {saving ? 'Enregistrement...' : 'Enregistrer la regle'}
                   </Button>
-                  <Button type="button" variant="outline" onClick={() => setShowAddInt(false)}>Cancel</Button>
+                  <Button type="button" variant="outline" onClick={() => setShowAddInt(false)}>Annuler</Button>
                 </div>
               </form>
             </Card>
@@ -522,8 +528,8 @@ export default function AdminRulesPage() {
             {filteredInts.length === 0 && (
               <div className="text-center py-16 text-slate-400">
                 <Zap className="h-10 w-10 mx-auto mb-3 opacity-30" />
-                <p className="font-medium">No interaction rules found</p>
-                <p className="text-sm mt-1">Add one above or adjust your search</p>
+                <p className="font-medium">Aucune regle d\'interaction trouvee</p>
+                <p className="text-sm mt-1">Ajoutez-en une ci-dessus ou ajustez votre recherche</p>
               </div>
             )}
             {filteredInts.map(int => (
@@ -536,7 +542,7 @@ export default function AdminRulesPage() {
                       <span className="font-bold text-slate-900">{int.drug2}</span>
                       <span className={`flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-semibold rounded-full border ${SEV_PILL[int.severity] ?? 'bg-slate-100 text-slate-600 border-slate-200'}`}>
                         <span className={`w-1.5 h-1.5 rounded-full ${SEV_DOT[int.severity] ?? 'bg-slate-400'}`} />
-                        {int.severity}
+                        {SEV_LABEL[int.severity] ?? int.severity}
                       </span>
                       {int.interaction_type && (
                         <span className="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">{int.interaction_type}</span>
@@ -553,8 +559,8 @@ export default function AdminRulesPage() {
                   </div>
                   <button
                     type="button"
-                    aria-label={`Delete interaction ${int.drug1} and ${int.drug2}`}
-                    title={`Delete interaction ${int.drug1} and ${int.drug2}`}
+                    aria-label={`Supprimer l'interaction ${int.drug1} et ${int.drug2}`}
+                    title={`Supprimer l'interaction ${int.drug1} et ${int.drug2}`}
                     onClick={() => handleDeleteInteraction(int.id)}
                     className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition shrink-0"
                   >

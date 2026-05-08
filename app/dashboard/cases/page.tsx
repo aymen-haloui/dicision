@@ -8,7 +8,7 @@ import postgres from 'postgres'
 const sql = postgres(process.env.DATABASE_URL!)
 
 export const metadata = {
-  title: 'Cases â€” HEXA',
+  title: 'Cas - HEXA',
 }
 
 async function getCasesWithPatients(userId: string) {
@@ -46,18 +46,18 @@ export default async function CasesPage() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
             <FolderOpen className="h-6 w-6 text-[#2CB1BC]" />
-            Cases
+            Cas
           </h1>
           <p className="text-slate-500 mt-1 text-sm">
-            {cases.length} total case{cases.length !== 1 ? 's' : ''}
+            {cases.length} cas au total
             {emergencies > 0 && (
-              <span className="ml-2 text-red-600 font-medium">Â· {emergencies} emergency</span>
+              <span className="ml-2 text-red-600 font-medium">· {emergencies} urgence{emergencies > 1 ? 's' : ''}</span>
             )}
           </p>
         </div>
         <Link href="/dashboard/cases/new">
           <button className="flex items-center gap-2 px-4 py-2 bg-[#2CB1BC] hover:bg-[#239AA3] text-white text-sm font-medium rounded-lg transition">
-            <Plus className="h-4 w-4" /> New Case
+            <Plus className="h-4 w-4" /> Nouveau cas
           </button>
         </Link>
       </div>
@@ -66,10 +66,10 @@ export default async function CasesPage() {
       {cases.length === 0 ? (
         <Card className="p-16 text-center">
           <FolderOpen className="h-10 w-10 text-slate-200 mx-auto mb-3" />
-          <p className="text-slate-500 font-medium">No cases yet</p>
+          <p className="text-slate-500 font-medium">Aucun cas pour le moment</p>
           <Link href="/dashboard/cases/new">
             <button className="mt-4 px-4 py-2 bg-[#2CB1BC] text-white text-sm font-medium rounded-lg hover:bg-[#239AA3] transition">
-              Create Case
+              Creer un cas
             </button>
           </Link>
         </Card>
@@ -104,7 +104,7 @@ export default async function CasesPage() {
                     <p className="text-sm text-slate-500 truncate mt-0.5">
                       {c.chief_complaint
                         ? c.chief_complaint.substring(0, 90)
-                        : 'No complaint recorded'}
+                        : 'Aucun motif renseigne'}
                     </p>
                   </div>
 

@@ -9,7 +9,7 @@ import CaseAnalysisButton from '@/components/case-analysis-button'
 import RiskAssessmentDisplay from '@/components/risk-assessment-display'
 
 export const metadata = {
-  title: 'Case Details - Medical Decision Support',
+  title: 'Details du cas - Aide a la decision medicale',
 }
 
 export default async function CaseDetailPage({
@@ -50,16 +50,16 @@ export default async function CaseDetailPage({
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-4xl font-bold text-slate-900">
-            Case: {patient?.first_name} {patient?.last_name}
+            Cas : {patient?.first_name} {patient?.last_name}
           </h1>
           <p className="text-slate-600 mt-2">
-            {caseData.case_type === 'emergency' ? '🚨 Emergency' : 'Clinical'} Case
+            Cas {caseData.case_type === 'emergency' ? '🚨 d\'urgence' : 'clinique'}
           </p>
         </div>
         <div className="flex gap-2">
           <CaseAnalysisButton caseId={id} />
           <Link href="/dashboard/cases">
-            <Button variant="outline">Back to Cases</Button>
+            <Button variant="outline">Retour aux cas</Button>
           </Link>
         </div>
       </div>
@@ -71,12 +71,12 @@ export default async function CaseDetailPage({
         </Card>
       )}
 
-      {/* Case Information */}
+      {/* Informations du cas */}
       <Card className="p-6">
-        <h2 className="text-xl font-bold text-slate-900 mb-6">Case Information</h2>
+        <h2 className="text-xl font-bold text-slate-900 mb-6">Informations du cas</h2>
         <div className="grid grid-cols-2 gap-6">
           <div>
-            <p className="text-sm text-slate-600 mb-1">Case Type</p>
+            <p className="text-sm text-slate-600 mb-1">Type de cas</p>
             <span
               className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
                 caseData.case_type === 'emergency'
@@ -88,13 +88,13 @@ export default async function CaseDetailPage({
             </span>
           </div>
           <div>
-            <p className="text-sm text-slate-600 mb-1">Status</p>
+            <p className="text-sm text-slate-600 mb-1">Statut</p>
             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
               {caseData.status}
             </span>
           </div>
           <div>
-            <p className="text-sm text-slate-600 mb-1">Date Created</p>
+            <p className="text-sm text-slate-600 mb-1">Date de creation</p>
             <p className="text-lg font-medium text-slate-900">
               {new Date(caseData.created_at).toLocaleString()}
             </p>
@@ -102,24 +102,24 @@ export default async function CaseDetailPage({
         </div>
       </Card>
 
-      {/* Chief Complaint */}
+      {/* Motif principal */}
       <Card className="p-6">
-        <h2 className="text-xl font-bold text-slate-900 mb-4">Chief Complaint</h2>
+        <h2 className="text-xl font-bold text-slate-900 mb-4">Motif principal</h2>
         <p className="text-slate-700 text-lg">{caseData.chief_complaint}</p>
       </Card>
 
-      {/* Symptoms */}
+      {/* Symptomes */}
       {caseData.symptoms && (
         <Card className="p-6">
-          <h2 className="text-xl font-bold text-slate-900 mb-4">Symptoms</h2>
+          <h2 className="text-xl font-bold text-slate-900 mb-4">Symptomes</h2>
           <p className="text-slate-700 whitespace-pre-wrap">{caseData.symptoms}</p>
         </Card>
       )}
 
-      {/* Vital Signs */}
+      {/* Constantes vitales */}
       {caseData.vital_signs && Object.keys(caseData.vital_signs).length > 0 && (
         <Card className="p-6">
-          <h2 className="text-xl font-bold text-slate-900 mb-6">Vital Signs</h2>
+          <h2 className="text-xl font-bold text-slate-900 mb-6">Constantes vitales</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {Object.entries(caseData.vital_signs).map(([key, value]) => (
               <div
@@ -136,26 +136,26 @@ export default async function CaseDetailPage({
         </Card>
       )}
 
-      {/* Medications */}
+      {/* Medicaments */}
       <Card className="p-6">
-        <h2 className="text-xl font-bold text-slate-900 mb-6">Medications</h2>
+        <h2 className="text-xl font-bold text-slate-900 mb-6">Medicaments</h2>
 
         {medications.length === 0 ? (
-          <p className="text-slate-500">No medications added to this case</p>
+          <p className="text-slate-500">Aucun medicament ajoute a ce cas</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-200">
                   <th className="text-left py-3 px-4 font-medium text-slate-600">
-                    Medication
+                    Medicament
                   </th>
-                  <th className="text-left py-3 px-4 font-medium text-slate-600">Dosage</th>
+                  <th className="text-left py-3 px-4 font-medium text-slate-600">Dose</th>
                   <th className="text-left py-3 px-4 font-medium text-slate-600">
-                    Frequency
+                    Frequence
                   </th>
-                  <th className="text-left py-3 px-4 font-medium text-slate-600">Duration</th>
-                  <th className="text-left py-3 px-4 font-medium text-slate-600">Route</th>
+                  <th className="text-left py-3 px-4 font-medium text-slate-600">Duree</th>
+                  <th className="text-left py-3 px-4 font-medium text-slate-600">Voie</th>
                 </tr>
               </thead>
               <tbody>
@@ -181,12 +181,12 @@ export default async function CaseDetailPage({
         )}
       </Card>
 
-      {/* Patient Information */}
+      {/* Informations patient */}
       {patient && (
         <Card className="p-6">
-          <h2 className="text-xl font-bold text-slate-900 mb-6">Patient Information</h2>
+          <h2 className="text-xl font-bold text-slate-900 mb-6">Informations patient</h2>
           <Link href={`/dashboard/patients/${patient.id}`}>
-            <Button variant="outline">View Full Patient Record</Button>
+            <Button variant="outline">Voir le dossier patient complet</Button>
           </Link>
         </Card>
       )}

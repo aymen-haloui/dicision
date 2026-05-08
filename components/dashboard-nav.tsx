@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
-import { LayoutDashboard, Users, FolderOpen, ShieldAlert, LogOut } from 'lucide-react'
+import { LayoutDashboard, Users, FolderOpen, ShieldAlert, LogOut, UserRound } from 'lucide-react'
 
 interface User {
   name?: string | null
@@ -12,9 +12,10 @@ interface User {
 }
 
 const BASE_NAV = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
   { href: '/dashboard/patients', label: 'Patients', icon: Users },
-  { href: '/dashboard/cases', label: 'Cases', icon: FolderOpen },
+  { href: '/dashboard/cases', label: 'Cas', icon: FolderOpen },
+  { href: '/dashboard/profile', label: 'Profil', icon: UserRound },
 ]
 
 export default function DashboardNav({ user }: { user: User }) {
@@ -29,33 +30,33 @@ export default function DashboardNav({ user }: { user: User }) {
 
   const links =
     user?.specialization === 'admin'
-      ? [...BASE_NAV, { href: '/dashboard/admin', label: 'Rules Engine', icon: ShieldAlert }]
+      ? [...BASE_NAV, { href: '/dashboard/admin', label: 'Moteur de regles', icon: ShieldAlert }]
       : BASE_NAV
 
   return (
-    <nav className="bg-white border-b border-slate-100 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+    <nav className="sticky top-0 z-50 border-b border-[#dce8e6] bg-[#f6f8f7]/75 backdrop-blur-xl">
+      <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-4 lg:px-6">
 
         {/* brand + links */}
-        <div className="flex items-center gap-8">
-          <Link href="/dashboard" className="flex items-center gap-2 shrink-0">
-            <span className="w-7 h-7 rounded-lg bg-[#2CB1BC] flex items-center justify-center">
+        <div className="flex items-center gap-6 lg:gap-8">
+          <Link href="/dashboard" className="flex shrink-0 items-center gap-2.5">
+            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-[#18a8a2] to-[#0f8f89] shadow-[0_10px_30px_rgba(0,0,0,0.16)]">
               <span className="text-white font-black text-xs leading-none">Hx</span>
             </span>
-            <span className="font-bold text-slate-900 text-lg tracking-tight">HEXA</span>
+            <span className="text-lg font-semibold tracking-tight text-slate-900">HEXA</span>
           </Link>
 
-          <div className="flex items-center gap-1">
+          <div className="hidden items-center gap-1 md:flex">
             {links.map(({ href, label, icon: Icon }) => {
               const active = href === '/dashboard' ? path === href : path.startsWith(href)
               return (
                 <Link
                   key={href}
                   href={href}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition ${
                     active
-                      ? 'bg-[#2CB1BC]/10 text-[#2CB1BC]'
-                      : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
+                      ? 'bg-[#dff7f5] text-[#0f8f89]'
+                      : 'text-slate-500 hover:bg-white hover:text-slate-900'
                   }`}
                 >
                   <Icon className="h-4 w-4" />
@@ -68,21 +69,21 @@ export default function DashboardNav({ user }: { user: User }) {
 
         {/* user */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-3 pr-3 border-r border-slate-200">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#2CB1BC] to-[#239AA3] flex items-center justify-center text-white text-xs font-bold shrink-0">
+          <div className="flex items-center gap-3 border-r border-[#dae7e5] pr-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#2CB1BC] to-[#239AA3] text-xs font-bold text-white">
               {initials}
             </div>
-            <div className="hidden sm:block leading-tight">
+            <div className="hidden leading-tight sm:block">
               <p className="text-sm font-semibold text-slate-900">{user?.name}</p>
               <p className="text-xs text-slate-400 capitalize">{user?.specialization}</p>
             </div>
           </div>
           <button
             onClick={() => signOut({ redirect: true, callbackUrl: '/auth/login' })}
-            className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-red-600 transition-colors px-2 py-1.5 rounded-lg hover:bg-red-50"
+            className="flex items-center gap-1.5 rounded-xl px-2.5 py-2 text-sm text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
           >
             <LogOut className="h-4 w-4" />
-            <span className="hidden sm:inline">Sign out</span>
+            <span className="hidden sm:inline">Se deconnecter</span>
           </button>
         </div>
 

@@ -14,7 +14,7 @@ export async function PUT(
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 })
     }
 
     const body = await request.json()
@@ -43,11 +43,11 @@ export async function PUT(
     `
 
     if (result.length === 0) {
-      return NextResponse.json({ error: 'Medication not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Medicament introuvable' }, { status: 404 })
     }
     return NextResponse.json(result[0])
   } catch (error: any) {
-    return NextResponse.json({ error: 'Failed to update medication' }, { status: 500 })
+    return NextResponse.json({ error: 'Echec de la mise a jour du medicament' }, { status: 500 })
   }
 }
 
@@ -60,12 +60,12 @@ export async function DELETE(
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 })
     }
 
     await sql`DELETE FROM medications WHERE id = ${id}`
     return NextResponse.json({ success: true })
   } catch (error: any) {
-    return NextResponse.json({ error: 'Failed to delete medication' }, { status: 500 })
+    return NextResponse.json({ error: 'Echec de la suppression du medicament' }, { status: 500 })
   }
 }
