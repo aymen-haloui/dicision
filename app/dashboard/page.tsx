@@ -2,6 +2,7 @@
 import { authOptions } from '@/lib/auth'
 import Link from 'next/link'
 import { Card } from '@/components/ui/card'
+import { DashboardQuickActions } from '@/components/dashboard-quick-actions'
 import {
   Users,
   FolderOpen,
@@ -118,7 +119,8 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6 lg:space-y-8">
+    <div className="flex gap-6 lg:gap-8">
+      <div className="flex-1 space-y-6 lg:space-y-8">
       <section className="relative overflow-hidden rounded-[20px] border border-[#d8ebe8] bg-gradient-to-br from-[#e9f8f6] via-[#f4fbfa] to-[#f9fcfb] p-6 shadow-[0_10px_30px_rgba(0,0,0,0.06)] lg:p-8">
         <div className="pointer-events-none absolute -right-20 -top-16 h-56 w-56 rounded-full bg-[#2cb1bc]/20 blur-3xl" />
         <div className="pointer-events-none absolute -left-24 bottom-0 h-40 w-40 rounded-full bg-[#1ea390]/15 blur-3xl" />
@@ -134,7 +136,7 @@ export default async function DashboardPage() {
               les signaux de triage et les recommandations d\'aide a la decision dans une vue compacte.
             </p>
 
-            <div className="mt-5 flex flex-wrap gap-3">
+            <div className="mt-5 flex flex-wrap gap-3 lg:hidden">
               <Link href="/dashboard/cases/new"
                 className="inline-flex items-center gap-2 rounded-xl bg-[#0f8f89] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0c7a74]">
                 <Plus className="h-4 w-4" />
@@ -285,6 +287,8 @@ export default async function DashboardPage() {
           </Card>
         )}
       </section>
+      </div>
+      <DashboardQuickActions />
     </div>
   )
 }
