@@ -342,28 +342,3 @@ export async function DELETE(
     )
   }
 }
-      if (body[field] !== undefined && body[field] !== '') (updates as any)[field] = parseFloat(body[field])
-    }
-    for (const field of boolFields) {
-      if (body[field] !== undefined) (updates as any)[field] = body[field] === true || body[field] === 'true'
-    }
-    for (const field of objectFields) {
-      if (body[field] !== undefined && body[field] && typeof body[field] === 'object') {
-        (updates as any)[field] = body[field]
-      }
-    }
-
-    const patient = await updatePatient(id, session.user.id, updates)
-    if (!patient) {
-      return NextResponse.json({ error: 'Patient not found' }, { status: 404 })
-    }
-
-    return NextResponse.json(patient)
-  } catch (error: any) {
-    console.error('Error updating patient:', error)
-    return NextResponse.json(
-      { error: 'Failed to update patient' },
-      { status: 500 }
-    )
-  }
-}
