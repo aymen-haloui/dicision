@@ -65,63 +65,15 @@ async function run() {
   console.log('\nSeeding options...')
 
   const options = [
-    // Gender options
-    { category: 'gender', value: 'Femme', label: 'Femme', order: 1 },
-    { category: 'gender', value: 'Homme', label: 'Homme', order: 2 },
+    // Gender (CDSS spec)
+    { category: 'gender', value: 'MALE', label: 'Homme', order: 1 },
+    { category: 'gender', value: 'FEMALE', label: 'Femme', order: 2 },
+    { category: 'gender', value: 'INTERSEX', label: 'Intersexe', order: 3 },
 
-    // Pregnancy status
-    { category: 'pregnancy_status', value: 'non', label: 'Non enceinte', order: 1 },
-    { category: 'pregnancy_status', value: 'oui', label: 'Enceinte', order: 2 },
-
-    // Breastfeeding status
-    { category: 'breastfeeding_status', value: 'non', label: 'Non', order: 1 },
-    { category: 'breastfeeding_status', value: 'oui', label: 'Oui', order: 2 },
-
-    // Smoking status
-    { category: 'smoking_status', value: 'non', label: 'Non', order: 1 },
-    { category: 'smoking_status', value: 'oui', label: 'Oui', order: 2 },
-    { category: 'smoking_status', value: 'ex', label: 'Ex-fumeur', order: 3 },
-
-    // Pregnancy trimester
-    { category: 'pregnancy_trimester', value: '1', label: '1er trimestre', order: 1 },
-    { category: 'pregnancy_trimester', value: '2', label: '2e trimestre', order: 2 },
-    { category: 'pregnancy_trimester', value: '3', label: '3e trimestre', order: 3 },
-
-    // Breastfeeding type
-    { category: 'breastfeeding_type', value: 'exclusif', label: 'Exclusif', order: 1 },
-    { category: 'breastfeeding_type', value: 'mixte', label: 'Mixte', order: 2 },
-
-    // Fever status
-    { category: 'fever_status', value: 'aucune', label: 'Aucune', order: 1 },
-    { category: 'fever_status', value: 'fièvre', label: 'Fièvre ressentie', order: 2 },
-
-    // Consciousness
-    { category: 'consciousness', value: 'normale', label: 'Normale', order: 1 },
-    { category: 'consciousness', value: 'difficile', label: 'Difficile', order: 2 },
-    { category: 'consciousness', value: 'rapide', label: 'Rapide', order: 3 },
-
-    // Orientation
-    { category: 'orientation', value: 'normal', label: 'Normal', order: 1 },
-    { category: 'orientation', value: 'confusion', label: 'Confusion', order: 2 },
-    { category: 'orientation', value: 'perte', label: 'Perte de connaissance', order: 3 },
-
-    // Diabetes type
-    { category: 'diabetes_type', value: 'type1', label: 'Type 1', order: 1 },
-    { category: 'diabetes_type', value: 'type2', label: 'Type 2', order: 2 },
-
-    // Alcohol use
-    { category: 'alcohol_use', value: 'non', label: 'Non', order: 1 },
-    { category: 'alcohol_use', value: 'oui', label: 'Oui', order: 2 },
-    { category: 'alcohol_use', value: 'occasionnel', label: 'Occasionnel', order: 3 },
-    { category: 'alcohol_use', value: 'ex', label: 'Ex-consommateur', order: 4 },
-
-    // Physical activity
-    { category: 'physical_activity', value: 'oui', label: 'Oui', order: 1 },
-    { category: 'physical_activity', value: 'non', label: 'Non', order: 2 },
-
-    // Diet type
-    { category: 'diet_type', value: 'normal', label: 'Normal', order: 1 },
-    { category: 'diet_type', value: 'particulier', label: 'Particulier', order: 2 },
+    // Pregnancy trimester (CDSS spec)
+    { category: 'pregnancy_trimester', value: 'FIRST_TRIMESTER', label: '1er trimestre', order: 1 },
+    { category: 'pregnancy_trimester', value: 'SECOND_TRIMESTER', label: '2e trimestre', order: 2 },
+    { category: 'pregnancy_trimester', value: 'THIRD_TRIMESTER', label: '3e trimestre', order: 3 },
 
     // Condition category
     { category: 'condition_category', value: 'CARDIOVASCULAR', label: 'Cardiovasculaire', order: 1 },
@@ -222,6 +174,35 @@ async function run() {
     { category: 'sleep_quality', value: 'POOR', label: 'Mauvaise', order: 3 },
     { category: 'sleep_quality', value: 'SEVERE_INSOMNIA', label: 'Insomnie sévère', order: 4 },
 
+    // Breastfeeding type
+    { category: 'breastfeeding_type', value: 'EXCLUSIVE', label: 'Exclusif', order: 1 },
+    { category: 'breastfeeding_type', value: 'MIXED', label: 'Mixte', order: 2 },
+    { category: 'breastfeeding_type', value: 'FORMULA', label: 'Artificialisé', order: 3 },
+    { category: 'breastfeeding_type', value: 'UNKNOWN', label: 'Inconnu', order: 4 },
+
+    // Fever status
+    { category: 'fever_status', value: 'NONE', label: 'Aucun', order: 1 },
+    { category: 'fever_status', value: 'FEVERISH', label: 'Sensation de fièvre', order: 2 },
+    { category: 'fever_status', value: 'CONFIRMED', label: 'Fièvre mesurée', order: 3 },
+    { category: 'fever_status', value: 'UNKNOWN', label: 'Inconnu', order: 4 },
+
+    // Respiratory status
+    { category: 'respiratory_status', value: 'NORMAL', label: 'Normale', order: 1 },
+    { category: 'respiratory_status', value: 'DIFFICULT', label: 'Difficile', order: 2 },
+    { category: 'respiratory_status', value: 'RAPID', label: 'Rapide', order: 3 },
+    { category: 'respiratory_status', value: 'UNKNOWN', label: 'Inconnue', order: 4 },
+
+    // Consciousness state
+    { category: 'consciousness_state', value: 'NORMAL', label: 'Normal', order: 1 },
+    { category: 'consciousness_state', value: 'CONFUSION', label: 'Confusion', order: 2 },
+    { category: 'consciousness_state', value: 'UNCONSCIOUS', label: 'Perte de connaissance', order: 3 },
+    { category: 'consciousness_state', value: 'UNKNOWN', label: 'Inconnu', order: 4 },
+
+    // Diabetes type
+    { category: 'diabetes_type', value: 'TYPE1', label: 'Type 1', order: 1 },
+    { category: 'diabetes_type', value: 'TYPE2', label: 'Type 2', order: 2 },
+    { category: 'diabetes_type', value: 'UNKNOWN', label: 'Non précisé', order: 3 },
+
     // Condition type
     { category: 'condition_type', value: 'CANCER', label: 'Cancer', order: 1 },
     { category: 'condition_type', value: 'IMMUNOSUPPRESSION', label: 'Immunosuppression', order: 2 },
@@ -256,18 +237,7 @@ async function run() {
 
 run()
   .catch((error) => {
-    console.error('Failed to seed users:', error.message)
-    process.exit(1)
-  })
-  .finally(async () => {
-    await sql.end()
-  })
-
-  console.log('\nSeeding completed successfully!')
-
-run()
-  .catch((error) => {
-    console.error('Failed to seed users:', error.message)
+    console.error('Failed to seed:', error.message)
     process.exit(1)
   })
   .finally(async () => {

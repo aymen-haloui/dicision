@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { buildLifestylePayload, hasLifestyleData } from '@/lib/patient-lifestyle'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -13,7 +14,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const patientId = params.id
+    const { id: patientId } = await params
 
     // Fetch patient with all related data
     const patient = await prisma.patients.findUnique({
@@ -46,7 +47,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -54,7 +55,7 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const patientId = params.id
+    const { id: patientId } = await params
     const body = await request.json()
 
     // Verify patient belongs to user
@@ -254,46 +255,21 @@ export async function PUT(
       where: { patient_id: patientId },
     })
 
-    if (existingLifestyle) {
-      await prisma.patient_lifestyle.update({
-        where: { id: existingLifestyle.id },
-        data: {
-          diet_type: body.diet_type || null,
-          sleep_hours: body.sleep_hours ? parseFloat(body.sleep_hours) : null,
-          night_shift: body.night_shift === true || body.night_shift === 'true' ? true : false,
-          sun_exposure: body.sun_exposure || null,
-          prolonged_fasting: body.prolonged_fasting === true || body.prolonged_fasting === 'true' ? true : false,
-          restrictive_diet: body.restrictive_diet === true || body.restrictive_diet === 'true' ? true : false,
-          uncontrolled_natural_products: body.uncontrolled_natural_products === true || body.uncontrolled_natural_products === 'true' ? true : false,
-          blood_donor: body.blood_donor === true || body.blood_donor === 'true' ? true : false,
-          immunodepression: body.immunodepression || 'none',
-          sudden_medication_stop: body.sudden_medication_stop === true || body.sudden_medication_stop === 'true' ? true : false,
-          regular_checkup: body.regular_checkup !== false && body.regular_checkup !== 'false' ? true : true,
-          self_diagnosis: body.self_diagnosis === true || body.self_diagnosis === 'true' ? true : false,
-          housing_conditions: body.housing_conditions || null,
-          previous_intoxication: body.previous_intoxication === true || body.previous_intoxication === 'true' ? true : false,
-        },
-      })
-    } else {
-      await prisma.patient_lifestyle.create({
-        data: {
-          patient_id: patientId,
-          diet_type: body.diet_type || null,
-          sleep_hours: body.sleep_hours ? parseFloat(body.sleep_hours) : null,
-          night_shift: body.night_shift === true || body.night_shift === 'true' ? true : false,
-          sun_exposure: body.sun_exposure || null,
-          prolonged_fasting: body.prolonged_fasting === true || body.prolonged_fasting === 'true' ? true : false,
-          restrictive_diet: body.restrictive_diet === true || body.restrictive_diet === 'true' ? true : false,
-          uncontrolled_natural_products: body.uncontrolled_natural_products === true || body.uncontrolled_natural_products === 'true' ? true : false,
-          blood_donor: body.blood_donor === true || body.blood_donor === 'true' ? true : false,
-          immunodepression: body.immunodepression || 'none',
-          sudden_medication_stop: body.sudden_medication_stop === true || body.sudden_medication_stop === 'true' ? true : false,
-          regular_checkup: body.regular_checkup !== false && body.regular_checkup !== 'false' ? true : true,
-          self_diagnosis: body.self_diagnosis === true || body.self_diagnosis === 'true' ? true : false,
-          housing_conditions: body.housing_conditions || null,
-          previous_intoxication: body.previous_intoxication === true || body.previous_intoxication === 'true' ? true : false,
-        },
-      })
+    if (hasLifestyleData(body)) {
+      const lifestyleData = buildLifestylePayload(body)
+      if (existingLifestyle) {
+        await prisma.patient_lifestyle.update({
+          where: { id: existingLifestyle.id },
+          data: lifestyleData,
+        })
+      } else {
+        await prisma.patient_lifestyle.create({
+          data: {
+            patient_id: patientId,
+            ...lifestyleData,
+          },
+        })
+      }
     }
 
     return NextResponse.json({ patient: updatedPatient }, { status: 200 })
@@ -308,7 +284,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -316,7 +292,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const patientId = params.id
+    const { id: patientId } = await params
 
     // Verify patient belongs to user
     const patient = await prisma.patients.findUnique({

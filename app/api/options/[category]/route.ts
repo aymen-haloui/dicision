@@ -3,13 +3,15 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { category: string } }
+  { params }: { params: Promise<{ category: string }> }
 ) {
   try {
+    const { category } = await params
+
     const options = await prisma.option.findMany({
-      where: { category: params.category },
+      where: { category },
       orderBy: { order: 'asc' },
-      select: { value: true, label: true }
+      select: { value: true, label: true },
     })
 
     return NextResponse.json(options)

@@ -131,16 +131,31 @@ model patient_lifestyle {
   id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   patient_id      String    @db.Uuid
 
-  // Additional lifestyle data
+  // Lifestyle baseline
+  substance_use         Boolean? @default(false)
+  substance_type        String?  @db.VarChar(100)
+  substance_frequency   String?  @db.VarChar(100)
+  substance_route       String?  @db.VarChar(50)
+  prolonged_fasting     Boolean? @default(false)
+  fasting_type          String?  @db.VarChar(100)
+  fasting_frequency     String?  @db.VarChar(100)
+  night_shift           Boolean? @default(false)
+
+  // Special risks (cancer / immunosuppression profile)
+  special_condition_type        String?  @db.VarChar(50)
+  special_diagnosis             String?
+  special_stage_classification  String?  @db.VarChar(100)
+  special_active_disease        Boolean? @default(false)
+  special_treatment_types       String?
+
+  // Legacy / environmental (kept for compatibility)
   diet_type       String?
   sleep_hours     Decimal? @db.Decimal(3, 1)
-  night_shift     Boolean? @default(false)
   sun_exposure    String? @db.VarChar(50)
-  prolonged_fasting Boolean? @default(false)
   restrictive_diet Boolean? @default(false)
   uncontrolled_natural_products Boolean? @default(false)
   blood_donor     Boolean? @default(false)
-  immunodepression String? @default("none") @db.VarChar(50)
+  immunodepression String? @db.VarChar(50)
   sudden_medication_stop Boolean? @default(false)
   regular_checkup Boolean? @default(true)
   self_diagnosis  Boolean? @default(false)

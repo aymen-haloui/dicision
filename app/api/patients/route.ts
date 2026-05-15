@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { buildLifestylePayload, hasLifestyleData } from '@/lib/patient-lifestyle'
 
 interface PatientCondition {
   id?: string
@@ -41,10 +42,33 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
 
-    // Validate required fields
-    if (!body.first_name || !body.last_name) {
+    if (!body.first_name?.trim() || !body.last_name?.trim()) {
       return NextResponse.json(
-        { error: 'First and last name are required' },
+        { error: 'Le prénom et le nom sont obligatoires' },
+        { status: 400 }
+      )
+    }
+    if (body.first_name.trim().length < 2 || body.first_name.trim().length > 100) {
+      return NextResponse.json(
+        { error: 'Le prénom doit contenir entre 2 et 100 caractères' },
+        { status: 400 }
+      )
+    }
+    if (body.last_name.trim().length < 2 || body.last_name.trim().length > 100) {
+      return NextResponse.json(
+        { error: 'Le nom doit contenir entre 2 et 100 caractères' },
+        { status: 400 }
+      )
+    }
+    if (!body.date_of_birth) {
+      return NextResponse.json(
+        { error: 'La date de naissance est obligatoire' },
+        { status: 400 }
+      )
+    }
+    if (!body.gender) {
+      return NextResponse.json(
+        { error: 'Le sexe est obligatoire' },
         { status: 400 }
       )
     }
@@ -53,8 +77,8 @@ export async function POST(request: NextRequest) {
     const patient = await prisma.patients.create({
       data: {
         user_id: session.user.id,
-        first_name: body.first_name,
-        last_name: body.last_name,
+        first_name: body.first_name.trim(),
+        last_name: body.last_name.trim(),
         date_of_birth: body.date_of_birth ? new Date(body.date_of_birth) : null,
         gender: body.gender || null,
         medical_record_number: body.medical_record_number || null,
@@ -155,25 +179,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create lifestyle data if provided
-    if (body.sleep_hours || body.diet_type || body.night_shift || body.housing_conditions) {
+    if (hasLifestyleData(body)) {
       await prisma.patient_lifestyle.create({
         data: {
           patient_id: patient.id,
-          diet_type: body.diet_type || null,
-          sleep_hours: body.sleep_hours ? parseFloat(body.sleep_hours) : null,
-          night_shift: body.night_shift === true || body.night_shift === 'true' ? true : false,
-          sun_exposure: body.sun_exposure || null,
-          prolonged_fasting: body.prolonged_fasting === true || body.prolonged_fasting === 'true' ? true : false,
-          restrictive_diet: body.restrictive_diet === true || body.restrictive_diet === 'true' ? true : false,
-          uncontrolled_natural_products: body.uncontrolled_natural_products === true || body.uncontrolled_natural_products === 'true' ? true : false,
-          blood_donor: body.blood_donor === true || body.blood_donor === 'true' ? true : false,
-          immunodepression: body.immunodepression || 'none',
-          sudden_medication_stop: body.sudden_medication_stop === true || body.sudden_medication_stop === 'true' ? true : false,
-          regular_checkup: body.regular_checkup !== false && body.regular_checkup !== 'false' ? true : true,
-          self_diagnosis: body.self_diagnosis === true || body.self_diagnosis === 'true' ? true : false,
-          housing_conditions: body.housing_conditions || null,
-          previous_intoxication: body.previous_intoxication === true || body.previous_intoxication === 'true' ? true : false,
+          ...buildLifestylePayload(body),
         },
       })
     }
