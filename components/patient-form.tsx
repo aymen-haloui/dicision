@@ -507,6 +507,7 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                     checked={formData.pregnancy_status}
                     onChange={e => updateFormData('pregnancy_status', e.target.checked)}
                     className="w-4 h-4 accent-[#2CB1BC]"
+                    title="Grossesse"
                   />
                   <Label htmlFor="pregnancy_status">Grossesse</Label>
                 </div>
@@ -535,6 +536,7 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                     checked={formData.breastfeeding_status}
                     onChange={e => updateFormData('breastfeeding_status', e.target.checked)}
                     className="w-4 h-4 accent-[#2CB1BC]"
+                    title="Allaitement"
                   />
                   <Label htmlFor="breastfeeding_status">Allaitement</Label>
                 </div>
@@ -853,6 +855,7 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                           checked={medication.ongoing}
                           onChange={e => updateMedication(index, 'ongoing', e.target.checked)}
                           className="w-4 h-4 accent-[#2CB1BC]"
+                          title="Traitement en cours"
                         />
                         <Label htmlFor={`ongoing_${index}`}>Traitement en cours</Label>
                       </div>
@@ -966,7 +969,8 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
 
                 <div className="flex items-center space-x-2 md:col-span-2">
                   <input type="checkbox" id="substance_use" checked={formData.substance_use}
-                    onChange={e => updateFormData('substance_use', e.target.checked)} className="w-4 h-4 accent-[#2CB1BC]" />
+                    onChange={e => updateFormData('substance_use', e.target.checked)} className="w-4 h-4 accent-[#2CB1BC]"
+                    title="Usage de substances psychoactives" />
                   <Label htmlFor="substance_use">Usage de substances psychoactives</Label>
                 </div>
                 {formData.substance_use && (
@@ -993,7 +997,8 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                 )}
                 <div className="flex items-center space-x-2 md:col-span-2">
                   <input type="checkbox" id="prolonged_fasting" checked={formData.prolonged_fasting}
-                    onChange={e => updateFormData('prolonged_fasting', e.target.checked)} className="w-4 h-4 accent-[#2CB1BC]" />
+                    onChange={e => updateFormData('prolonged_fasting', e.target.checked)} className="w-4 h-4 accent-[#2CB1BC]"
+                    title="Pratique du jeûne" />
                   <Label htmlFor="prolonged_fasting">Pratique du jeûne</Label>
                 </div>
                 {formData.prolonged_fasting && (
@@ -1015,6 +1020,7 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                     checked={formData.night_shift}
                     onChange={e => updateFormData('night_shift', e.target.checked)}
                     className="w-4 h-4 accent-[#2CB1BC]"
+                    title="Travail de nuit/posté"
                   />
                   <Label htmlFor="night_shift">Travail de nuit/posté</Label>
                 </div>
@@ -1049,7 +1055,8 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                 </Field>
                 <div className="flex items-center space-x-2">
                   <input type="checkbox" id="special_active_disease" checked={formData.special_active_disease}
-                    onChange={e => updateFormData('special_active_disease', e.target.checked)} className="w-4 h-4 accent-[#2CB1BC]" />
+                    onChange={e => updateFormData('special_active_disease', e.target.checked)} className="w-4 h-4 accent-[#2CB1BC]"
+                    title="Maladie active" />
                   <Label htmlFor="special_active_disease">Maladie active</Label>
                 </div>
                 <div className="md:col-span-2">
@@ -1069,7 +1076,8 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                 </div>
                 <div className="flex items-center space-x-2 md:col-span-2">
                   <input type="checkbox" id="previous_intoxication" checked={formData.previous_intoxication}
-                    onChange={e => updateFormData('previous_intoxication', e.target.checked)} className="w-4 h-4 accent-[#2CB1BC]" />
+                    onChange={e => updateFormData('previous_intoxication', e.target.checked)} className="w-4 h-4 accent-[#2CB1BC]"
+                    title="Antécédent d'intoxication" />
                   <Label htmlFor="previous_intoxication">Antécédent d&apos;intoxication (historique, pas cas aigu)</Label>
                 </div>
               </CardContent>

@@ -427,6 +427,7 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                     checked={formData.pregnancy_status === true || formData.pregnancy_status === 'true'}
                     onChange={e => updateFormData('pregnancy_status', e.target.checked)}
                     className="w-4 h-4 accent-[#2CB1BC]"
+                    title="Enceinte"
                   />
                   <Label htmlFor="pregnancy_status">Enceinte</Label>
                 </div>
@@ -453,6 +454,7 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                     checked={formData.breastfeeding_status === true || formData.breastfeeding_status === 'true'}
                     onChange={e => updateFormData('breastfeeding_status', e.target.checked)}
                     className="w-4 h-4 accent-[#2CB1BC]"
+                    title="Allaitement"
                   />
                   <Label htmlFor="breastfeeding_status">Allaitement</Label>
                 </div>
@@ -767,6 +769,7 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                           checked={medication.ongoing}
                           onChange={e => updateMedication(index, 'ongoing', e.target.checked)}
                           className="w-4 h-4 accent-[#2CB1BC]"
+                          title="Traitement en cours"
                         />
                         <Label htmlFor={`ongoing_${index}`}>Traitement en cours</Label>
                       </div>
@@ -900,6 +903,7 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                     checked={formData.night_shift === true || formData.night_shift === 'true'}
                     onChange={e => updateFormData('night_shift', e.target.checked)}
                     className="w-4 h-4 accent-[#2CB1BC]"
+                    title="Travail de nuit/posté"
                   />
                   <Label htmlFor="night_shift">Travail de nuit/posté</Label>
                 </div>
@@ -925,6 +929,7 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                     checked={formData.prolonged_fasting === true || formData.prolonged_fasting === 'true'}
                     onChange={e => updateFormData('prolonged_fasting', e.target.checked)}
                     className="w-4 h-4 accent-[#2CB1BC]"
+                    title="Jeûne prolongé régulier"
                   />
                   <Label htmlFor="prolonged_fasting">Jeûne prolongé régulier</Label>
                 </div>
@@ -936,6 +941,7 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                     checked={formData.restrictive_diet === true || formData.restrictive_diet === 'true'}
                     onChange={e => updateFormData('restrictive_diet', e.target.checked)}
                     className="w-4 h-4 accent-[#2CB1BC]"
+                    title="Régime restrictif"
                   />
                   <Label htmlFor="restrictive_diet">Régime restrictif</Label>
                 </div>
@@ -947,6 +953,7 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                     checked={formData.uncontrolled_natural_products === true || formData.uncontrolled_natural_products === 'true'}
                     onChange={e => updateFormData('uncontrolled_natural_products', e.target.checked)}
                     className="w-4 h-4 accent-[#2CB1BC]"
+                    title="Produits naturels non contrôlés"
                   />
                   <Label htmlFor="uncontrolled_natural_products">Produits naturels non contrôlés</Label>
                 </div>
@@ -958,6 +965,7 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                     checked={formData.blood_donor === true || formData.blood_donor === 'true'}
                     onChange={e => updateFormData('blood_donor', e.target.checked)}
                     className="w-4 h-4 accent-[#2CB1BC]"
+                    title="Donneur de sang régulier"
                   />
                   <Label htmlFor="blood_donor">Donneur de sang régulier</Label>
                 </div>
@@ -969,6 +977,7 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                     checked={formData.sudden_medication_stop === true || formData.sudden_medication_stop === 'true'}
                     onChange={e => updateFormData('sudden_medication_stop', e.target.checked)}
                     className="w-4 h-4 accent-[#2CB1BC]"
+                    title="Arrêt brutal de médicaments"
                   />
                   <Label htmlFor="sudden_medication_stop">Arrêt brutal de médicaments</Label>
                 </div>
@@ -980,6 +989,7 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                     checked={formData.self_diagnosis === true || formData.self_diagnosis === 'true'}
                     onChange={e => updateFormData('self_diagnosis', e.target.checked)}
                     className="w-4 h-4 accent-[#2CB1BC]"
+                    title="Auto-diagnostic fréquent"
                   />
                   <Label htmlFor="self_diagnosis">Auto-diagnostic fréquent</Label>
                 </div>
@@ -991,6 +1001,7 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                     checked={formData.previous_intoxication === true || formData.previous_intoxication === 'true'}
                     onChange={e => updateFormData('previous_intoxication', e.target.checked)}
                     className="w-4 h-4 accent-[#2CB1BC]"
+                    title="Antécédent d'intoxication"
                   />
                   <Label htmlFor="previous_intoxication">Antécédent d'intoxication</Label>
                 </div>
@@ -1020,6 +1031,7 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                     checked={formData.regular_checkup === true || formData.regular_checkup === 'true'}
                     onChange={e => updateFormData('regular_checkup', e.target.checked)}
                     className="w-4 h-4 accent-[#2CB1BC]"
+                    title="Consultations médicales régulières"
                   />
                   <Label htmlFor="regular_checkup">Consultations médicales régulières</Label>
                 </div>
