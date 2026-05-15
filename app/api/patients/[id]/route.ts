@@ -1,29 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { getPatientById, updatePatient, type PatientInput } from '@/lib/db'
+import { prisma } from '@/lib/prisma'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
-  const { id } = await params
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const patient = await getPatientById(id, session.user.id)
-    if (!patient) {
-      return NextResponse.json({ error: 'Patient not found' }, { status: 404 })
+    const patientId = params.id
+
+    // Fetch patient with all related data
+    const patient = await prisma.patients.findUnique({
+      where: { id: patientId },
+      include: {
+        patient_conditions: true,
+        patient_allergies: true,
+        patient_medications: {
+          include: {
+            medications: true,
+          },
+        },
+        patient_lifestyle: true,
+      },
+    })
+
+    if (!patient || patient.user_id !== session.user.id) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }
 
-    return NextResponse.json(patient)
+    return NextResponse.json({ patient }, { status: 200 })
   } catch (error: any) {
-    console.error('Error fetching patient:', error)
+    console.error('Patient fetch error:', error)
     return NextResponse.json(
-      { error: 'Failed to fetch patient' },
+      { error: error.message || 'Failed to fetch patient' },
       { status: 500 }
     )
   }
@@ -31,33 +46,302 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
-  const { id } = await params
   try {
     const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const patientId = params.id
     const body = await request.json()
 
-    const updates: Partial<PatientInput> = {}
-    const numericFields = ['weight', 'height', 'renalCreatinineClearance', 'creatinine',
-      'asat', 'alat', 'bilirubin', 'sleepHours', 'glycemia', 'sodium', 'potassium', 'crp', 'lactates']
-    const boolFields = ['nightShift', 'prolongedFasting', 'restrictiveDiet', 'uncontrolledNaturalProducts',
-      'bloodDonor', 'suddenMedicationStop', 'regularCheckup', 'selfDiagnosis', 'previousIntoxication']
-    const stringFields = ['firstName', 'lastName', 'dateOfBirth', 'gender', 'medicalRecordNumber',
-      'allergies', 'comorbidities', 'renalStage', 'hepaticStatus', 'pregnancyStatus',
-      'smokingStatus', 'alcoholUse', 'substanceUse', 'professionalExposure', 'physicalActivity',
-      'dietType', 'stressLevel', 'sleepQuality', 'sunExposure', 'immunodepression',
-      'housingConditions', 'allergyReactionTypes']
-    const objectFields = ['extendedProfile']
+    // Verify patient belongs to user
+    const patient = await prisma.patients.findUnique({
+      where: { id: patientId },
+      select: { user_id: true },
+    })
 
-    for (const field of stringFields) {
-      if (body[field] !== undefined) (updates as any)[field] = body[field]
+    if (!patient || patient.user_id !== session.user.id) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }
-    for (const field of numericFields) {
+
+    // Update patient record
+    const updatedPatient = await prisma.patients.update({
+      where: { id: patientId },
+      data: {
+        first_name: body.first_name,
+        last_name: body.last_name,
+        date_of_birth: body.date_of_birth ? new Date(body.date_of_birth) : undefined,
+        gender: body.gender || null,
+        medical_record_number: body.medical_record_number || null,
+        weight: body.weight ? parseFloat(body.weight) : null,
+        height: body.height ? parseFloat(body.height) : null,
+        pregnancy_status: body.pregnancy_status === true || body.pregnancy_status === 'true' ? true : false,
+        pregnancy_trimester: body.pregnancy_trimester || null,
+        breastfeeding_status: body.breastfeeding_status === true || body.breastfeeding_status === 'true' ? true : false,
+        smoking_status: body.smoking_status || null,
+        alcohol_use: body.alcohol_use || null,
+        physical_activity: body.physical_activity || null,
+        stress_level: body.stress_level || null,
+        sleep_quality: body.sleep_quality || null,
+      },
+      select: {
+        id: true,
+        first_name: true,
+        last_name: true,
+      },
+    })
+
+    // Handle conditions
+    if (body.conditions && Array.isArray(body.conditions)) {
+      // Delete existing conditions not in the new list
+      const existingConditionIds = body.conditions
+        .filter((c: any) => c.id)
+        .map((c: any) => c.id)
+
+      await prisma.patient_conditions.deleteMany({
+        where: {
+          patient_id: patientId,
+          id: {
+            notIn: existingConditionIds,
+          },
+        },
+      })
+
+      // Create or update conditions
+      for (const condition of body.conditions) {
+        if (condition.id) {
+          // Update existing
+          await prisma.patient_conditions.update({
+            where: { id: condition.id },
+            data: {
+              condition_name: condition.condition_name,
+              category: condition.category || null,
+              severity: condition.severity || null,
+              status: condition.status || null,
+              diagnosed_at: condition.diagnosed_at ? new Date(condition.diagnosed_at) : null,
+              notes: condition.notes || null,
+            },
+          })
+        } else if (condition.condition_name) {
+          // Create new
+          await prisma.patient_conditions.create({
+            data: {
+              patient_id: patientId,
+              condition_name: condition.condition_name,
+              category: condition.category || null,
+              severity: condition.severity || null,
+              status: condition.status || null,
+              diagnosed_at: condition.diagnosed_at ? new Date(condition.diagnosed_at) : null,
+              notes: condition.notes || null,
+            },
+          })
+        }
+      }
+    }
+
+    // Handle allergies
+    if (body.allergies && Array.isArray(body.allergies)) {
+      const existingAllergyIds = body.allergies
+        .filter((a: any) => a.id)
+        .map((a: any) => a.id)
+
+      await prisma.patient_allergies.deleteMany({
+        where: {
+          patient_id: patientId,
+          id: {
+            notIn: existingAllergyIds,
+          },
+        },
+      })
+
+      for (const allergy of body.allergies) {
+        if (allergy.id) {
+          await prisma.patient_allergies.update({
+            where: { id: allergy.id },
+            data: {
+              allergen_name: allergy.allergen_name,
+              allergen_category: allergy.allergen_category || null,
+              reaction_type: allergy.reaction_type || null,
+              severity: allergy.severity || null,
+              onset_delay: allergy.onset_delay || null,
+            },
+          })
+        } else if (allergy.allergen_name) {
+          await prisma.patient_allergies.create({
+            data: {
+              patient_id: patientId,
+              allergen_name: allergy.allergen_name,
+              allergen_category: allergy.allergen_category || null,
+              reaction_type: allergy.reaction_type || null,
+              severity: allergy.severity || null,
+              onset_delay: allergy.onset_delay || null,
+            },
+          })
+        }
+      }
+    }
+
+    // Handle medications
+    if (body.medications && Array.isArray(body.medications)) {
+      const existingMedicationIds = body.medications
+        .filter((m: any) => m.id)
+        .map((m: any) => m.id)
+
+      await prisma.patient_medications.deleteMany({
+        where: {
+          patient_id: patientId,
+          id: {
+            notIn: existingMedicationIds,
+          },
+        },
+      })
+
+      for (const medication of body.medications) {
+        if (medication.id) {
+          // Update existing
+          await prisma.patient_medications.update({
+            where: { id: medication.id },
+            data: {
+              dosage: medication.dosage || null,
+              frequency: medication.frequency || null,
+              route: medication.route || null,
+              started_at: medication.started_at ? new Date(medication.started_at) : null,
+              ongoing: medication.ongoing !== false,
+            },
+          })
+        } else if (medication.medication_name) {
+          // Get or create medication
+          const existingMed = await prisma.medications.findUnique({
+            where: { name: medication.medication_name },
+            select: { id: true },
+          })
+
+          let medicationId: string
+          if (existingMed) {
+            medicationId = existingMed.id
+          } else {
+            const newMed = await prisma.medications.create({
+              data: {
+                name: medication.medication_name,
+                category: 'general',
+              },
+              select: { id: true },
+            })
+            medicationId = newMed.id
+          }
+
+          // Create patient medication
+          await prisma.patient_medications.create({
+            data: {
+              patient_id: patientId,
+              medication_id: medicationId,
+              dosage: medication.dosage || null,
+              frequency: medication.frequency || null,
+              route: medication.route || null,
+              started_at: medication.started_at ? new Date(medication.started_at) : null,
+              ongoing: medication.ongoing !== false,
+            },
+          })
+        }
+      }
+    }
+
+    // Handle lifestyle
+    const existingLifestyle = await prisma.patient_lifestyle.findFirst({
+      where: { patient_id: patientId },
+    })
+
+    if (existingLifestyle) {
+      await prisma.patient_lifestyle.update({
+        where: { id: existingLifestyle.id },
+        data: {
+          diet_type: body.diet_type || null,
+          sleep_hours: body.sleep_hours ? parseFloat(body.sleep_hours) : null,
+          night_shift: body.night_shift === true || body.night_shift === 'true' ? true : false,
+          sun_exposure: body.sun_exposure || null,
+          prolonged_fasting: body.prolonged_fasting === true || body.prolonged_fasting === 'true' ? true : false,
+          restrictive_diet: body.restrictive_diet === true || body.restrictive_diet === 'true' ? true : false,
+          uncontrolled_natural_products: body.uncontrolled_natural_products === true || body.uncontrolled_natural_products === 'true' ? true : false,
+          blood_donor: body.blood_donor === true || body.blood_donor === 'true' ? true : false,
+          immunodepression: body.immunodepression || 'none',
+          sudden_medication_stop: body.sudden_medication_stop === true || body.sudden_medication_stop === 'true' ? true : false,
+          regular_checkup: body.regular_checkup !== false && body.regular_checkup !== 'false' ? true : true,
+          self_diagnosis: body.self_diagnosis === true || body.self_diagnosis === 'true' ? true : false,
+          housing_conditions: body.housing_conditions || null,
+          previous_intoxication: body.previous_intoxication === true || body.previous_intoxication === 'true' ? true : false,
+        },
+      })
+    } else {
+      await prisma.patient_lifestyle.create({
+        data: {
+          patient_id: patientId,
+          diet_type: body.diet_type || null,
+          sleep_hours: body.sleep_hours ? parseFloat(body.sleep_hours) : null,
+          night_shift: body.night_shift === true || body.night_shift === 'true' ? true : false,
+          sun_exposure: body.sun_exposure || null,
+          prolonged_fasting: body.prolonged_fasting === true || body.prolonged_fasting === 'true' ? true : false,
+          restrictive_diet: body.restrictive_diet === true || body.restrictive_diet === 'true' ? true : false,
+          uncontrolled_natural_products: body.uncontrolled_natural_products === true || body.uncontrolled_natural_products === 'true' ? true : false,
+          blood_donor: body.blood_donor === true || body.blood_donor === 'true' ? true : false,
+          immunodepression: body.immunodepression || 'none',
+          sudden_medication_stop: body.sudden_medication_stop === true || body.sudden_medication_stop === 'true' ? true : false,
+          regular_checkup: body.regular_checkup !== false && body.regular_checkup !== 'false' ? true : true,
+          self_diagnosis: body.self_diagnosis === true || body.self_diagnosis === 'true' ? true : false,
+          housing_conditions: body.housing_conditions || null,
+          previous_intoxication: body.previous_intoxication === true || body.previous_intoxication === 'true' ? true : false,
+        },
+      })
+    }
+
+    return NextResponse.json({ patient: updatedPatient }, { status: 200 })
+  } catch (error: any) {
+    console.error('Patient update error:', error)
+    return NextResponse.json(
+      { error: error.message || 'Failed to update patient' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const patientId = params.id
+
+    // Verify patient belongs to user
+    const patient = await prisma.patients.findUnique({
+      where: { id: patientId },
+      select: { user_id: true },
+    })
+
+    if (!patient || patient.user_id !== session.user.id) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
+
+    // Delete patient (cascade will delete related records)
+    await prisma.patients.delete({
+      where: { id: patientId },
+    })
+
+    return NextResponse.json({ message: 'Patient deleted' }, { status: 200 })
+  } catch (error: any) {
+    console.error('Patient delete error:', error)
+    return NextResponse.json(
+      { error: error.message || 'Failed to delete patient' },
+      { status: 500 }
+    )
+  }
+}
       if (body[field] !== undefined && body[field] !== '') (updates as any)[field] = parseFloat(body[field])
     }
     for (const field of boolFields) {

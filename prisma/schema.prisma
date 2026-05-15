@@ -28,13 +28,17 @@ model cases {
   case_type        String             @db.VarChar(50)
   chief_complaint  String?
   symptoms         String?
-  vital_signs      Json?              @default("{}")
   status           String?            @default("active") @db.VarChar(50)
+  priority_level   String?            @db.VarChar(20)
   created_at       DateTime?          @default(now()) @db.Timestamptz(6)
   case_medications case_medications[]
   patients         patients           @relation(fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   users            users              @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
   risk_assessments risk_assessments[]
+  case_vitals      case_vitals[]
+  case_lab_results case_lab_results[]
+  case_symptoms    case_symptoms[]
+  case_emergency_flags case_emergency_flags[]
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -70,59 +74,133 @@ model medications {
   interactions_interactions_medication_id_1Tomedications interactions[]            @relation("interactions_medication_id_1Tomedications")
   interactions_interactions_medication_id_2Tomedications interactions[]            @relation("interactions_medication_id_2Tomedications")
   plant_drug_interactions                                plant_drug_interactions[]
+  patient_medications                                    patient_medications[]
+}
+
+model patient_conditions {
+  id               String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  patient_id       String    @db.Uuid
+
+  condition_name   String
+  category         String?
+  severity         String?
+  status           String?
+
+  diagnosed_at     DateTime? @db.Date
+  notes            String?
+
+  created_at       DateTime? @default(now()) @db.Timestamptz(6)
+
+  patients         patients @relation(fields: [patient_id], references: [id], onDelete: Cascade)
+}
+
+model patient_allergies {
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  patient_id        String    @db.Uuid
+
+  allergen_name     String
+  allergen_category String?
+  reaction_type     String?
+  severity          String?
+  onset_delay       String?
+
+  created_at        DateTime? @default(now()) @db.Timestamptz(6)
+
+  patients          patients @relation(fields: [patient_id], references: [id], onDelete: Cascade)
+}
+
+model patient_medications {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  patient_id      String    @db.Uuid
+  medication_id   String    @db.Uuid
+
+  dosage          String?
+  frequency       String?
+  route           String?
+
+  started_at      DateTime? @db.Date
+  ongoing         Boolean? @default(true)
+
+  created_at      DateTime? @default(now()) @db.Timestamptz(6)
+
+  patients        patients @relation(fields: [patient_id], references: [id], onDelete: Cascade)
+  medications     medications @relation(fields: [medication_id], references: [id], onDelete: Cascade)
+}
+
+model patient_lifestyle {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  patient_id      String    @db.Uuid
+
+  // Additional lifestyle data
+  diet_type       String?
+  sleep_hours     Decimal? @db.Decimal(3, 1)
+  night_shift     Boolean? @default(false)
+  sun_exposure    String? @db.VarChar(50)
+  prolonged_fasting Boolean? @default(false)
+  restrictive_diet Boolean? @default(false)
+  uncontrolled_natural_products Boolean? @default(false)
+  blood_donor     Boolean? @default(false)
+  immunodepression String? @default("none") @db.VarChar(50)
+  sudden_medication_stop Boolean? @default(false)
+  regular_checkup Boolean? @default(true)
+  self_diagnosis  Boolean? @default(false)
+  housing_conditions String?
+  previous_intoxication Boolean? @default(false)
+
+  created_at      DateTime? @default(now()) @db.Timestamptz(6)
+
+  patients        patients @relation(fields: [patient_id], references: [id], onDelete: Cascade)
+}
+
+model Option {
+  id       String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  category String @db.VarChar(100)
+  value    String @db.VarChar(100)
+  label    String @db.VarChar(255)
+  order    Int    @default(0)
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+
+  @@unique([category, value])
 }
 
 model patients {
-  id                            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  user_id                       String    @db.Uuid
-  first_name                    String    @db.VarChar(255)
-  last_name                     String    @db.VarChar(255)
-  date_of_birth                 DateTime? @db.Date
-  gender                        String?   @db.VarChar(50)
-  medical_record_number         String?   @db.VarChar(100)
-  allergies                     String?
-  comorbidities                 String?
-  created_at                    DateTime? @default(now()) @db.Timestamptz(6)
-  weight                        Decimal?  @db.Decimal
-  renal_creatinine_clearance    Decimal?  @db.Decimal
-  hepatic_status                String?   @db.VarChar(50)
-  pregnancy_status              String?   @db.VarChar(50)
-  height                        Decimal?  @db.Decimal(5, 1)
-  smoking_status                String?   @default("non-smoker") @db.VarChar(50)
-  alcohol_use                   String?   @default("none") @db.VarChar(50)
-  substance_use                 String?
-  professional_exposure         String?
-  physical_activity             String?   @db.VarChar(50)
-  diet_type                     String?
-  stress_level                  String?   @db.VarChar(50)
-  sleep_quality                 String?   @db.VarChar(50)
-  sleep_hours                   Decimal?  @db.Decimal(3, 1)
-  night_shift                   Boolean?  @default(false)
-  sun_exposure                  String?   @db.VarChar(50)
-  prolonged_fasting             Boolean?  @default(false)
-  restrictive_diet              Boolean?  @default(false)
-  uncontrolled_natural_products Boolean?  @default(false)
-  blood_donor                   Boolean?  @default(false)
-  immunodepression              String?   @default("none") @db.VarChar(50)
-  sudden_medication_stop        Boolean?  @default(false)
-  regular_checkup               Boolean?  @default(true)
-  self_diagnosis                Boolean?  @default(false)
-  housing_conditions            String?
-  previous_intoxication         Boolean?  @default(false)
-  allergy_reaction_types        String?
-  creatinine                    Decimal?  @db.Decimal(6, 2)
-  renal_stage                   String?   @db.VarChar(20)
-  asat                          Decimal?  @db.Decimal(8, 2)
-  alat                          Decimal?  @db.Decimal(8, 2)
-  bilirubin                     Decimal?  @db.Decimal(6, 2)
-  glycemia                      Decimal?  @db.Decimal(6, 2)
-  sodium                        Decimal?  @db.Decimal(6, 2)
-  potassium                     Decimal?  @db.Decimal(5, 2)
-  crp                           Decimal?  @db.Decimal(8, 2)
-  lactates                      Decimal?  @db.Decimal(6, 2)
-  extended_profile              Json?     @default("{}")
-  cases                         cases[]
-  users                         users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id               String    @db.Uuid
+
+  // Identity
+  first_name            String    @db.VarChar(255)
+  last_name             String    @db.VarChar(255)
+  date_of_birth         DateTime? @db.Date
+  gender                String?   @db.VarChar(50)
+  medical_record_number String?   @unique @db.VarChar(100)
+
+  // Baseline body data
+  weight                Decimal?  @db.Decimal(5,2)
+  height                Decimal?  @db.Decimal(5,2)
+
+  // Special physiological states
+  pregnancy_status      Boolean?  @default(false)
+  pregnancy_trimester   String?   @db.VarChar(20)
+  breastfeeding_status  Boolean?  @default(false)
+
+  // Lifestyle baseline
+  smoking_status        String?   @db.VarChar(50)
+  alcohol_use           String?   @db.VarChar(50)
+  physical_activity     String?   @db.VarChar(50)
+  stress_level          String?   @db.VarChar(50)
+  sleep_quality         String?   @db.VarChar(50)
+
+  // Metadata
+  created_at            DateTime? @default(now()) @db.Timestamptz(6)
+
+  // Relations
+  users                 users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  cases                 cases[]
+
+  patient_conditions    patient_conditions[]
+  patient_allergies     patient_allergies[]
+  patient_medications   patient_medications[]
+  patient_lifestyle     patient_lifestyle[]
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -160,6 +238,73 @@ model risk_assessments {
   recommendations Json?     @default("{}")
   created_at      DateTime? @default(now()) @db.Timestamptz(6)
   cases           cases     @relation(fields: [case_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model case_vitals {
+  id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  case_id               String    @db.Uuid
+
+  systolic_bp           Int?
+  diastolic_bp          Int?
+
+  heart_rate            Int?
+  respiratory_rate      Int?
+
+  temperature_c         Decimal? @db.Decimal(4,1)
+  spo2                  Int?
+
+  consciousness_state   String?
+
+  measured_at           DateTime? @default(now()) @db.Timestamptz(6)
+
+  cases                 cases @relation(fields: [case_id], references: [id], onDelete: Cascade)
+}
+
+model case_lab_results {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  case_id         String    @db.Uuid
+
+  test_name       String
+  value           Decimal? @db.Decimal(10,2)
+  unit            String?
+  abnormal_flag   String?
+
+  measured_at     DateTime? @default(now()) @db.Timestamptz(6)
+
+  cases           cases @relation(fields: [case_id], references: [id], onDelete: Cascade)
+}
+
+model case_symptoms {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  case_id        String    @db.Uuid
+
+  symptom_name   String
+  severity       String?
+  duration       String?
+
+  created_at     DateTime? @default(now()) @db.Timestamptz(6)
+
+  cases          cases @relation(fields: [case_id], references: [id], onDelete: Cascade)
+}
+
+model case_emergency_flags {
+  id                          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  case_id                     String   @db.Uuid
+
+  convulsions                 Boolean? @default(false)
+  respiratory_distress        Boolean? @default(false)
+  hemodynamic_instability     Boolean? @default(false)
+  coma                        Boolean? @default(false)
+  cardiac_arrest              Boolean? @default(false)
+  severe_arrhythmia           Boolean? @default(false)
+  severe_allergic_reaction    Boolean? @default(false)
+  major_bleeding              Boolean? @default(false)
+
+  urgency_level               String?
+
+  created_at                  DateTime? @default(now()) @db.Timestamptz(6)
+
+  cases                       cases @relation(fields: [case_id], references: [id], onDelete: Cascade)
 }
 
 model users {
