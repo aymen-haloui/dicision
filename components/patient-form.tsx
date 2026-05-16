@@ -379,13 +379,13 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
 
       <form onSubmit={handleSubmit}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6 mb-6">
-            <TabsTrigger value="identity">Identité</TabsTrigger>
-            <TabsTrigger value="history">Antécédents Médicaux Chroniques</TabsTrigger>
-            <TabsTrigger value="allergies">Allergies & Intolérances</TabsTrigger>
-            <TabsTrigger value="treatments">Traitements Chroniques</TabsTrigger>
-            <TabsTrigger value="lifestyle">Habitudes de Vie</TabsTrigger>
-            <TabsTrigger value="risks">Risques Spéciaux</TabsTrigger>
+          <TabsList className="grid h-auto w-full grid-cols-2 items-stretch gap-1 p-1 sm:grid-cols-3 lg:grid-cols-6 mb-6">
+            <TabsTrigger className="h-auto min-h-10 whitespace-normal px-2 py-2 text-center leading-tight" value="identity">Identité</TabsTrigger>
+            <TabsTrigger className="h-auto min-h-10 whitespace-normal px-2 py-2 text-center leading-tight" value="history">Antécédents Médicaux Chroniques</TabsTrigger>
+            <TabsTrigger className="h-auto min-h-10 whitespace-normal px-2 py-2 text-center leading-tight" value="allergies">Allergies & Intolérances</TabsTrigger>
+            <TabsTrigger className="h-auto min-h-10 whitespace-normal px-2 py-2 text-center leading-tight" value="treatments">Traitements Chroniques</TabsTrigger>
+            <TabsTrigger className="h-auto min-h-10 whitespace-normal px-2 py-2 text-center leading-tight" value="lifestyle">Habitudes de Vie</TabsTrigger>
+            <TabsTrigger className="h-auto min-h-10 whitespace-normal px-2 py-2 text-center leading-tight" value="risks">Risques Spéciaux</TabsTrigger>
           </TabsList>
 
           {/* Identity Tab */}
