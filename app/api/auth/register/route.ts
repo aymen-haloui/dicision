@@ -3,7 +3,11 @@ import { createUser } from '@/lib/db'
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password, fullName, specialization } = await request.json()
+    const body = await request.json()
+    const email = String(body.email ?? '').trim().toLowerCase()
+    const password = String(body.password ?? '')
+    const fullName = String(body.fullName ?? '')
+    const specialization = body.specialization
 
     // Validate input
     if (!email || !password || !fullName) {

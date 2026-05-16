@@ -25,9 +25,11 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Missing credentials')
         }
 
+        const normalizedEmail = credentials.email.trim().toLowerCase()
+
         try {
           const user = await prisma.users.findUnique({
-            where: { email: credentials.email },
+            where: { email: normalizedEmail },
             select: {
               id: true,
               email: true,
@@ -60,6 +62,9 @@ export const authOptions: NextAuthOptions = {
           }
         } catch (error) {
           console.error('Credentials authorize error:', error)
+          if (error instanceof Error) {
+            throw new Error(error.message)
+          }
           throw new Error('Authentication failed')
         }
       },

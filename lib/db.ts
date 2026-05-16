@@ -10,9 +10,11 @@ export async function createUser(
   fullName: string,
   specialization?: string
 ) {
+  const normalizedEmail = email.trim().toLowerCase()
+
   try {
     const existing = await prisma.users.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
       select: { id: true },
     })
 
@@ -25,7 +27,7 @@ export async function createUser(
 
     const result = await prisma.users.create({
       data: {
-        email,
+        email: normalizedEmail,
         password_hash: passwordHash,
         full_name: fullName,
         specialization: specialization || null,
