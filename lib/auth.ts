@@ -14,6 +14,7 @@ if (!process.env.NEXTAUTH_URL) {
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
+      id: 'credentials',
       name: 'Credentials',
       credentials: {
         email: { label: 'Email', type: 'text' },
@@ -82,7 +83,9 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id as string
         session.user.specialization = token.specialization as string
-        session.user.profile_image = token.profile_image as string | undefined | null
+        if (token.profile_image) {
+          session.user.profile_image = token.profile_image as string
+        }
       }
       return session
     },
