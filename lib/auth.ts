@@ -20,7 +20,7 @@ export const authOptions: NextAuthOptions = {
 
         try {
           const result = await sql`
-            SELECT id, email, password_hash, full_name, specialization, profile_image
+            SELECT id, email, password_hash, full_name, specialization
             FROM users
             WHERE email = ${credentials.email}
           `
@@ -44,9 +44,10 @@ export const authOptions: NextAuthOptions = {
             email: user.email,
             name: user.full_name,
             specialization: user.specialization,
-            profile_image: user.profile_image,
+            profile_image: (user as any).profile_image ?? null,
           }
         } catch (error) {
+          console.error('Credentials authorize error:', error)
           throw new Error('Authentication failed')
         }
       },
