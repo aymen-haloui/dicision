@@ -41,7 +41,7 @@ export function validatePatientProfile(data: PatientFormValidationInput): string
   return null
 }
 
-export function computeAge(dateOfBirth: string): number | null {
+export function computeAge(dateOfBirth: string): string | null {
   if (!dateOfBirth) return null
   const birth = new Date(dateOfBirth)
   if (isNaN(birth.getTime())) return null
@@ -51,7 +51,15 @@ export function computeAge(dateOfBirth: string): number | null {
   if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
     age--
   }
-  return age >= 0 ? age : null
+  if (age < 0) return null
+
+  if (age === 0) {
+    let months = (today.getFullYear() - birth.getFullYear()) * 12 + today.getMonth() - birth.getMonth()
+    if (today.getDate() < birth.getDate()) months--
+    return `${Math.max(months, 0)} mois`
+  }
+
+  return `${age} ans`
 }
 
 export const FEMALE_GENDER = 'FEMALE'

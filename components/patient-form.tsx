@@ -98,6 +98,32 @@ const inputClass =
 const selectClass =
   'w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2CB1BC] disabled:opacity-50'
 
+const breastfeedingTypeOptions = [
+  { value: 'EXCLUSIVE', label: 'Exclusif' },
+  { value: 'MIXED', label: 'Mixte' },
+]
+
+const dietTypeOptions = [
+  { value: 'NORMAL', label: 'Normal' },
+  { value: 'VEGETARIAN', label: 'Végétarien' },
+  { value: 'VEGAN', label: 'Vegan' },
+  { value: 'KETO', label: 'Keto' },
+  { value: 'GLUTEN_FREE', label: 'Sans gluten' },
+  { value: 'OTHER', label: 'Autre' },
+]
+
+const sunExposureOptions = [
+  { value: 'LOW', label: 'Faible' },
+  { value: 'MODERATE', label: 'Modérée' },
+  { value: 'HIGH', label: 'Forte' },
+]
+
+const followupStatusOptions = [
+  { value: 'REGULAR', label: 'Régulier' },
+  { value: 'RARE', label: 'Rare' },
+  { value: 'LATE', label: 'Tardif' },
+]
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function PatientForm({ patientId, initialData, mode = 'create' }: PatientFormProps) {
@@ -118,7 +144,10 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
     height: initialData?.height ?? '',
     pregnancy_status: initialData?.pregnancy_status ?? false,
     pregnancy_trimester: initialData?.pregnancy_trimester ?? '',
+    pregnancy_duration_weeks: initialData?.pregnancy_duration_weeks ?? '',
     breastfeeding_status: initialData?.breastfeeding_status ?? false,
+    breastfeeding_infant_age: initialData?.breastfeeding_infant_age ?? '',
+    breastfeeding_type: initialData?.breastfeeding_type ?? '',
 
     // Chronic conditions
     conditions: (initialData?.patient_conditions ?? []) as PatientCondition[],
@@ -131,21 +160,55 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
 
     // Lifestyle
     smoking_status: initialData?.smoking_status ?? '',
+    smoking_details: initialData?.patient_lifestyle?.[0]?.smoking_details ?? '',
     alcohol_use: initialData?.alcohol_use ?? '',
+    alcohol_details: initialData?.patient_lifestyle?.[0]?.alcohol_details ?? '',
     physical_activity: initialData?.physical_activity ?? '',
+    physical_activity_details: initialData?.patient_lifestyle?.[0]?.physical_activity_details ?? '',
+    diet_type: initialData?.patient_lifestyle?.[0]?.diet_type ?? '',
+    diet_details: initialData?.patient_lifestyle?.[0]?.diet_details ?? '',
+    hydration_notes: initialData?.patient_lifestyle?.[0]?.hydration_notes ?? '',
     stress_level: initialData?.stress_level ?? '',
+    stress_details: initialData?.patient_lifestyle?.[0]?.stress_details ?? '',
     sleep_quality: initialData?.sleep_quality ?? '',
+    sleep_details: initialData?.patient_lifestyle?.[0]?.sleep_details ?? '',
 
     // Lifestyle
     substance_use: initialData?.patient_lifestyle?.[0]?.substance_use ?? false,
     substance_type: initialData?.patient_lifestyle?.[0]?.substance_type ?? '',
     substance_frequency: initialData?.patient_lifestyle?.[0]?.substance_frequency ?? '',
     substance_route: initialData?.patient_lifestyle?.[0]?.substance_route ?? '',
+    substance_duration: initialData?.patient_lifestyle?.[0]?.substance_duration ?? '',
+    substance_last_use: initialData?.patient_lifestyle?.[0]?.substance_last_use ?? '',
+    substance_withdrawal_signs: initialData?.patient_lifestyle?.[0]?.substance_withdrawal_signs ?? false,
+    toxic_exposure: initialData?.patient_lifestyle?.[0]?.toxic_exposure ?? false,
+    toxic_exposure_details: initialData?.patient_lifestyle?.[0]?.toxic_exposure_details ?? '',
     prolonged_fasting: initialData?.patient_lifestyle?.[0]?.prolonged_fasting ?? false,
     fasting_type: initialData?.patient_lifestyle?.[0]?.fasting_type ?? '',
     fasting_frequency: initialData?.patient_lifestyle?.[0]?.fasting_frequency ?? '',
+    fasting_symptoms: initialData?.patient_lifestyle?.[0]?.fasting_symptoms ?? '',
     night_shift: initialData?.patient_lifestyle?.[0]?.night_shift ?? false,
+    night_shift_details: initialData?.patient_lifestyle?.[0]?.night_shift_details ?? '',
     sleep_hours: initialData?.patient_lifestyle?.[0]?.sleep_hours ?? '',
+    sun_exposure: initialData?.patient_lifestyle?.[0]?.sun_exposure ?? '',
+    sun_exposure_details: initialData?.patient_lifestyle?.[0]?.sun_exposure_details ?? '',
+    restrictive_diet: initialData?.patient_lifestyle?.[0]?.restrictive_diet ?? false,
+    restrictive_diet_details: initialData?.patient_lifestyle?.[0]?.restrictive_diet_details ?? '',
+    uncontrolled_natural_products: initialData?.patient_lifestyle?.[0]?.uncontrolled_natural_products ?? false,
+    natural_products_details: initialData?.patient_lifestyle?.[0]?.natural_products_details ?? '',
+    sudden_medication_stop: initialData?.patient_lifestyle?.[0]?.sudden_medication_stop ?? false,
+    sudden_medication_stop_details: initialData?.patient_lifestyle?.[0]?.sudden_medication_stop_details ?? '',
+    regular_checkup: initialData?.patient_lifestyle?.[0]?.regular_checkup ?? true,
+    medical_followup_status: initialData?.patient_lifestyle?.[0]?.medical_followup_status ?? '',
+    last_consultation: initialData?.patient_lifestyle?.[0]?.last_consultation ?? '',
+    self_diagnosis: initialData?.patient_lifestyle?.[0]?.self_diagnosis ?? false,
+    self_diagnosis_treatments: initialData?.patient_lifestyle?.[0]?.self_diagnosis_treatments ?? '',
+    housing_conditions: initialData?.patient_lifestyle?.[0]?.housing_conditions ?? '',
+    hidden_self_medication: initialData?.patient_lifestyle?.[0]?.hidden_self_medication ?? false,
+    hidden_self_medication_details: initialData?.patient_lifestyle?.[0]?.hidden_self_medication_details ?? '',
+    phytotherapy_details: initialData?.patient_lifestyle?.[0]?.phytotherapy_details ?? '',
+    blood_donor: initialData?.patient_lifestyle?.[0]?.blood_donor ?? false,
+    blood_donation_details: initialData?.patient_lifestyle?.[0]?.blood_donation_details ?? '',
 
     // Special risks
     special_condition_type: initialData?.patient_lifestyle?.[0]?.special_condition_type ?? '',
@@ -328,10 +391,25 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
         pregnancy_status: isFemale ? Boolean(formData.pregnancy_status) : false,
         pregnancy_trimester:
           isFemale && formData.pregnancy_status ? formData.pregnancy_trimester || null : null,
+        pregnancy_duration_weeks:
+          isFemale && formData.pregnancy_status ? formData.pregnancy_duration_weeks || null : null,
         breastfeeding_status: isFemale ? Boolean(formData.breastfeeding_status) : false,
+        breastfeeding_infant_age:
+          isFemale && formData.breastfeeding_status ? formData.breastfeeding_infant_age || null : null,
+        breastfeeding_type:
+          isFemale && formData.breastfeeding_status ? formData.breastfeeding_type || null : null,
         substance_use: Boolean(formData.substance_use),
+        substance_withdrawal_signs: Boolean(formData.substance_withdrawal_signs),
+        toxic_exposure: Boolean(formData.toxic_exposure),
         prolonged_fasting: Boolean(formData.prolonged_fasting),
         night_shift: Boolean(formData.night_shift),
+        restrictive_diet: Boolean(formData.restrictive_diet),
+        uncontrolled_natural_products: Boolean(formData.uncontrolled_natural_products),
+        sudden_medication_stop: Boolean(formData.sudden_medication_stop),
+        regular_checkup: Boolean(formData.regular_checkup),
+        self_diagnosis: Boolean(formData.self_diagnosis),
+        hidden_self_medication: Boolean(formData.hidden_self_medication),
+        blood_donor: Boolean(formData.blood_donor),
         special_active_disease: Boolean(formData.special_active_disease),
         previous_intoxication: Boolean(formData.previous_intoxication),
       }
@@ -433,7 +511,7 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                 <Field label="Âge (calculé)" controlId="computed_age">
                   <Input
                     id="computed_age"
-                    value={computedAge != null ? `${computedAge} ans` : ''}
+                    value={computedAge ?? ''}
                     className={`${inputClass} bg-slate-50`}
                     disabled
                     readOnly
@@ -513,20 +591,34 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                 </div>
 
                 {formData.pregnancy_status && (
-                  <Field label="Trimestre" controlId="pregnancy_trimester">
-                    <Select value={formData.pregnancy_trimester} onValueChange={value => updateFormData('pregnancy_trimester', value)}>
-                      <SelectTrigger className={selectClass}>
-                        <SelectValue placeholder="Sélectionner..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {pregnancyTrimesterOptions.map(option => (
-                          <SelectItem key={option.value} value={option.value}>
-                            {option.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </Field>
+                  <>
+                    <Field label="Trimestre" controlId="pregnancy_trimester">
+                      <Select value={formData.pregnancy_trimester} onValueChange={value => updateFormData('pregnancy_trimester', value)}>
+                        <SelectTrigger className={selectClass}>
+                          <SelectValue placeholder="Sélectionner..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {pregnancyTrimesterOptions.map(option => (
+                            <SelectItem key={option.value} value={option.value}>
+                              {option.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </Field>
+
+                    <Field label="Durée de grossesse" controlId="pregnancy_duration_weeks" unit="semaines">
+                      <Input
+                        id="pregnancy_duration_weeks"
+                        type="number"
+                        min={1}
+                        max={42}
+                        value={formData.pregnancy_duration_weeks}
+                        onChange={e => updateFormData('pregnancy_duration_weeks', e.target.value)}
+                        className={inputClass}
+                      />
+                    </Field>
+                  </>
                 )}
 
                 <div className="flex items-center space-x-2">
@@ -540,6 +632,32 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                   />
                   <Label htmlFor="breastfeeding_status">Allaitement</Label>
                 </div>
+                {formData.breastfeeding_status && (
+                  <>
+                    <Field label="Âge du nourrisson" controlId="breastfeeding_infant_age">
+                      <Input
+                        id="breastfeeding_infant_age"
+                        value={formData.breastfeeding_infant_age}
+                        onChange={e => updateFormData('breastfeeding_infant_age', e.target.value)}
+                        className={inputClass}
+                        placeholder="ex: 8 mois"
+                      />
+                    </Field>
+
+                    <Field label="Type d'allaitement" controlId="breastfeeding_type">
+                      <Select value={formData.breastfeeding_type} onValueChange={value => updateFormData('breastfeeding_type', value)}>
+                        <SelectTrigger className={selectClass}>
+                          <SelectValue placeholder="Sélectionner..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {breastfeedingTypeOptions.map(option => (
+                            <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                  </>
+                )}
                   </>
                 )}
               </CardContent>
@@ -894,6 +1012,17 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                   </Select>
                 </Field>
 
+                <Field label="Détails tabac / vape / chicha" controlId="smoking_details">
+                  <Textarea
+                    id="smoking_details"
+                    value={formData.smoking_details}
+                    onChange={e => updateFormData('smoking_details', e.target.value)}
+                    className={inputClass}
+                    placeholder="Type, quantité, durée, âge de début, arrêt, exposition passive..."
+                    rows={3}
+                  />
+                </Field>
+
                 <Field label="Consommation d'alcool" controlId="alcohol_use">
                   <Select value={formData.alcohol_use} onValueChange={value => updateFormData('alcohol_use', value)}>
                     <SelectTrigger className={selectClass}>
@@ -907,6 +1036,17 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                       ))}
                     </SelectContent>
                   </Select>
+                </Field>
+
+                <Field label="Détails alcool" controlId="alcohol_details">
+                  <Textarea
+                    id="alcohol_details"
+                    value={formData.alcohol_details}
+                    onChange={e => updateFormData('alcohol_details', e.target.value)}
+                    className={inputClass}
+                    placeholder="Fréquence, quantité, durée, arrêt éventuel..."
+                    rows={3}
+                  />
                 </Field>
 
                 <Field label="Activité physique" controlId="physical_activity">
@@ -924,6 +1064,51 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                   </Select>
                 </Field>
 
+                <Field label="Détails activité physique" controlId="physical_activity_details">
+                  <Textarea
+                    id="physical_activity_details"
+                    value={formData.physical_activity_details}
+                    onChange={e => updateFormData('physical_activity_details', e.target.value)}
+                    className={inputClass}
+                    placeholder="Type, fréquence, durée, intensité..."
+                    rows={3}
+                  />
+                </Field>
+
+                <Field label="Régime alimentaire" controlId="diet_type">
+                  <Select value={formData.diet_type} onValueChange={value => updateFormData('diet_type', value)}>
+                    <SelectTrigger className={selectClass}>
+                      <SelectValue placeholder="Sélectionner..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {dietTypeOptions.map(option => (
+                        <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+
+                <Field label="Détails régime / hydratation" controlId="diet_details">
+                  <Textarea
+                    id="diet_details"
+                    value={formData.diet_details}
+                    onChange={e => updateFormData('diet_details', e.target.value)}
+                    className={inputClass}
+                    placeholder="Depuis quand, restrictions, carences connues..."
+                    rows={3}
+                  />
+                </Field>
+
+                <Field label="Hydratation" controlId="hydration_notes">
+                  <Input
+                    id="hydration_notes"
+                    value={formData.hydration_notes}
+                    onChange={e => updateFormData('hydration_notes', e.target.value)}
+                    className={inputClass}
+                    placeholder="ex: faible, normale, élevée..."
+                  />
+                </Field>
+
                 <Field label="Niveau de stress" controlId="stress_level">
                   <Select value={formData.stress_level} onValueChange={value => updateFormData('stress_level', value)}>
                     <SelectTrigger className={selectClass}>
@@ -937,6 +1122,17 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                       ))}
                     </SelectContent>
                   </Select>
+                </Field>
+
+                <Field label="Détails stress chronique" controlId="stress_details">
+                  <Textarea
+                    id="stress_details"
+                    value={formData.stress_details}
+                    onChange={e => updateFormData('stress_details', e.target.value)}
+                    className={inputClass}
+                    placeholder="Depuis quand, cause principale, impact clinique..."
+                    rows={3}
+                  />
                 </Field>
 
                 <Field label="Qualité du sommeil" controlId="sleep_quality">
@@ -967,6 +1163,17 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                   />
                 </Field>
 
+                <Field label="Détails sommeil" controlId="sleep_details">
+                  <Textarea
+                    id="sleep_details"
+                    value={formData.sleep_details}
+                    onChange={e => updateFormData('sleep_details', e.target.value)}
+                    className={inputClass}
+                    placeholder="Insomnie, réveils nocturnes, sommeil fragmenté, somnolence diurne..."
+                    rows={3}
+                  />
+                </Field>
+
                 <div className="flex items-center space-x-2 md:col-span-2">
                   <input type="checkbox" id="substance_use" checked={formData.substance_use}
                     onChange={e => updateFormData('substance_use', e.target.checked)} className="w-4 h-4 accent-[#2CB1BC]"
@@ -993,7 +1200,41 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                         </SelectContent>
                       </Select>
                     </Field>
+                    <Field label="Durée d'usage" controlId="substance_duration">
+                      <Input id="substance_duration" value={formData.substance_duration}
+                        onChange={e => updateFormData('substance_duration', e.target.value)} className={inputClass}
+                        placeholder="ex: depuis 2 ans" />
+                    </Field>
+                    <Field label="Dernière prise" controlId="substance_last_use">
+                      <Input id="substance_last_use" value={formData.substance_last_use}
+                        onChange={e => updateFormData('substance_last_use', e.target.value)} className={inputClass}
+                        placeholder="ex: hier soir" />
+                    </Field>
+                    <div className="flex items-center space-x-2">
+                      <input type="checkbox" id="substance_withdrawal_signs" checked={formData.substance_withdrawal_signs}
+                        onChange={e => updateFormData('substance_withdrawal_signs', e.target.checked)}
+                        className="w-4 h-4 accent-[#2CB1BC]" title="Signes de dépendance ou sevrage" />
+                      <Label htmlFor="substance_withdrawal_signs">Signes de dépendance / sevrage</Label>
+                    </div>
                   </>
+                )}
+                <div className="flex items-center space-x-2 md:col-span-2">
+                  <input type="checkbox" id="toxic_exposure" checked={formData.toxic_exposure}
+                    onChange={e => updateFormData('toxic_exposure', e.target.checked)} className="w-4 h-4 accent-[#2CB1BC]"
+                    title="Exposition chronique aux toxiques" />
+                  <Label htmlFor="toxic_exposure">Exposition chronique aux toxiques / métaux / gaz</Label>
+                </div>
+                {formData.toxic_exposure && (
+                  <Field label="Détails exposition toxique" controlId="toxic_exposure_details">
+                    <Textarea
+                      id="toxic_exposure_details"
+                      value={formData.toxic_exposure_details}
+                      onChange={e => updateFormData('toxic_exposure_details', e.target.value)}
+                      className={inputClass}
+                      placeholder="Lieu, agent, durée, exposition actuelle/ancienne, symptômes associés..."
+                      rows={3}
+                    />
+                  </Field>
                 )}
                 <div className="flex items-center space-x-2 md:col-span-2">
                   <input type="checkbox" id="prolonged_fasting" checked={formData.prolonged_fasting}
@@ -1011,6 +1252,11 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                       <Input id="fasting_frequency" value={formData.fasting_frequency}
                         onChange={e => updateFormData('fasting_frequency', e.target.value)} className={inputClass} />
                     </Field>
+                    <Field label="Symptômes liés au jeûne" controlId="fasting_symptoms">
+                      <Textarea id="fasting_symptoms" value={formData.fasting_symptoms}
+                        onChange={e => updateFormData('fasting_symptoms', e.target.value)} className={inputClass}
+                        placeholder="Vertiges, hypoglycémie, fatigue, malaise..." rows={3} />
+                    </Field>
                   </>
                 )}
                 <div className="flex items-center space-x-2">
@@ -1024,6 +1270,51 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                   />
                   <Label htmlFor="night_shift">Travail de nuit/posté</Label>
                 </div>
+                {formData.night_shift && (
+                  <Field label="Détails travail de nuit" controlId="night_shift_details">
+                    <Input
+                      id="night_shift_details"
+                      value={formData.night_shift_details}
+                      onChange={e => updateFormData('night_shift_details', e.target.value)}
+                      className={inputClass}
+                      placeholder="Depuis quand, fatigue, troubles digestifs, poids..."
+                    />
+                  </Field>
+                )}
+
+                <Field label="Exposition au soleil" controlId="sun_exposure">
+                  <Select value={formData.sun_exposure} onValueChange={value => updateFormData('sun_exposure', value)}>
+                    <SelectTrigger className={selectClass}>
+                      <SelectValue placeholder="Sélectionner..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {sunExposureOptions.map(option => (
+                        <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+
+                <Field label="Détails soleil / logement" controlId="sun_exposure_details">
+                  <Textarea
+                    id="sun_exposure_details"
+                    value={formData.sun_exposure_details}
+                    onChange={e => updateFormData('sun_exposure_details', e.target.value)}
+                    className={inputClass}
+                    placeholder="Travail extérieur, protection solaire, humidité/moisissures..."
+                    rows={3}
+                  />
+                </Field>
+
+                <Field label="Conditions de logement" controlId="housing_conditions">
+                  <Input
+                    id="housing_conditions"
+                    value={formData.housing_conditions}
+                    onChange={e => updateFormData('housing_conditions', e.target.value)}
+                    className={inputClass}
+                    placeholder="Humidité, moisissures, ventilation..."
+                  />
+                </Field>
               </CardContent>
             </Card>
           </TabsContent>
@@ -1080,6 +1371,124 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                     title="Antécédent d'intoxication" />
                   <Label htmlFor="previous_intoxication">Antécédent d&apos;intoxication (historique, pas cas aigu)</Label>
                 </div>
+
+                <div className="md:col-span-2">
+                  <SectionTitle>Médicaments, phytothérapie et suivi</SectionTitle>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" id="sudden_medication_stop" checked={formData.sudden_medication_stop}
+                    onChange={e => updateFormData('sudden_medication_stop', e.target.checked)} className="w-4 h-4 accent-[#2CB1BC]"
+                    title="Arrêt brutal de médicaments" />
+                  <Label htmlFor="sudden_medication_stop">Arrêt brutal de médicaments</Label>
+                </div>
+                {formData.sudden_medication_stop && (
+                  <Field label="Détails arrêt / symptômes de rebond" controlId="sudden_medication_stop_details">
+                    <Textarea id="sudden_medication_stop_details" value={formData.sudden_medication_stop_details}
+                      onChange={e => updateFormData('sudden_medication_stop_details', e.target.value)} className={inputClass}
+                      placeholder="Médicament, date d'arrêt, raison, symptômes après arrêt..." rows={3} />
+                  </Field>
+                )}
+
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" id="hidden_self_medication" checked={formData.hidden_self_medication}
+                    onChange={e => updateFormData('hidden_self_medication', e.target.checked)} className="w-4 h-4 accent-[#2CB1BC]"
+                    title="Automédication cachée" />
+                  <Label htmlFor="hidden_self_medication">Automédication cachée / produits non déclarés</Label>
+                </div>
+                {formData.hidden_self_medication && (
+                  <Field label="Détails automédication" controlId="hidden_self_medication_details">
+                    <Textarea id="hidden_self_medication_details" value={formData.hidden_self_medication_details}
+                      onChange={e => updateFormData('hidden_self_medication_details', e.target.value)} className={inputClass}
+                      placeholder="Paracétamol, AINS, antihistaminiques, compléments, dose, fréquence, durée..." rows={3} />
+                  </Field>
+                )}
+
+                <Field label="Phytothérapie / produits naturels" controlId="phytotherapy_details">
+                  <Textarea id="phytotherapy_details" value={formData.phytotherapy_details}
+                    onChange={e => updateFormData('phytotherapy_details', e.target.value)} className={inputClass}
+                    placeholder="Nom scientifique ou commercial, partie utilisée, dosage, origine, qualité, interactions connues..." rows={3} />
+                </Field>
+
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" id="uncontrolled_natural_products" checked={formData.uncontrolled_natural_products}
+                    onChange={e => updateFormData('uncontrolled_natural_products', e.target.checked)} className="w-4 h-4 accent-[#2CB1BC]"
+                    title="Produits naturels non contrôlés" />
+                  <Label htmlFor="uncontrolled_natural_products">Produits naturels non contrôlés</Label>
+                </div>
+                {formData.uncontrolled_natural_products && (
+                  <Field label="Détails produits naturels" controlId="natural_products_details">
+                    <Textarea id="natural_products_details" value={formData.natural_products_details}
+                      onChange={e => updateFormData('natural_products_details', e.target.value)} className={inputClass}
+                      placeholder="Produit exact, dose, fréquence, origine, effets indésirables..." rows={3} />
+                  </Field>
+                )}
+
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" id="restrictive_diet" checked={formData.restrictive_diet}
+                    onChange={e => updateFormData('restrictive_diet', e.target.checked)} className="w-4 h-4 accent-[#2CB1BC]"
+                    title="Régime restrictif extrême" />
+                  <Label htmlFor="restrictive_diet">Régime restrictif extrême</Label>
+                </div>
+                {formData.restrictive_diet && (
+                  <Field label="Détails régime restrictif" controlId="restrictive_diet_details">
+                    <Textarea id="restrictive_diet_details" value={formData.restrictive_diet_details}
+                      onChange={e => updateFormData('restrictive_diet_details', e.target.value)} className={inputClass}
+                      placeholder="Type, durée, perte de poids, fatigue, chute de cheveux, vertiges..." rows={3} />
+                  </Field>
+                )}
+
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" id="blood_donor" checked={formData.blood_donor}
+                    onChange={e => updateFormData('blood_donor', e.target.checked)} className="w-4 h-4 accent-[#2CB1BC]"
+                    title="Donneur de sang" />
+                  <Label htmlFor="blood_donor">Donneur de sang</Label>
+                </div>
+                {formData.blood_donor && (
+                  <Field label="Détails don de sang" controlId="blood_donation_details">
+                    <Input id="blood_donation_details" value={formData.blood_donation_details}
+                      onChange={e => updateFormData('blood_donation_details', e.target.value)} className={inputClass}
+                      placeholder="Fréquence, dernier don, antécédent d'anémie..." />
+                  </Field>
+                )}
+
+                <Field label="Suivi médical" controlId="medical_followup_status">
+                  <Select value={formData.medical_followup_status} onValueChange={value => updateFormData('medical_followup_status', value)}>
+                    <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                    <SelectContent>
+                      {followupStatusOptions.map(option => (
+                        <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+
+                <Field label="Dernière consultation" controlId="last_consultation">
+                  <Input id="last_consultation" value={formData.last_consultation}
+                    onChange={e => updateFormData('last_consultation', e.target.value)} className={inputClass}
+                    placeholder="ex: il y a 3 mois" />
+                </Field>
+
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" id="regular_checkup" checked={formData.regular_checkup}
+                    onChange={e => updateFormData('regular_checkup', e.target.checked)} className="w-4 h-4 accent-[#2CB1BC]"
+                    title="Suivi par médecin traitant" />
+                  <Label htmlFor="regular_checkup">Suivi par médecin traitant</Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <input type="checkbox" id="self_diagnosis" checked={formData.self_diagnosis}
+                    onChange={e => updateFormData('self_diagnosis', e.target.checked)} className="w-4 h-4 accent-[#2CB1BC]"
+                    title="Autodiagnostic" />
+                  <Label htmlFor="self_diagnosis">Autodiagnostic internet / autre</Label>
+                </div>
+                {formData.self_diagnosis && (
+                  <Field label="Produits pris après autodiagnostic" controlId="self_diagnosis_treatments">
+                    <Textarea id="self_diagnosis_treatments" value={formData.self_diagnosis_treatments}
+                      onChange={e => updateFormData('self_diagnosis_treatments', e.target.value)} className={inputClass}
+                      placeholder="Médicaments ou produits, dose, durée..." rows={3} />
+                  </Field>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

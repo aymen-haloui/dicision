@@ -218,6 +218,19 @@ async function run() {
     { category: 'treatment_type', value: 'HORMONOTHERAPY', label: 'Hormonothérapie', order: 5 },
     { category: 'treatment_type', value: 'STEM_CELL_TRANSPLANT', label: 'Greffe de cellules souches', order: 6 },
     { category: 'treatment_type', value: 'TARGETED_THERAPY', label: 'Thérapie ciblée', order: 7 },
+    { category: 'treatment_type', value: 'GENE_CELL_THERAPY', label: 'Thérapie génique et cellulaire', order: 8 },
+    { category: 'treatment_type', value: 'PALLIATIVE_SUPPORTIVE_CARE', label: 'Soins palliatifs / support', order: 9 },
+    { category: 'treatment_type', value: 'STEREOTACTIC_RADIOSURGERY', label: 'Radiochirurgie stéréotaxique', order: 10 },
+    { category: 'treatment_type', value: 'BRACHYTHERAPY', label: 'Curiethérapie', order: 11 },
+    { category: 'treatment_type', value: 'PROTON_THERAPY', label: 'Protonthérapie', order: 12 },
+    { category: 'treatment_type', value: 'CRYOTHERAPY', label: 'Cryothérapie', order: 13 },
+    { category: 'treatment_type', value: 'HYPERTHERMIA', label: 'Thermothérapie / hyperthermie', order: 14 },
+    { category: 'treatment_type', value: 'PHOTODYNAMIC_THERAPY', label: 'Photothérapie dynamique', order: 15 },
+    { category: 'treatment_type', value: 'RADIOFREQUENCY_ABLATION', label: 'Ablation par radiofréquence', order: 16 },
+    { category: 'treatment_type', value: 'TUMOR_EMBOLIZATION', label: 'Embolisation / chimioembolisation', order: 17 },
+    { category: 'treatment_type', value: 'ONCOLOGIC_LASER_THERAPY', label: 'Laserthérapie oncologique', order: 18 },
+    { category: 'treatment_type', value: 'ACTIVE_SURVEILLANCE', label: 'Surveillance active', order: 19 },
+    { category: 'treatment_type', value: 'COMBINED_THERAPIES', label: 'Thérapies combinées', order: 20 },
 
   ]
 

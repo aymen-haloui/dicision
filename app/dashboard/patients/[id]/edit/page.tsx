@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import { getPatientById } from '@/lib/db'
+import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import PatientForm from '@/components/patient-form'
 import { Card } from '@/components/ui/card'
@@ -21,11 +21,55 @@ export default async function EditPatientPage({
 }) {
   const { id } = await params
   const session = await getServerSession(authOptions)
-  const patient = await getPatientById(id, session?.user?.id || '')
+  const patient = await prisma.patients.findFirst({
+    where: { id, user_id: session?.user?.id || '' },
+    include: {
+      patient_conditions: true,
+      patient_allergies: true,
+      patient_medications: {
+        include: { medications: true },
+      },
+      patient_lifestyle: true,
+    },
+  })
 
   if (!patient) {
     notFound()
   }
+
+  const initialConditions = patient.patient_conditions.map(condition => ({
+    id: condition.id,
+    condition_name: condition.condition_name,
+    category: condition.category || '',
+    severity: condition.severity || '',
+    status: condition.status || '',
+    diagnosed_at: formatDateInput(condition.diagnosed_at),
+    notes: condition.notes || '',
+  }))
+
+  const initialAllergies = patient.patient_allergies.map(allergy => ({
+    id: allergy.id,
+    allergen_name: allergy.allergen_name,
+    allergen_category: allergy.allergen_category || '',
+    reaction_type: allergy.reaction_type || '',
+    severity: allergy.severity || '',
+    onset_delay: allergy.onset_delay || '',
+  }))
+
+  const initialMedications = patient.patient_medications.map(medication => ({
+    id: medication.id,
+    medication_name: medication.medications.name,
+    dosage: medication.dosage || '',
+    frequency: medication.frequency || '',
+    route: medication.route || '',
+    started_at: formatDateInput(medication.started_at),
+    ongoing: medication.ongoing ?? true,
+  }))
+
+  const initialLifestyle = patient.patient_lifestyle.map(({ created_at, sleep_hours, ...lifestyle }) => ({
+    ...lifestyle,
+    sleep_hours: sleep_hours?.toString() || '',
+  }))
 
   return (
     <div className="space-y-8">
@@ -39,51 +83,28 @@ export default async function EditPatientPage({
           patientId={id}
           mode="edit"
           initialData={{
-            firstName: patient.first_name,
-            lastName: patient.last_name,
-            dateOfBirth: formatDateInput(patient.date_of_birth),
+            first_name: patient.first_name,
+            last_name: patient.last_name,
+            date_of_birth: formatDateInput(patient.date_of_birth),
             gender: patient.gender || '',
-            medicalRecordNumber: patient.medical_record_number || '',
-            allergies: patient.allergies || '',
-            comorbidities: patient.comorbidities || '',
+            medical_record_number: patient.medical_record_number || '',
             weight: patient.weight?.toString() || '',
             height: patient.height?.toString() || '',
-            pregnancyStatus: patient.pregnancy_status || '',
-            smokingStatus: patient.smoking_status || '',
-            alcoholUse: patient.alcohol_use || '',
-            substanceUse: patient.substance_use || '',
-            professionalExposure: patient.professional_exposure || '',
-            physicalActivity: patient.physical_activity || '',
-            dietType: patient.diet_type || '',
-            stressLevel: patient.stress_level || '',
-            sleepQuality: patient.sleep_quality || '',
-            sleepHours: patient.sleep_hours?.toString() || '',
-            nightShift: Boolean(patient.night_shift),
-            sunExposure: patient.sun_exposure || '',
-            prolongedFasting: Boolean(patient.prolonged_fasting),
-            restrictiveDiet: Boolean(patient.restrictive_diet),
-            uncontrolledNaturalProducts: Boolean(patient.uncontrolled_natural_products),
-            bloodDonor: Boolean(patient.blood_donor),
-            immunodepression: patient.immunodepression || '',
-            suddenMedicationStop: Boolean(patient.sudden_medication_stop),
-            regularCheckup: patient.regular_checkup ?? true,
-            selfDiagnosis: Boolean(patient.self_diagnosis),
-            housingConditions: patient.housing_conditions || '',
-            previousIntoxication: Boolean(patient.previous_intoxication),
-            allergyReactionTypes: patient.allergy_reaction_types || '',
-            creatinine: patient.creatinine?.toString() || '',
-            renalCreatinineClearance: patient.renal_creatinine_clearance?.toString() || '',
-            renalStage: patient.renal_stage || '',
-            hepaticStatus: patient.hepatic_status || '',
-            asat: patient.asat?.toString() || '',
-            alat: patient.alat?.toString() || '',
-            bilirubin: patient.bilirubin?.toString() || '',
-            glycemia: patient.glycemia?.toString() || '',
-            sodium: patient.sodium?.toString() || '',
-            potassium: patient.potassium?.toString() || '',
-            crp: patient.crp?.toString() || '',
-            lactates: patient.lactates?.toString() || '',
-            extendedProfile: patient.extended_profile || {},
+            pregnancy_status: Boolean(patient.pregnancy_status),
+            pregnancy_trimester: patient.pregnancy_trimester || '',
+            pregnancy_duration_weeks: patient.pregnancy_duration_weeks?.toString() || '',
+            breastfeeding_status: Boolean(patient.breastfeeding_status),
+            breastfeeding_infant_age: patient.breastfeeding_infant_age || '',
+            breastfeeding_type: patient.breastfeeding_type || '',
+            smoking_status: patient.smoking_status || '',
+            alcohol_use: patient.alcohol_use || '',
+            physical_activity: patient.physical_activity || '',
+            stress_level: patient.stress_level || '',
+            sleep_quality: patient.sleep_quality || '',
+            patient_conditions: initialConditions,
+            patient_allergies: initialAllergies,
+            patient_medications: initialMedications,
+            patient_lifestyle: initialLifestyle,
           }}
         />
       </Card>

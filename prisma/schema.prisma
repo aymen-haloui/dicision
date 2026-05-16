@@ -132,14 +132,28 @@ model patient_lifestyle {
   patient_id      String    @db.Uuid
 
   // Lifestyle baseline
-  substance_use         Boolean? @default(false)
-  substance_type        String?  @db.VarChar(100)
-  substance_frequency   String?  @db.VarChar(100)
-  substance_route       String?  @db.VarChar(50)
-  prolonged_fasting     Boolean? @default(false)
-  fasting_type          String?  @db.VarChar(100)
-  fasting_frequency     String?  @db.VarChar(100)
-  night_shift           Boolean? @default(false)
+  substance_use              Boolean? @default(false)
+  substance_type             String?  @db.VarChar(100)
+  substance_frequency        String?  @db.VarChar(100)
+  substance_route            String?  @db.VarChar(50)
+  substance_duration         String?  @db.VarChar(100)
+  substance_last_use         String?  @db.VarChar(100)
+  substance_withdrawal_signs Boolean? @default(false)
+  smoking_details            String?
+  alcohol_details            String?
+  toxic_exposure             Boolean? @default(false)
+  toxic_exposure_details     String?
+  prolonged_fasting          Boolean? @default(false)
+  fasting_type               String?  @db.VarChar(100)
+  fasting_frequency          String?  @db.VarChar(100)
+  fasting_symptoms           String?
+  night_shift                Boolean? @default(false)
+  night_shift_details        String?
+  physical_activity_details  String?
+  diet_details               String?
+  hydration_notes            String?
+  stress_details             String?
+  sleep_details              String?
 
   // Special risks (cancer / immunosuppression profile)
   special_condition_type        String?  @db.VarChar(50)
@@ -149,18 +163,29 @@ model patient_lifestyle {
   special_treatment_types       String?
 
   // Legacy / environmental (kept for compatibility)
-  diet_type       String?
-  sleep_hours     Decimal? @db.Decimal(3, 1)
-  sun_exposure    String? @db.VarChar(50)
-  restrictive_diet Boolean? @default(false)
+  diet_type                     String?
+  sleep_hours                   Decimal? @db.Decimal(3, 1)
+  sun_exposure                  String? @db.VarChar(50)
+  sun_exposure_details          String?
+  restrictive_diet              Boolean? @default(false)
+  restrictive_diet_details      String?
   uncontrolled_natural_products Boolean? @default(false)
-  blood_donor     Boolean? @default(false)
-  immunodepression String? @db.VarChar(50)
-  sudden_medication_stop Boolean? @default(false)
-  regular_checkup Boolean? @default(true)
-  self_diagnosis  Boolean? @default(false)
-  housing_conditions String?
-  previous_intoxication Boolean? @default(false)
+  natural_products_details      String?
+  blood_donor                   Boolean? @default(false)
+  blood_donation_details        String?
+  immunodepression              String? @db.VarChar(50)
+  sudden_medication_stop        Boolean? @default(false)
+  sudden_medication_stop_details String?
+  regular_checkup               Boolean? @default(true)
+  medical_followup_status       String? @db.VarChar(50)
+  last_consultation             String? @db.VarChar(100)
+  self_diagnosis                Boolean? @default(false)
+  self_diagnosis_treatments     String?
+  housing_conditions            String?
+  hidden_self_medication        Boolean? @default(false)
+  hidden_self_medication_details String?
+  phytotherapy_details          String?
+  previous_intoxication         Boolean? @default(false)
 
   created_at      DateTime? @default(now()) @db.Timestamptz(6)
 
@@ -196,7 +221,10 @@ model patients {
   // Special physiological states
   pregnancy_status      Boolean?  @default(false)
   pregnancy_trimester   String?   @db.VarChar(20)
-  breastfeeding_status  Boolean?  @default(false)
+  pregnancy_duration_weeks Int?
+  breastfeeding_status     Boolean?  @default(false)
+  breastfeeding_infant_age String?   @db.VarChar(100)
+  breastfeeding_type       String?   @db.VarChar(50)
 
   // Lifestyle baseline
   smoking_status        String?   @db.VarChar(50)
