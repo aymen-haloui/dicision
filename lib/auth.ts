@@ -55,7 +55,7 @@ export const authOptions: NextAuthOptions = {
             email: user.email,
             name: user.full_name,
             specialization: user.specialization,
-            profile_image: user.profile_image ?? null,
+            profile_image: user.profile_image ?? undefined,
           }
         } catch (error) {
           console.error('Credentials authorize error:', error)
@@ -74,7 +74,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id
         token.specialization = user.specialization
-        token.profile_image = (user as any).profile_image
+        token.profile_image = (user as any).profile_image ?? undefined
       }
       return token
     },
@@ -82,7 +82,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id as string
         session.user.specialization = token.specialization as string
-        session.user.profile_image = token.profile_image as string
+        session.user.profile_image = token.profile_image as string | undefined | null
       }
       return session
     },
