@@ -124,6 +124,185 @@ const followupStatusOptions = [
   { value: 'LATE', label: 'Tardif' },
 ]
 
+const hydrationOptions = [
+  { value: 'LOW', label: 'Faible' },
+  { value: 'NORMAL', label: 'Normale' },
+  { value: 'HIGH', label: 'Élevée' },
+]
+
+const toxicExposureOptions = [
+  { value: 'PESTICIDES', label: 'Pesticides' },
+  { value: 'ORGANIC_SOLVENTS', label: 'Solvants organiques' },
+  { value: 'LEAD', label: 'Plomb' },
+  { value: 'MERCURY', label: 'Mercure' },
+  { value: 'ARSENIC', label: 'Arsenic' },
+  { value: 'CADMIUM', label: 'Cadmium' },
+  { value: 'IRON_OXIDE_FUMES', label: 'Fumées d’oxyde de fer' },
+  { value: 'COPPER_FUMES', label: 'Fumées de cuivre' },
+  { value: 'CARBON_MONOXIDE', label: 'Monoxyde de carbone' },
+  { value: 'CHLORINE', label: 'Chlore' },
+  { value: 'AMMONIA', label: 'Ammoniac' },
+  { value: 'NITROGEN_DIOXIDE', label: 'Dioxyde d’azote' },
+]
+
+const exposureContextOptions = [
+  { value: 'WORK_CURRENT', label: 'Travail - actuelle' },
+  { value: 'WORK_PAST', label: 'Travail - ancienne' },
+  { value: 'HOME_CURRENT', label: 'Maison - actuelle' },
+  { value: 'HOME_PAST', label: 'Maison - ancienne' },
+]
+
+const substanceTypeOptions = [
+  { value: 'CANNABIS', label: 'Cannabis' },
+  { value: 'STIMULANTS', label: 'Stimulants' },
+  { value: 'OPIOIDS', label: 'Opioïdes' },
+  { value: 'COCAINE', label: 'Cocaïne' },
+  { value: 'AMPHETAMINES', label: 'Amphétamines' },
+  { value: 'MDMA', label: 'MDMA / ecstasy' },
+  { value: 'HEROIN', label: 'Héroïne' },
+]
+
+const useDurationOptions = [
+  { value: 'LESS_1_MONTH', label: '< 1 mois' },
+  { value: '1_6_MONTHS', label: '1 à 6 mois' },
+  { value: '6_12_MONTHS', label: '6 à 12 mois' },
+  { value: '1_5_YEARS', label: '1 à 5 ans' },
+  { value: 'MORE_5_YEARS', label: '> 5 ans' },
+]
+
+const lastUseOptions = [
+  { value: 'TODAY', label: 'Aujourd’hui' },
+  { value: 'YESTERDAY', label: 'Hier' },
+  { value: 'THIS_WEEK', label: 'Cette semaine' },
+  { value: 'MORE_1_WEEK', label: '> 1 semaine' },
+  { value: 'MORE_1_MONTH', label: '> 1 mois' },
+]
+
+const fastingTypeOptions = [
+  { value: 'RAMADAN', label: 'Ramadan' },
+  { value: 'INTERMITTENT', label: 'Jeûne intermittent' },
+  { value: 'THERAPEUTIC', label: 'Jeûne thérapeutique' },
+  { value: 'DIETARY_RESTRICTION', label: 'Restriction alimentaire' },
+]
+
+const fastingFrequencyOptions = [
+  { value: 'DAILY', label: 'Quotidien' },
+  { value: 'WEEKLY', label: 'Hebdomadaire' },
+  { value: 'MONTHLY', label: 'Mensuel' },
+  { value: 'SEASONAL', label: 'Saisonnier' },
+]
+
+const fastingSymptomOptions = [
+  { value: 'NONE', label: 'Aucun symptôme' },
+  { value: 'DIZZINESS', label: 'Vertiges' },
+  { value: 'HYPOGLYCEMIA', label: 'Hypoglycémie' },
+  { value: 'FATIGUE', label: 'Fatigue' },
+  { value: 'ASTHENIA', label: 'Asthénie' },
+  { value: 'WEAKNESS', label: 'Faiblesse musculaire' },
+  { value: 'HEADACHE', label: 'Céphalées' },
+  { value: 'TREMOR', label: 'Tremblements' },
+  { value: 'SWEATING', label: 'Sueurs' },
+  { value: 'NAUSEA', label: 'Nausées' },
+  { value: 'VOMITING', label: 'Vomissements' },
+  { value: 'DEHYDRATION', label: 'Déshydratation' },
+  { value: 'HYPOTENSION', label: 'Hypotension' },
+  { value: 'MALAISE', label: 'Malaise' },
+  { value: 'PALPITATIONS', label: 'Palpitations' },
+  { value: 'SOMNOLENCE', label: 'Somnolence' },
+  { value: 'LOSS_OF_CONSCIOUSNESS', label: 'Perte de connaissance' },
+  { value: 'CONVULSIONS', label: 'Convulsions' },
+]
+
+const medicationStopReasonOptions = [
+  { value: 'FORGOTTEN', label: 'Oubli' },
+  { value: 'VOLUNTARY_STOP', label: 'Arrêt volontaire' },
+  { value: 'ADVERSE_EFFECT', label: 'Effet indésirable' },
+  { value: 'TREATMENT_SHORTAGE', label: 'Rupture de traitement' },
+  { value: 'MEDICAL_DECISION', label: 'Décision médicale' },
+]
+
+const selfMedicationOptions = [
+  { value: 'PARACETAMOL', label: 'Paracétamol' },
+  { value: 'IBUPROFEN', label: 'Ibuprofène' },
+  { value: 'NSAID', label: 'AINS' },
+  { value: 'ASPIRIN', label: 'Aspirine' },
+  { value: 'LEFTOVER_ANTIBIOTIC', label: 'Antibiotiques restants / non prescrits' },
+  { value: 'ANTIHISTAMINE', label: 'Antihistaminiques' },
+  { value: 'CORTICOSTEROID', label: 'Corticoïdes' },
+  { value: 'ANTITUSSIVE', label: 'Antitussifs' },
+  { value: 'ANTIEMETIC', label: 'Antiémétiques' },
+  { value: 'ANTACID', label: 'Antiacides / protecteurs gastriques' },
+  { value: 'ANXIOLYTIC_HYPNOTIC', label: 'Anxiolytiques / somnifères' },
+  { value: 'ANTIDIARRHEAL', label: 'Antidiarrhéiques' },
+  { value: 'LAXATIVE', label: 'Laxatifs' },
+  { value: 'ANTISPASMODIC', label: 'Antispasmodiques' },
+  { value: 'NASAL_DECONGESTANT', label: 'Décongestionnants nasaux' },
+  { value: 'EYE_EAR_DROPS', label: 'Gouttes ophtalmiques ou auriculaires' },
+  { value: 'BRONCHODILATOR_INHALER', label: 'Inhalateurs bronchodilatateurs sans prescription' },
+  { value: 'HERBAL_MEDICINE', label: 'Plantes médicinales / phytothérapie' },
+  { value: 'ESSENTIAL_OILS', label: 'Huiles essentielles' },
+  { value: 'SUPPLEMENTS', label: 'Compléments alimentaires' },
+  { value: 'STIMULANTS', label: 'Énergisants / stimulants' },
+  { value: 'TRADITIONAL_MEDICINE', label: 'Médicaments traditionnels / non déclarés' },
+]
+
+const naturalProductOptions = [
+  { value: 'HERBAL_MEDICINE', label: 'Plante médicinale' },
+  { value: 'ESSENTIAL_OIL', label: 'Huile essentielle' },
+  { value: 'DIETARY_SUPPLEMENT', label: 'Complément alimentaire' },
+  { value: 'TRADITIONAL_REMEDY', label: 'Remède traditionnel' },
+  { value: 'UNCONTROLLED_MARKET_PRODUCT', label: 'Produit de marché non contrôlé' },
+  { value: 'INTERNET_PRODUCT', label: 'Produit acheté sur internet' },
+]
+
+const plantPartOptions = [
+  { value: 'LEAF', label: 'Feuille' },
+  { value: 'ROOT', label: 'Racine' },
+  { value: 'SEED', label: 'Graine' },
+  { value: 'EXTRACT', label: 'Extrait' },
+  { value: 'ESSENTIAL_OIL', label: 'Huile essentielle' },
+]
+
+const productOriginOptions = [
+  { value: 'PHARMACY', label: 'Pharmacie' },
+  { value: 'HERBALIST', label: 'Herboriste' },
+  { value: 'MARKET', label: 'Marché' },
+  { value: 'INTERNET', label: 'Internet' },
+]
+
+const restrictiveDietOptions = [
+  { value: 'LOW_CALORIE', label: 'Très hypocalorique' },
+  { value: 'LOW_CARB', label: 'Très pauvre en glucides' },
+  { value: 'FASTING_MIMICKING', label: 'Type jeûne prolongé' },
+  { value: 'EXCLUSION_MULTIPLE', label: 'Exclusions multiples' },
+]
+
+const frequencyDetailOptions = [
+  { value: 'DAILY', label: 'Quotidien' },
+  { value: 'WEEKEND', label: 'Week-end' },
+  { value: 'WEEKLY', label: 'Hebdomadaire' },
+  { value: 'MONTHLY', label: 'Mensuel' },
+  { value: 'OCCASIONAL', label: 'Occasionnel' },
+]
+
+const cancerStageOptions = [
+  { value: 'STAGE_0', label: 'Stade 0' },
+  { value: 'STAGE_I', label: 'Stade I' },
+  { value: 'STAGE_II', label: 'Stade II' },
+  { value: 'STAGE_III', label: 'Stade III' },
+  { value: 'STAGE_IV', label: 'Stade IV' },
+  { value: 'T0_N0_M0', label: 'TNM: T0 N0 M0' },
+  { value: 'T1_N0_M0', label: 'TNM: T1 N0 M0' },
+  { value: 'T2_N0_M0', label: 'TNM: T2 N0 M0' },
+  { value: 'T3_N0_M0', label: 'TNM: T3 N0 M0' },
+  { value: 'T4_N0_M0', label: 'TNM: T4 N0 M0' },
+  { value: 'N1', label: 'N1 - ganglions régionaux atteints' },
+  { value: 'N2', label: 'N2 - atteinte ganglionnaire avancée' },
+  { value: 'N3', label: 'N3 - atteinte ganglionnaire étendue' },
+  { value: 'M0', label: 'M0 - absence de métastases' },
+  { value: 'M1', label: 'M1 - métastases présentes' },
+]
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function PatientForm({ patientId, initialData, mode = 'create' }: PatientFormProps) {
@@ -1012,15 +1191,15 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                   </Select>
                 </Field>
 
-                <Field label="Détails tabac / vape / chicha" controlId="smoking_details">
-                  <Textarea
-                    id="smoking_details"
-                    value={formData.smoking_details}
-                    onChange={e => updateFormData('smoking_details', e.target.value)}
-                    className={inputClass}
-                    placeholder="Type, quantité, durée, âge de début, arrêt, exposition passive..."
-                    rows={3}
-                  />
+                <Field label="Fréquence / contexte tabac" controlId="smoking_details">
+                  <Select value={formData.smoking_details} onValueChange={value => updateFormData('smoking_details', value)}>
+                    <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                    <SelectContent>
+                      {frequencyDetailOptions.map(option => (
+                        <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </Field>
 
                 <Field label="Consommation d'alcool" controlId="alcohol_use">
@@ -1038,15 +1217,15 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                   </Select>
                 </Field>
 
-                <Field label="Détails alcool" controlId="alcohol_details">
-                  <Textarea
-                    id="alcohol_details"
-                    value={formData.alcohol_details}
-                    onChange={e => updateFormData('alcohol_details', e.target.value)}
-                    className={inputClass}
-                    placeholder="Fréquence, quantité, durée, arrêt éventuel..."
-                    rows={3}
-                  />
+                <Field label="Fréquence / contexte alcool" controlId="alcohol_details">
+                  <Select value={formData.alcohol_details} onValueChange={value => updateFormData('alcohol_details', value)}>
+                    <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                    <SelectContent>
+                      {frequencyDetailOptions.map(option => (
+                        <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </Field>
 
                 <Field label="Activité physique" controlId="physical_activity">
@@ -1064,15 +1243,15 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                   </Select>
                 </Field>
 
-                <Field label="Détails activité physique" controlId="physical_activity_details">
-                  <Textarea
-                    id="physical_activity_details"
-                    value={formData.physical_activity_details}
-                    onChange={e => updateFormData('physical_activity_details', e.target.value)}
-                    className={inputClass}
-                    placeholder="Type, fréquence, durée, intensité..."
-                    rows={3}
-                  />
+                <Field label="Fréquence activité physique" controlId="physical_activity_details">
+                  <Select value={formData.physical_activity_details} onValueChange={value => updateFormData('physical_activity_details', value)}>
+                    <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                    <SelectContent>
+                      {frequencyDetailOptions.map(option => (
+                        <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </Field>
 
                 <Field label="Régime alimentaire" controlId="diet_type">
@@ -1088,25 +1267,26 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                   </Select>
                 </Field>
 
-                <Field label="Détails régime / hydratation" controlId="diet_details">
-                  <Textarea
-                    id="diet_details"
-                    value={formData.diet_details}
-                    onChange={e => updateFormData('diet_details', e.target.value)}
-                    className={inputClass}
-                    placeholder="Depuis quand, restrictions, carences connues..."
-                    rows={3}
-                  />
+                <Field label="Durée du régime" controlId="diet_details">
+                  <Select value={formData.diet_details} onValueChange={value => updateFormData('diet_details', value)}>
+                    <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                    <SelectContent>
+                      {useDurationOptions.map(option => (
+                        <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </Field>
 
                 <Field label="Hydratation" controlId="hydration_notes">
-                  <Input
-                    id="hydration_notes"
-                    value={formData.hydration_notes}
-                    onChange={e => updateFormData('hydration_notes', e.target.value)}
-                    className={inputClass}
-                    placeholder="ex: faible, normale, élevée..."
-                  />
+                  <Select value={formData.hydration_notes} onValueChange={value => updateFormData('hydration_notes', value)}>
+                    <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                    <SelectContent>
+                      {hydrationOptions.map(option => (
+                        <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </Field>
 
                 <Field label="Niveau de stress" controlId="stress_level">
@@ -1124,15 +1304,15 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                   </Select>
                 </Field>
 
-                <Field label="Détails stress chronique" controlId="stress_details">
-                  <Textarea
-                    id="stress_details"
-                    value={formData.stress_details}
-                    onChange={e => updateFormData('stress_details', e.target.value)}
-                    className={inputClass}
-                    placeholder="Depuis quand, cause principale, impact clinique..."
-                    rows={3}
-                  />
+                <Field label="Durée du stress chronique" controlId="stress_details">
+                  <Select value={formData.stress_details} onValueChange={value => updateFormData('stress_details', value)}>
+                    <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                    <SelectContent>
+                      {useDurationOptions.map(option => (
+                        <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </Field>
 
                 <Field label="Qualité du sommeil" controlId="sleep_quality">
@@ -1163,15 +1343,16 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                   />
                 </Field>
 
-                <Field label="Détails sommeil" controlId="sleep_details">
-                  <Textarea
-                    id="sleep_details"
-                    value={formData.sleep_details}
-                    onChange={e => updateFormData('sleep_details', e.target.value)}
-                    className={inputClass}
-                    placeholder="Insomnie, réveils nocturnes, sommeil fragmenté, somnolence diurne..."
-                    rows={3}
-                  />
+                <Field label="Trouble principal du sommeil" controlId="sleep_details">
+                  <Select value={formData.sleep_details} onValueChange={value => updateFormData('sleep_details', value)}>
+                    <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="SLEEP_ONSET_INSOMNIA">Insomnie d'endormissement</SelectItem>
+                      <SelectItem value="NOCTURNAL_AWAKENINGS">Réveils nocturnes</SelectItem>
+                      <SelectItem value="FRAGMENTED_SLEEP">Sommeil fragmenté</SelectItem>
+                      <SelectItem value="DAYTIME_SLEEPINESS">Somnolence diurne</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </Field>
 
                 <div className="flex items-center space-x-2 md:col-span-2">
@@ -1183,12 +1364,24 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                 {formData.substance_use && (
                   <>
                     <Field label="Type de substance" controlId="substance_type">
-                      <Input id="substance_type" value={formData.substance_type}
-                        onChange={e => updateFormData('substance_type', e.target.value)} className={inputClass} />
+                      <Select value={formData.substance_type} onValueChange={value => updateFormData('substance_type', value)}>
+                        <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                        <SelectContent>
+                          {substanceTypeOptions.map(option => (
+                            <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </Field>
                     <Field label="Fréquence" controlId="substance_frequency">
-                      <Input id="substance_frequency" value={formData.substance_frequency}
-                        onChange={e => updateFormData('substance_frequency', e.target.value)} className={inputClass} />
+                      <Select value={formData.substance_frequency} onValueChange={value => updateFormData('substance_frequency', value)}>
+                        <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                        <SelectContent>
+                          {frequencyDetailOptions.map(option => (
+                            <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </Field>
                     <Field label="Voie" controlId="substance_route">
                       <Select value={formData.substance_route} onValueChange={v => updateFormData('substance_route', v)}>
@@ -1201,14 +1394,24 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                       </Select>
                     </Field>
                     <Field label="Durée d'usage" controlId="substance_duration">
-                      <Input id="substance_duration" value={formData.substance_duration}
-                        onChange={e => updateFormData('substance_duration', e.target.value)} className={inputClass}
-                        placeholder="ex: depuis 2 ans" />
+                      <Select value={formData.substance_duration} onValueChange={value => updateFormData('substance_duration', value)}>
+                        <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                        <SelectContent>
+                          {useDurationOptions.map(option => (
+                            <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </Field>
                     <Field label="Dernière prise" controlId="substance_last_use">
-                      <Input id="substance_last_use" value={formData.substance_last_use}
-                        onChange={e => updateFormData('substance_last_use', e.target.value)} className={inputClass}
-                        placeholder="ex: hier soir" />
+                      <Select value={formData.substance_last_use} onValueChange={value => updateFormData('substance_last_use', value)}>
+                        <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                        <SelectContent>
+                          {lastUseOptions.map(option => (
+                            <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </Field>
                     <div className="flex items-center space-x-2">
                       <input type="checkbox" id="substance_withdrawal_signs" checked={formData.substance_withdrawal_signs}
@@ -1225,16 +1428,28 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                   <Label htmlFor="toxic_exposure">Exposition chronique aux toxiques / métaux / gaz</Label>
                 </div>
                 {formData.toxic_exposure && (
-                  <Field label="Détails exposition toxique" controlId="toxic_exposure_details">
-                    <Textarea
-                      id="toxic_exposure_details"
-                      value={formData.toxic_exposure_details}
-                      onChange={e => updateFormData('toxic_exposure_details', e.target.value)}
-                      className={inputClass}
-                      placeholder="Lieu, agent, durée, exposition actuelle/ancienne, symptômes associés..."
-                      rows={3}
-                    />
-                  </Field>
+                  <>
+                    <Field label="Agent toxique" controlId="toxic_exposure_details">
+                      <Select value={formData.toxic_exposure_details} onValueChange={value => updateFormData('toxic_exposure_details', value)}>
+                        <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                        <SelectContent>
+                          {toxicExposureOptions.map(option => (
+                            <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                    <Field label="Contexte d'exposition" controlId="sun_exposure_details">
+                      <Select value={formData.sun_exposure_details} onValueChange={value => updateFormData('sun_exposure_details', value)}>
+                        <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                        <SelectContent>
+                          {exposureContextOptions.map(option => (
+                            <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </Field>
+                  </>
                 )}
                 <div className="flex items-center space-x-2 md:col-span-2">
                   <input type="checkbox" id="prolonged_fasting" checked={formData.prolonged_fasting}
@@ -1245,17 +1460,34 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                 {formData.prolonged_fasting && (
                   <>
                     <Field label="Type de jeûne" controlId="fasting_type">
-                      <Input id="fasting_type" value={formData.fasting_type}
-                        onChange={e => updateFormData('fasting_type', e.target.value)} className={inputClass} />
+                      <Select value={formData.fasting_type} onValueChange={value => updateFormData('fasting_type', value)}>
+                        <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                        <SelectContent>
+                          {fastingTypeOptions.map(option => (
+                            <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </Field>
                     <Field label="Fréquence du jeûne" controlId="fasting_frequency">
-                      <Input id="fasting_frequency" value={formData.fasting_frequency}
-                        onChange={e => updateFormData('fasting_frequency', e.target.value)} className={inputClass} />
+                      <Select value={formData.fasting_frequency} onValueChange={value => updateFormData('fasting_frequency', value)}>
+                        <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                        <SelectContent>
+                          {fastingFrequencyOptions.map(option => (
+                            <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </Field>
                     <Field label="Symptômes liés au jeûne" controlId="fasting_symptoms">
-                      <Textarea id="fasting_symptoms" value={formData.fasting_symptoms}
-                        onChange={e => updateFormData('fasting_symptoms', e.target.value)} className={inputClass}
-                        placeholder="Vertiges, hypoglycémie, fatigue, malaise..." rows={3} />
+                      <Select value={formData.fasting_symptoms} onValueChange={value => updateFormData('fasting_symptoms', value)}>
+                        <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                        <SelectContent>
+                          {fastingSymptomOptions.map(option => (
+                            <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </Field>
                   </>
                 )}
@@ -1272,13 +1504,15 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                 </div>
                 {formData.night_shift && (
                   <Field label="Détails travail de nuit" controlId="night_shift_details">
-                    <Input
-                      id="night_shift_details"
-                      value={formData.night_shift_details}
-                      onChange={e => updateFormData('night_shift_details', e.target.value)}
-                      className={inputClass}
-                      placeholder="Depuis quand, fatigue, troubles digestifs, poids..."
-                    />
+                    <Select value={formData.night_shift_details} onValueChange={value => updateFormData('night_shift_details', value)}>
+                      <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="FATIGUE">Fatigue</SelectItem>
+                        <SelectItem value="DIGESTIVE_TROUBLE">Troubles digestifs</SelectItem>
+                        <SelectItem value="WEIGHT_GAIN">Prise de poids</SelectItem>
+                        <SelectItem value="SLEEP_DISORDER">Troubles du sommeil</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </Field>
                 )}
 
@@ -1295,25 +1529,27 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                   </Select>
                 </Field>
 
-                <Field label="Détails soleil / logement" controlId="sun_exposure_details">
-                  <Textarea
-                    id="sun_exposure_details"
-                    value={formData.sun_exposure_details}
-                    onChange={e => updateFormData('sun_exposure_details', e.target.value)}
-                    className={inputClass}
-                    placeholder="Travail extérieur, protection solaire, humidité/moisissures..."
-                    rows={3}
-                  />
+                <Field label="Contexte soleil" controlId="sun_exposure_details">
+                  <Select value={formData.sun_exposure_details} onValueChange={value => updateFormData('sun_exposure_details', value)}>
+                    <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="OUTDOOR_WORK">Travail extérieur</SelectItem>
+                      <SelectItem value="SUN_PROTECTION">Protection solaire</SelectItem>
+                      <SelectItem value="NO_SUN_PROTECTION">Sans protection solaire</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </Field>
 
                 <Field label="Conditions de logement" controlId="housing_conditions">
-                  <Input
-                    id="housing_conditions"
-                    value={formData.housing_conditions}
-                    onChange={e => updateFormData('housing_conditions', e.target.value)}
-                    className={inputClass}
-                    placeholder="Humidité, moisissures, ventilation..."
-                  />
+                  <Select value={formData.housing_conditions} onValueChange={value => updateFormData('housing_conditions', value)}>
+                    <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="NORMAL">Normal</SelectItem>
+                      <SelectItem value="HUMIDITY">Humidité</SelectItem>
+                      <SelectItem value="MOLD">Moisissures</SelectItem>
+                      <SelectItem value="POOR_VENTILATION">Mauvaise ventilation</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </Field>
               </CardContent>
             </Card>
@@ -1340,9 +1576,14 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                   options={SPECIAL_DIAGNOSIS_CATALOG} onChange={v => updateFormData('special_diagnosis', v)}
                   placeholder="Cancer du sein, Leucémie..." />
                 <Field label="Classification / stade" controlId="special_stage_classification">
-                  <Input id="special_stage_classification" value={formData.special_stage_classification}
-                    onChange={e => updateFormData('special_stage_classification', e.target.value)}
-                    className={inputClass} placeholder="TNM, Stade III, M1..." />
+                  <Select value={formData.special_stage_classification} onValueChange={value => updateFormData('special_stage_classification', value)}>
+                    <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                    <SelectContent>
+                      {cancerStageOptions.map(option => (
+                        <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </Field>
                 <div className="flex items-center space-x-2">
                   <input type="checkbox" id="special_active_disease" checked={formData.special_active_disease}
@@ -1384,9 +1625,14 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                 </div>
                 {formData.sudden_medication_stop && (
                   <Field label="Détails arrêt / symptômes de rebond" controlId="sudden_medication_stop_details">
-                    <Textarea id="sudden_medication_stop_details" value={formData.sudden_medication_stop_details}
-                      onChange={e => updateFormData('sudden_medication_stop_details', e.target.value)} className={inputClass}
-                      placeholder="Médicament, date d'arrêt, raison, symptômes après arrêt..." rows={3} />
+                    <Select value={formData.sudden_medication_stop_details} onValueChange={value => updateFormData('sudden_medication_stop_details', value)}>
+                      <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                      <SelectContent>
+                        {medicationStopReasonOptions.map(option => (
+                          <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </Field>
                 )}
 
@@ -1398,16 +1644,26 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                 </div>
                 {formData.hidden_self_medication && (
                   <Field label="Détails automédication" controlId="hidden_self_medication_details">
-                    <Textarea id="hidden_self_medication_details" value={formData.hidden_self_medication_details}
-                      onChange={e => updateFormData('hidden_self_medication_details', e.target.value)} className={inputClass}
-                      placeholder="Paracétamol, AINS, antihistaminiques, compléments, dose, fréquence, durée..." rows={3} />
+                    <Select value={formData.hidden_self_medication_details} onValueChange={value => updateFormData('hidden_self_medication_details', value)}>
+                      <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                      <SelectContent>
+                        {selfMedicationOptions.map(option => (
+                          <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </Field>
                 )}
 
                 <Field label="Phytothérapie / produits naturels" controlId="phytotherapy_details">
-                  <Textarea id="phytotherapy_details" value={formData.phytotherapy_details}
-                    onChange={e => updateFormData('phytotherapy_details', e.target.value)} className={inputClass}
-                    placeholder="Nom scientifique ou commercial, partie utilisée, dosage, origine, qualité, interactions connues..." rows={3} />
+                  <Select value={formData.phytotherapy_details} onValueChange={value => updateFormData('phytotherapy_details', value)}>
+                    <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                    <SelectContent>
+                      {plantPartOptions.map(option => (
+                        <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </Field>
 
                 <div className="flex items-center space-x-2">
@@ -1418,9 +1674,17 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                 </div>
                 {formData.uncontrolled_natural_products && (
                   <Field label="Détails produits naturels" controlId="natural_products_details">
-                    <Textarea id="natural_products_details" value={formData.natural_products_details}
-                      onChange={e => updateFormData('natural_products_details', e.target.value)} className={inputClass}
-                      placeholder="Produit exact, dose, fréquence, origine, effets indésirables..." rows={3} />
+                    <Select value={formData.natural_products_details} onValueChange={value => updateFormData('natural_products_details', value)}>
+                      <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                      <SelectContent>
+                        {naturalProductOptions.map(option => (
+                          <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                        ))}
+                        {productOriginOptions.map(option => (
+                          <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </Field>
                 )}
 
@@ -1432,9 +1696,14 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                 </div>
                 {formData.restrictive_diet && (
                   <Field label="Détails régime restrictif" controlId="restrictive_diet_details">
-                    <Textarea id="restrictive_diet_details" value={formData.restrictive_diet_details}
-                      onChange={e => updateFormData('restrictive_diet_details', e.target.value)} className={inputClass}
-                      placeholder="Type, durée, perte de poids, fatigue, chute de cheveux, vertiges..." rows={3} />
+                    <Select value={formData.restrictive_diet_details} onValueChange={value => updateFormData('restrictive_diet_details', value)}>
+                      <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                      <SelectContent>
+                        {restrictiveDietOptions.map(option => (
+                          <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </Field>
                 )}
 
@@ -1446,9 +1715,14 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                 </div>
                 {formData.blood_donor && (
                   <Field label="Détails don de sang" controlId="blood_donation_details">
-                    <Input id="blood_donation_details" value={formData.blood_donation_details}
-                      onChange={e => updateFormData('blood_donation_details', e.target.value)} className={inputClass}
-                      placeholder="Fréquence, dernier don, antécédent d'anémie..." />
+                    <Select value={formData.blood_donation_details} onValueChange={value => updateFormData('blood_donation_details', value)}>
+                      <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="REGULAR_DONOR">Donneur régulier</SelectItem>
+                        <SelectItem value="RECENT_DONATION">Don récent</SelectItem>
+                        <SelectItem value="ANEMIA_HISTORY">Antécédent d'anémie</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </Field>
                 )}
 
@@ -1464,9 +1738,15 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                 </Field>
 
                 <Field label="Dernière consultation" controlId="last_consultation">
-                  <Input id="last_consultation" value={formData.last_consultation}
-                    onChange={e => updateFormData('last_consultation', e.target.value)} className={inputClass}
-                    placeholder="ex: il y a 3 mois" />
+                  <Select value={formData.last_consultation} onValueChange={value => updateFormData('last_consultation', value)}>
+                    <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="LESS_1_MONTH">Moins d'un mois</SelectItem>
+                      <SelectItem value="1_3_MONTHS">1 à 3 mois</SelectItem>
+                      <SelectItem value="3_12_MONTHS">3 à 12 mois</SelectItem>
+                      <SelectItem value="MORE_1_YEAR">Plus d'un an</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </Field>
 
                 <div className="flex items-center space-x-2">
@@ -1484,9 +1764,14 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                 </div>
                 {formData.self_diagnosis && (
                   <Field label="Produits pris après autodiagnostic" controlId="self_diagnosis_treatments">
-                    <Textarea id="self_diagnosis_treatments" value={formData.self_diagnosis_treatments}
-                      onChange={e => updateFormData('self_diagnosis_treatments', e.target.value)} className={inputClass}
-                      placeholder="Médicaments ou produits, dose, durée..." rows={3} />
+                    <Select value={formData.self_diagnosis_treatments} onValueChange={value => updateFormData('self_diagnosis_treatments', value)}>
+                      <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
+                      <SelectContent>
+                        {selfMedicationOptions.map(option => (
+                          <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </Field>
                 )}
               </CardContent>

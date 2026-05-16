@@ -18,6 +18,7 @@ interface SearchableComboboxProps {
   placeholder?: string
   required?: boolean
   disabled?: boolean
+  allowCustomValue?: boolean
 }
 
 export function SearchableCombobox({
@@ -29,13 +30,14 @@ export function SearchableCombobox({
   placeholder = 'Rechercher...',
   required = false,
   disabled = false,
+  allowCustomValue = false,
 }: SearchableComboboxProps) {
   const [query, setQuery] = useState(value)
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
-    setQuery(value)
-  }, [value])
+    setQuery(options.find(option => option.value === value)?.label ?? value)
+  }, [options, value])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -63,14 +65,31 @@ export function SearchableCombobox({
         className="w-full"
         onChange={e => {
           setQuery(e.target.value)
-          onChange(e.target.value)
+          if (allowCustomValue) {
+            onChange(e.target.value)
+          } else if (value) {
+            onChange('')
+          }
           setOpen(true)
         }}
         onFocus={() => setOpen(true)}
-        onBlur={() => setTimeout(() => setOpen(false), 150)}
+        onBlur={() => {
+          setTimeout(() => {
+            setOpen(false)
+            if (!allowCustomValue) {
+              const selected = options.find(option => option.value === value)
+              setQuery(selected?.label ?? '')
+            }
+          }, 150)
+        }}
         autoComplete="off"
         required={required}
       />
+      {open && query.trim() && filtered.length === 0 && (
+        <div className="absolute z-20 top-full mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500 shadow-lg">
+          Aucune option existante
+        </div>
+      )}
       {open && filtered.length > 0 && (
         <ul className="absolute z-20 top-full mt-1 w-full max-h-48 overflow-auto rounded-lg border border-slate-200 bg-white shadow-lg">
           {filtered.map(option => (

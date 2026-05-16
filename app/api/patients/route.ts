@@ -152,19 +152,13 @@ export async function POST(request: NextRequest) {
             select: { id: true },
           })
 
-          if (existingMed) {
-            medicationId = existingMed.id
-          } else {
-            // Create new medication record
-            const newMed = await prisma.medications.create({
-              data: {
-                name: medication.medication_name,
-                category: 'general',
-              },
-              select: { id: true },
-            })
-            medicationId = newMed.id
+          if (!existingMed) {
+            return NextResponse.json(
+              { error: `Médicament non reconnu: ${medication.medication_name}` },
+              { status: 400 }
+            )
           }
+          medicationId = existingMed.id
 
           // Create patient medication record
           await prisma.patient_medications.create({
