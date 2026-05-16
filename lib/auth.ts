@@ -36,7 +36,6 @@ export const authOptions: NextAuthOptions = {
               password_hash: true,
               full_name: true,
               specialization: true,
-              profile_image: true,
             },
           })
 

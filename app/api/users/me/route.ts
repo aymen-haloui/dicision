@@ -11,7 +11,7 @@ export async function GET(req: Request) {
 
   const user = await prisma.users.findUnique({
     where: { id: session.user.id as string },
-    select: { id: true, email: true, full_name: true, specialization: true, profile_image: true },
+    select: { id: true, email: true, full_name: true, specialization: true },
   })
 
   return NextResponse.json({ user })
@@ -34,7 +34,7 @@ export async function PATCH(req: Request) {
         specialization: typeof specialization === 'string' ? specialization : undefined,
         profile_image: typeof profile_image === 'string' ? profile_image : undefined,
       },
-      select: { id: true, email: true, full_name: true, specialization: true, profile_image: true },
+      select: { id: true, email: true, full_name: true, specialization: true },
     })
 
     return NextResponse.json({ user: updated })

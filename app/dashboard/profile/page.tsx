@@ -24,7 +24,7 @@ export default async function ProfilePage() {
   const dbUser = session?.user?.id
     ? await prisma.users.findUnique({
         where: { id: session.user.id as string },
-        select: { id: true, email: true, full_name: true, specialization: true, profile_image: true },
+        select: { id: true, email: true, full_name: true, specialization: true },
       })
     : null
 
@@ -32,7 +32,7 @@ export default async function ProfilePage() {
     name: dbUser?.full_name ?? user?.name,
     email: dbUser?.email ?? user?.email,
     specialization: dbUser?.specialization ?? user?.specialization,
-    profile_image: dbUser?.profile_image,
+    profile_image: user?.profile_image,
   }
 
   return (

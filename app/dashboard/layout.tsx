@@ -22,13 +22,13 @@ export default async function DashboardLayout({
 
   const dbUser = await prisma.users.findUnique({
     where: { id: session.user.id as string },
-    select: { full_name: true, specialization: true, profile_image: true },
+    select: { full_name: true, specialization: true },
   })
 
   const user = {
     name: dbUser?.full_name ?? session.user.name,
     specialization: dbUser?.specialization ?? session.user.specialization,
-    profile_image: dbUser?.profile_image ?? session.user.profile_image,
+    profile_image: session.user.profile_image,
   }
 
   return (
