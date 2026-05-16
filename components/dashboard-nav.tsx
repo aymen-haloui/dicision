@@ -9,6 +9,7 @@ interface User {
   name?: string | null
   email?: string | null
   specialization?: string
+  profile_image?: string | null
 }
 
 const BASE_NAV = [
@@ -70,8 +71,13 @@ export default function DashboardNav({ user }: { user: User }) {
         {/* user */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-3 border-r border-[#dae7e5] pr-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#2CB1BC] to-[#239AA3] text-xs font-bold text-white">
-              {initials}
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#2CB1BC] to-[#239AA3] text-xs font-bold text-white overflow-hidden">
+              {user?.profile_image ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={user.profile_image} alt={user?.name || 'avatar'} className="h-9 w-9 object-cover" />
+              ) : (
+                initials
+              )}
             </div>
             <div className="hidden leading-tight sm:block">
               <p className="text-sm font-semibold text-slate-900">{user?.name}</p>

@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import DashboardNav from '@/components/dashboard-nav'
+import { prisma } from '@/lib/prisma'
 
 export const metadata = {
   title: 'Tableau de bord - Aide a la decision medicale',
@@ -19,9 +20,20 @@ export default async function DashboardLayout({
     redirect('/auth/login')
   }
 
+  const dbUser = await prisma.users.findUnique({
+    where: { id: session.user.id as string },
+    select: { full_name: true, specialization: true, profile_image: true },
+  })
+
+  const user = {
+    name: dbUser?.full_name ?? session.user.name,
+    specialization: dbUser?.specialization ?? session.user.specialization,
+    profile_image: dbUser?.profile_image ?? session.user.profile_image,
+  }
+
   return (
     <div className="min-h-screen bg-[#f6f8f7]">
-      <DashboardNav user={session.user} />
+      <DashboardNav user={user} />
       <main className="mx-auto max-w-7xl px-4 py-6 lg:px-6 lg:py-8">
         {children}
       </main>

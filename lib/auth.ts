@@ -20,7 +20,7 @@ export const authOptions: NextAuthOptions = {
 
         try {
           const result = await sql`
-            SELECT id, email, password_hash, full_name, specialization
+            SELECT id, email, password_hash, full_name, specialization, profile_image
             FROM users
             WHERE email = ${credentials.email}
           `
@@ -44,6 +44,7 @@ export const authOptions: NextAuthOptions = {
             email: user.email,
             name: user.full_name,
             specialization: user.specialization,
+            profile_image: user.profile_image,
           }
         } catch (error) {
           throw new Error('Authentication failed')
@@ -59,6 +60,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id
         token.specialization = user.specialization
+        token.profile_image = (user as any).profile_image
       }
       return token
     },
@@ -66,6 +68,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id as string
         session.user.specialization = token.specialization as string
+        session.user.profile_image = token.profile_image as string
       }
       return session
     },

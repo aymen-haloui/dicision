@@ -6,11 +6,13 @@ declare module 'next-auth' {
     user: {
       id: string
       specialization: string
+      profile_image?: string | null
     } & DefaultSession['user']
   }
 
   interface User extends DefaultUser {
     specialization: string
+    profile_image?: string | null
   }
 }
 
@@ -18,5 +20,6 @@ declare module 'next-auth/jwt' {
   interface JWT {
     id: string
     specialization: string
+    profile_image?: string | null
   }
 }

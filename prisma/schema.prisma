@@ -327,6 +327,7 @@ model users {
   email          String     @unique @db.VarChar(255)
   password_hash  String     @db.VarChar(255)
   full_name      String     @db.VarChar(255)
+  profile_image  String?    @db.Text
   specialization String?    @db.VarChar(255)
   created_at     DateTime?  @default(now()) @db.Timestamptz(6)
   cases          cases[]
