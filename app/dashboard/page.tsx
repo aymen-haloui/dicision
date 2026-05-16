@@ -22,7 +22,8 @@ const sql = postgres(process.env.DATABASE_URL!)
 
 async function getDashboardStats(userId: string) {
   try {
-    const [patients, cases, emergencies, assessments, recentCases] = await Promise.all([
+    const [user, patients, cases, emergencies, assessments, recentCases] = await Promise.all([
+      sql`SELECT full_name FROM users WHERE id = ${userId} LIMIT 1`,
       sql`SELECT COUNT(*) as count FROM patients WHERE user_id = ${userId}`,
       sql`SELECT COUNT(*) as count FROM cases WHERE user_id = ${userId}`,
       sql`SELECT COUNT(*) as count FROM cases WHERE user_id = ${userId} AND case_type = 'emergency'`,
@@ -38,6 +39,7 @@ async function getDashboardStats(userId: string) {
       `,
     ])
     return {
+      userName: user[0]?.full_name,
       patientCount: Number(patients[0]?.count ?? 0),
       caseCount: Number(cases[0]?.count ?? 0),
       emergencyCount: Number(emergencies[0]?.count ?? 0),
@@ -45,7 +47,7 @@ async function getDashboardStats(userId: string) {
       recentCases: recentCases || [],
     }
   } catch {
-    return { patientCount: 0, caseCount: 0, emergencyCount: 0, assessmentCount: 0, recentCases: [] }
+    return { userName: undefined, patientCount: 0, caseCount: 0, emergencyCount: 0, assessmentCount: 0, recentCases: [] }
   }
 }
 
@@ -55,7 +57,7 @@ export default async function DashboardPage() {
 
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Bonjour' : hour < 18 ? 'Bon apres-midi' : 'Bonsoir'
-  const lastName = session?.user?.name?.split(' ').pop() ?? session?.user?.name
+  const displayName = stats.userName ?? session?.user?.name ?? 'utilisateur'
   const aiRiskAlerts = Math.max(1, Math.min(stats.emergencyCount + Math.floor(stats.assessmentCount / 3), 18))
 
   const metricCards = [
@@ -127,20 +129,20 @@ export default async function DashboardPage() {
 
         <div className="relative flex flex-wrap items-start justify-between gap-6">
           <div className="max-w-2xl">
-            <p className="text-sm font-medium tracking-wide text-[#147b78]">{greeting}, Dr HEXA</p>
+            <p className="text-sm font-medium tracking-wide text-[#147b78]">{greeting}, {displayName}</p>
             <h1 className="mt-2 text-3xl font-semibold leading-tight text-slate-900 lg:text-4xl">
-              L\'intelligence d\'urgence a la vitesse clinique
+              L'intelligence d'urgence a la vitesse clinique
             </h1>
             <p className="mt-3 text-sm text-slate-600 lg:text-base">
-              Votre espace d\'urgence assiste par l\'IA est actif. Suivez les cas a haut risque,
-              les signaux de triage et les recommandations d\'aide a la decision dans une vue compacte.
+              Votre espace d'urgence assiste par l'IA est actif. Suivez les cas a haut risque,
+              les signaux de triage et les recommandations d'aide a la decision dans une vue compacte.
             </p>
 
             <div className="mt-5 flex flex-wrap gap-3 lg:hidden">
               <Link href="/dashboard/cases/new"
                 className="inline-flex items-center gap-2 rounded-xl bg-[#0f8f89] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0c7a74]">
                 <Plus className="h-4 w-4" />
-                Nouveau cas d\'urgence
+                Nouveau cas d'urgence
               </Link>
               <Link href="/dashboard/patients/new"
                 className="inline-flex items-center gap-2 rounded-xl border border-[#b8d9d5] bg-white/70 px-4 py-2.5 text-sm font-semibold text-slate-700 backdrop-blur-sm transition hover:bg-white">
@@ -152,7 +154,7 @@ export default async function DashboardPage() {
 
           <div className="w-full max-w-sm rounded-2xl border border-white/80 bg-white/65 p-4 shadow-[0_10px_30px_rgba(0,0,0,0.06)] backdrop-blur-sm lg:w-[360px]">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Etat d\'urgence en direct</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Etat d'urgence en direct</p>
               <span className="rounded-full bg-[#dff7f5] px-2.5 py-1 text-[11px] font-semibold text-[#0f8f89]">
                 IA active
               </span>
@@ -169,7 +171,7 @@ export default async function DashboardPage() {
             </div>
             <div className="mt-3 flex items-center gap-2 rounded-xl bg-white/80 p-3 text-xs text-slate-600">
               <Sparkles className="h-4 w-4 text-[#0f8f89]" />
-              Priorisez les cartes d\'urgence ; l\'analyse des conflits medicamenteux s\'execute automatiquement sur les cas ouverts.
+              Priorisez les cartes d'urgence ; l'analyse des conflits medicamenteux s'execute automatiquement sur les cas ouverts.
             </div>
           </div>
         </div>
@@ -218,7 +220,7 @@ export default async function DashboardPage() {
             </div>
             <h3 className="text-lg font-semibold text-slate-900">Aucun flux de cas actif pour le moment</h3>
             <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">
-              Demarrez votre flux d\'intelligence d\'urgence en creant un nouveau cas.
+              Demarrez votre flux d'intelligence d'urgence en creant un nouveau cas.
               Les recommandations de triage IA et les signaux de risque apparaitront ici en temps reel.
             </p>
             <Link href="/dashboard/cases/new">
