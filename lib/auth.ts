@@ -1,9 +1,15 @@
 import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
-import postgres from 'postgres'
 import bcryptjs from 'bcryptjs'
+import { prisma } from '@/lib/prisma'
 
-const sql = postgres(process.env.DATABASE_URL!)
+if (!process.env.NEXTAUTH_SECRET) {
+  throw new Error('NEXTAUTH_SECRET must be set for NextAuth')
+}
+
+if (!process.env.NEXTAUTH_URL) {
+  throw new Error('NEXTAUTH_URL must be set for NextAuth')
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -19,17 +25,22 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          const result = await sql`
-            SELECT id, email, password_hash, full_name, specialization
-            FROM users
-            WHERE email = ${credentials.email}
-          `
+          const user = await prisma.users.findUnique({
+            where: { email: credentials.email },
+            select: {
+              id: true,
+              email: true,
+              password_hash: true,
+              full_name: true,
+              specialization: true,
+              profile_image: true,
+            },
+          })
 
-          if (result.length === 0) {
+          if (!user) {
             throw new Error('User not found')
           }
 
-          const user = result[0]
           const passwordMatch = await bcryptjs.compare(
             credentials.password,
             user.password_hash
@@ -44,7 +55,7 @@ export const authOptions: NextAuthOptions = {
             email: user.email,
             name: user.full_name,
             specialization: user.specialization,
-            profile_image: (user as any).profile_image ?? null,
+            profile_image: user.profile_image ?? null,
           }
         } catch (error) {
           console.error('Credentials authorize error:', error)
@@ -53,6 +64,8 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
+  secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV !== 'production',
   pages: {
     signIn: '/auth/login',
   },
