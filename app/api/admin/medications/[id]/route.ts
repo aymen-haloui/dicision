@@ -5,6 +5,37 @@ import postgres from 'postgres'
 
 const sql = postgres(process.env.DATABASE_URL!)
 
+// GET — fetch a single medication by id
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Non autorise' }, { status: 401 })
+    }
+
+    const result = await sql`
+      SELECT id, name, generic_name, category, dosage_form, default_dosage,
+             warnings, max_daily_dose_adult, max_daily_dose_child,
+             contraindications, toxicity_thresholds, overdose_management, pharmacological_data,
+             created_at
+      FROM medications
+      WHERE id = ${id}
+    `
+
+    if (result.length === 0) {
+      return NextResponse.json({ error: 'Medicament introuvable' }, { status: 404 })
+    }
+
+    return NextResponse.json(result[0])
+  } catch (error: any) {
+    return NextResponse.json({ error: 'Echec du chargement du medicament' }, { status: 500 })
+  }
+}
+
 // PUT — update a medication
 export async function PUT(
   request: NextRequest,

@@ -15,12 +15,15 @@ interface Medication {
   name: string
   generic_name: string
   category: string
+  dosage_form: string
   default_dosage: string
   warnings: string
   max_daily_dose_adult: number | null
   max_daily_dose_child: number | null
   contraindications: { condition: string; severity: string }[]
+  toxicity_thresholds: Record<string, any>
   overdose_management: string
+  pharmacological_data: Record<string, any>
 }
 
 interface Interaction {
@@ -62,6 +65,51 @@ const CATEGORY_COLORS: Record<string, string> = {
   analgesic:    'bg-sky-100 text-sky-700',
 }
 
+const MEDICATION_CATEGORIES = [
+  { value: 'nsaid', label: 'AINS' },
+  { value: 'antibiotic', label: 'Antibiotique' },
+  { value: 'antidiabetic', label: 'Antidiabétique' },
+  { value: 'ace_inhibitor', label: 'IEC' },
+  { value: 'anticoagulant', label: 'Anticoagulant' },
+  { value: 'analgesic', label: 'Antalgique' },
+  { value: 'statin', label: 'Statine' },
+]
+
+function emptyMedicationForm() {
+  return {
+    name: '', genericName: '', category: '', dosageForm: '', defaultDosage: '',
+    mechanism: '', routes: '', actionSpeed: '', actionDuration: '',
+    indications: '', contraindicationsCritical: '', contraindicationsModerate: '',
+    warnings: '', maxDailyDoseAdult: '', maxDailyDoseChild: '', pediatricToxicDose: '',
+    pediatricSevereDose: '', adultToxicDose: '', overdoseSymptomsMild: '',
+    overdoseSymptomsModerate: '', overdoseSymptomsSevere: '', overdoseManagement: '',
+    dosingAdults: '', dosingChildren: '', renalAdjustment: '', adverseEffects: '',
+  }
+}
+
+function parseLines(value: string) {
+  return value
+    .split('\n')
+    .map(line => line.trim())
+    .filter(Boolean)
+}
+
+function parseStructuredLines(value: string, keys: string[]) {
+  return parseLines(value).map(line => {
+    const parts = line.split('|').map(part => part.trim())
+    return keys.reduce<Record<string, string>>((item, key, index) => {
+      item[key] = parts[index] || ''
+      return item
+    }, {})
+  })
+}
+
+function numberOrNull(value: string) {
+  if (!value) return null
+  const parsed = parseFloat(value)
+  return Number.isFinite(parsed) ? parsed : null
+}
+
 export default function AdminRulesPage() {
   const [tab, setTab] = useState<'medications' | 'interactions'>('medications')
   const [medications, setMedications] = useState<Medication[]>([])
@@ -74,15 +122,16 @@ export default function AdminRulesPage() {
   const [error, setError] = useState('')
   const [medSearch, setMedSearch] = useState('')
   const [intSearch, setIntSearch] = useState('')
+  const [doctors, setDoctors] = useState<{ id: string; email: string; full_name: string; specialization?: string; created_at?: string }[]>([])
+  const [showDoctors, setShowDoctors] = useState(false)
 
-  const [newMed, setNewMed] = useState({
-    name: '', genericName: '', category: '', dosageForm: '', defaultDosage: '',
-    warnings: '', maxDailyDoseAdult: '', maxDailyDoseChild: '', overdoseManagement: '',
-  })
+  const [newMed, setNewMed] = useState(emptyMedicationForm())
   const [newInt, setNewInt] = useState({
     medicationId1: '', medicationId2: '', interactionType: '',
     severity: 'moderate', description: '', recommendation: '',
   })
+  const [editingMedId, setEditingMedId] = useState<string | null>(null)
+  const [editingIntId, setEditingIntId] = useState<string | null>(null)
 
   useEffect(() => { loadData() }, [])
 
@@ -91,46 +140,158 @@ export default function AdminRulesPage() {
     const [medsRes, intsRes] = await Promise.all([
       fetch('/api/admin/medications'),
       fetch('/api/admin/interactions'),
+      fetch('/api/admin/doctors'),
     ])
     if (medsRes.ok) setMedications(await medsRes.json())
     if (intsRes.ok) setInteractions(await intsRes.json())
+    try {
+      const docsRes = await fetch('/api/admin/doctors')
+      if (docsRes.ok) setDoctors(await docsRes.json())
+    } catch (e) { /* ignore */ }
     setLoading(false)
+  }
+
+  function resetMedicationForm() {
+    setNewMed(emptyMedicationForm())
+    setEditingMedId(null)
+    setShowAddMed(false)
+  }
+
+  function populateMedicationForm(med: Medication) {
+    const pharmacologicalData = med.pharmacological_data || {}
+    setNewMed({
+      name: med.name || '',
+      genericName: med.generic_name || '',
+      category: med.category || '',
+      dosageForm: Array.isArray(pharmacologicalData.available_forms) ? pharmacologicalData.available_forms.join('\n') : med.dosage_form || '',
+      defaultDosage: med.default_dosage || '',
+      mechanism: pharmacologicalData.mechanism || '',
+      routes: Array.isArray(pharmacologicalData.administration_routes) ? pharmacologicalData.administration_routes.join('\n') : '',
+      actionSpeed: pharmacologicalData.action_speed || '',
+      actionDuration: pharmacologicalData.action_duration || '',
+      indications: Array.isArray(pharmacologicalData.common_indications) ? pharmacologicalData.common_indications.join('\n') : '',
+      contraindicationsCritical: Array.isArray(med.contraindications) ? med.contraindications.filter(c => c.severity === 'critical').map(c => c.condition).join('\n') : '',
+      contraindicationsModerate: Array.isArray(med.contraindications) ? med.contraindications.filter(c => c.severity !== 'critical').map(c => c.condition).join('\n') : '',
+      warnings: med.warnings || '',
+      maxDailyDoseAdult: med.max_daily_dose_adult != null ? String(med.max_daily_dose_adult) : '',
+      maxDailyDoseChild: med.max_daily_dose_child != null ? String(med.max_daily_dose_child) : '',
+      pediatricToxicDose: pharmacologicalData.child_toxic_dose_per_kg != null ? String(pharmacologicalData.child_toxic_dose_per_kg) : '',
+      pediatricSevereDose: pharmacologicalData.child_severe_dose_per_kg != null ? String(pharmacologicalData.child_severe_dose_per_kg) : '',
+      adultToxicDose: pharmacologicalData.adult_toxic_dose != null ? String(pharmacologicalData.adult_toxic_dose) : '',
+      overdoseSymptomsMild: Array.isArray(pharmacologicalData.overdose?.symptoms?.mild) ? pharmacologicalData.overdose.symptoms.mild.join('\n') : '',
+      overdoseSymptomsModerate: Array.isArray(pharmacologicalData.overdose?.symptoms?.moderate) ? pharmacologicalData.overdose.symptoms.moderate.join('\n') : '',
+      overdoseSymptomsSevere: Array.isArray(pharmacologicalData.overdose?.symptoms?.severe) ? pharmacologicalData.overdose.symptoms.severe.join('\n') : '',
+      overdoseManagement: med.overdose_management || '',
+      dosingAdults: Array.isArray(pharmacologicalData.dosing?.adults) ? pharmacologicalData.dosing.adults.join('\n') : '',
+      dosingChildren: Array.isArray(pharmacologicalData.dosing?.children) ? pharmacologicalData.dosing.children.join('\n') : '',
+      renalAdjustment: Array.isArray(pharmacologicalData.dosing?.renal_adjustment) ? pharmacologicalData.dosing.renal_adjustment.join('\n') : '',
+    })
   }
 
   async function handleAddMedication(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true); setError('')
-    const res = await fetch('/api/admin/medications', {
-      method: 'POST',
+    const contraindications = [
+      ...parseLines(newMed.contraindicationsCritical).map(condition => ({ condition, severity: 'critical' })),
+      ...parseLines(newMed.contraindicationsModerate).map(condition => ({ condition, severity: 'moderate' })),
+    ]
+    const pharmacologicalData = {
+      substance_name: newMed.name,
+      mechanism: newMed.mechanism,
+      available_forms: parseLines(newMed.dosageForm),
+      administration_routes: parseLines(newMed.routes),
+      action_speed: newMed.actionSpeed,
+      action_duration: newMed.actionDuration,
+      common_indications: parseLines(newMed.indications),
+      dosing: {
+        adults: parseLines(newMed.dosingAdults),
+        children: parseLines(newMed.dosingChildren),
+        renal_adjustment: parseLines(newMed.renalAdjustment),
+      },
+      adverse_effects: parseStructuredLines(newMed.adverseEffects, ['system', 'effect', 'frequency', 'severity', 'action']),
+      overdose: {
+        symptoms: {
+          mild: parseLines(newMed.overdoseSymptomsMild),
+          moderate: parseLines(newMed.overdoseSymptomsModerate),
+          severe: parseLines(newMed.overdoseSymptomsSevere),
+        },
+      },
+    }
+    const toxicityThresholds = {
+      adult_max_daily_dose_mg: numberOrNull(newMed.maxDailyDoseAdult),
+      child_max_daily_dose_mg_per_day: numberOrNull(newMed.maxDailyDoseChild),
+      child_toxic_dose_per_kg: numberOrNull(newMed.pediatricToxicDose),
+      child_severe_dose_per_kg: numberOrNull(newMed.pediatricSevereDose),
+      adult_toxic_dose: numberOrNull(newMed.adultToxicDose),
+    }
+
+    const url = editingMedId ? `/api/admin/medications/${editingMedId}` : '/api/admin/medications'
+    const method = editingMedId ? 'PUT' : 'POST'
+    const res = await fetch(url, {
+      method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name: newMed.name, genericName: newMed.genericName,
         category: newMed.category, dosageForm: newMed.dosageForm,
         defaultDosage: newMed.defaultDosage, warnings: newMed.warnings,
-        maxDailyDoseAdult: newMed.maxDailyDoseAdult ? parseFloat(newMed.maxDailyDoseAdult) : null,
-        maxDailyDoseChild: newMed.maxDailyDoseChild ? parseFloat(newMed.maxDailyDoseChild) : null,
+        maxDailyDoseAdult: numberOrNull(newMed.maxDailyDoseAdult),
+        maxDailyDoseChild: numberOrNull(newMed.maxDailyDoseChild),
         overdoseManagement: newMed.overdoseManagement,
-        contraindications: [],
+        contraindications,
+        toxicityThresholds,
+        pharmacologicalData,
       }),
     })
     if (res.ok) {
-      setNewMed({ name: '', genericName: '', category: '', dosageForm: '', defaultDosage: '', warnings: '', maxDailyDoseAdult: '', maxDailyDoseChild: '', overdoseManagement: '' })
-      setShowAddMed(false)
+      resetMedicationForm()
       await loadData()
-    } else { setError((await res.json()).error || 'Echec de l\'ajout du medicament') }
+    } else {
+      setError((await res.json()).error || (editingMedId ? 'Echec de la mise a jour du medicament' : 'Echec de l\'ajout du medicament'))
+    }
     setSaving(false)
+  }
+
+  function openEditMedication(med: Medication) {
+    setEditingMedId(med.id)
+    populateMedicationForm(med)
+    setShowAddMed(true)
+    setError('')
+    setShowAddInt(false)
+  }
+
+  function resetInteractionForm() {
+    setNewInt({ medicationId1: '', medicationId2: '', interactionType: '', severity: 'moderate', description: '', recommendation: '' })
+    setEditingIntId(null)
+    setShowAddInt(false)
+  }
+
+  function openEditInteraction(int: Interaction) {
+    setEditingIntId(int.id)
+    setNewInt({
+      medicationId1: int.medication_id_1,
+      medicationId2: int.medication_id_2,
+      interactionType: int.interaction_type || '',
+      severity: int.severity || 'moderate',
+      description: int.description || '',
+      recommendation: int.recommendation || '',
+    })
+    setShowAddInt(true)
+    setError('')
+    setShowAddMed(false)
   }
 
   async function handleAddInteraction(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true); setError('')
-    const res = await fetch('/api/admin/interactions', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
+    const url = editingIntId ? `/api/admin/interactions/${editingIntId}` : '/api/admin/interactions'
+    const method = editingIntId ? 'PUT' : 'POST'
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(newInt),
     })
     if (res.ok) {
-      setNewInt({ medicationId1: '', medicationId2: '', interactionType: '', severity: 'moderate', description: '', recommendation: '' })
-      setShowAddInt(false)
+      resetInteractionForm()
       await loadData()
     } else { setError((await res.json()).error || 'Echec de l\'ajout de la regle') }
     setSaving(false)
@@ -149,6 +310,15 @@ export default function AdminRulesPage() {
       body: JSON.stringify({ id }),
     })
     await loadData()
+  }
+
+  async function handleDeleteDoctor(id: string) {
+    if (!confirm('Supprimer cet utilisateur definitivement ?')) return
+    setSaving(true)
+    const res = await fetch(`/api/admin/doctors/${id}`, { method: 'DELETE' })
+    if (!res.ok) setError((await res.json()).error || 'Echec de la suppression de l\'utilisateur')
+    await loadData()
+    setSaving(false)
   }
 
   const filteredMeds = useMemo(() =>
@@ -212,6 +382,36 @@ export default function AdminRulesPage() {
           )}
         </div>
       </div>
+
+      {/* Doctors quick view */}
+      <div className="flex items-center justify-between">
+        <div />
+        <div>
+          <Button onClick={() => setShowDoctors(s => !s)} variant="outline" className="h-9">Voir les docteurs ({doctors.length})</Button>
+        </div>
+      </div>
+      {showDoctors && (
+        <Card className="p-4">
+          <h3 className="font-semibold mb-3">Docteurs utilisant l'application</h3>
+          <div className="grid gap-2">
+            {doctors.map(d => (
+              <div key={d.id} className="flex items-center justify-between gap-4">
+                <div>
+                  <div className="font-medium">{d.full_name}</div>
+                  <div className="text-xs text-slate-500">{d.specialization || '—'} • {d.email}</div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-xs text-slate-400">{d.created_at ? new Date(d.created_at).toLocaleString() : ''}</div>
+                  <button type="button" aria-label={`Supprimer ${d.full_name}`} title={`Supprimer ${d.full_name}`} onClick={() => handleDeleteDoctor(d.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition">
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+            {doctors.length === 0 && <div className="text-sm text-slate-500">Aucun utilisateur trouve</div>}
+          </div>
+        </Card>
+      )}
 
       {/* â”€â”€ STATS ROW â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -292,11 +492,14 @@ export default function AdminRulesPage() {
                 <h3 className="font-bold text-slate-900 flex items-center gap-2">
                   <Plus className={`h-4 w-4 ${accentTextCls}`} /> Nouveau medicament
                 </h3>
-                <button type="button" aria-label="Fermer le formulaire d'ajout de medicament" title="Fermer le formulaire d'ajout de medicament" onClick={() => setShowAddMed(false)} className="text-slate-400 hover:text-slate-600">
+                <button type="button" aria-label="Fermer le formulaire d'ajout de medicament" title="Fermer le formulaire d'ajout de medicament" onClick={resetMedicationForm} className="text-slate-400 hover:text-slate-600">
                   <X className="h-4 w-4" />
                 </button>
               </div>
               <form onSubmit={handleAddMedication} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Profil pharmacologique</p>
+                </div>
                 <div>
                   <label className={labelCls}>Nom *</label>
                   <input className={inputCls} value={newMed.name} onChange={e => setNewMed(p => ({ ...p, name: e.target.value }))} placeholder="ex. Ibuprofene" required />
@@ -307,11 +510,52 @@ export default function AdminRulesPage() {
                 </div>
                 <div>
                   <label className={labelCls}>Categorie</label>
-                  <input className={inputCls} value={newMed.category} onChange={e => setNewMed(p => ({ ...p, category: e.target.value }))} placeholder="ex. AINS, antibiotique" />
+                  <select aria-label="Categorie du medicament" className={inputCls} value={newMed.category} onChange={e => setNewMed(p => ({ ...p, category: e.target.value }))}>
+                    <option value="">Selectionner...</option>
+                    {MEDICATION_CATEGORIES.map(category => (
+                      <option key={category.value} value={category.value}>{category.label}</option>
+                    ))}
+                  </select>
                 </div>
                 <div>
-                  <label className={labelCls}>Posologie par defaut</label>
-                  <input className={inputCls} value={newMed.defaultDosage} onChange={e => setNewMed(p => ({ ...p, defaultDosage: e.target.value }))} placeholder="ex. 400 mg" />
+                  <label className={labelCls}>Voies d'administration</label>
+                  <input className={inputCls} value={newMed.routes} onChange={e => setNewMed(p => ({ ...p, routes: e.target.value }))} placeholder="ORAL, IV..." />
+                </div>
+                <div className="md:col-span-2">
+                  <label className={labelCls}>Mecanisme d'action</label>
+                  <textarea className={inputCls} value={newMed.mechanism} onChange={e => setNewMed(p => ({ ...p, mechanism: e.target.value }))} rows={2} placeholder="Classe pharmacologique, mecanisme, proprietes..." />
+                </div>
+                <div>
+                  <label className={labelCls}>Formes galeniques disponibles</label>
+                  <textarea className={inputCls} value={newMed.dosageForm} onChange={e => setNewMed(p => ({ ...p, dosageForm: e.target.value }))} rows={3} placeholder="Une forme par ligne: comprime 200 mg, suspension 20 mg/ml..." />
+                </div>
+                <div>
+                  <label className={labelCls}>Indications courantes</label>
+                  <textarea className={inputCls} value={newMed.indications} onChange={e => setNewMed(p => ({ ...p, indications: e.target.value }))} rows={3} placeholder="Une indication par ligne..." />
+                </div>
+                <div>
+                  <label className={labelCls}>Vitesse d'action</label>
+                  <input className={inputCls} value={newMed.actionSpeed} onChange={e => setNewMed(p => ({ ...p, actionSpeed: e.target.value }))} placeholder="ex. rapide, progressif..." />
+                </div>
+                <div>
+                  <label className={labelCls}>Duree d'action</label>
+                  <input className={inputCls} value={newMed.actionDuration} onChange={e => setNewMed(p => ({ ...p, actionDuration: e.target.value }))} placeholder="ex. 6 a 12 heures" />
+                </div>
+
+                <div className="md:col-span-2 pt-2">
+                  <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Posologie et securite</p>
+                </div>
+                <div>
+                  <label className={labelCls}>Posologie adulte</label>
+                  <textarea className={inputCls} value={newMed.dosingAdults} onChange={e => setNewMed(p => ({ ...p, dosingAdults: e.target.value }))} rows={3} placeholder="Une regle par ligne, selon indication..." />
+                </div>
+                <div>
+                  <label className={labelCls}>Posologie enfant</label>
+                  <textarea className={inputCls} value={newMed.dosingChildren} onChange={e => setNewMed(p => ({ ...p, dosingChildren: e.target.value }))} rows={3} placeholder="Une regle par ligne, mg/kg/j si besoin..." />
+                </div>
+                <div>
+                  <label className={labelCls}>Adaptation renale / dialyse</label>
+                  <textarea className={inputCls} value={newMed.renalAdjustment} onChange={e => setNewMed(p => ({ ...p, renalAdjustment: e.target.value }))} rows={3} placeholder="Une regle par ligne..." />
                 </div>
                 <div>
                   <label className={labelCls}>Dose maximale journaliere adulte (mg)</label>
@@ -322,8 +566,48 @@ export default function AdminRulesPage() {
                   <input type="number" className={inputCls} value={newMed.maxDailyDoseChild} onChange={e => setNewMed(p => ({ ...p, maxDailyDoseChild: e.target.value }))} placeholder="ex. 40" />
                 </div>
                 <div className="md:col-span-2">
+                  <label className={labelCls}>Contre-indications critiques</label>
+                  <textarea className={inputCls} value={newMed.contraindicationsCritical} onChange={e => setNewMed(p => ({ ...p, contraindicationsCritical: e.target.value }))} rows={3} placeholder="Une contre-indication par ligne..." />
+                </div>
+                <div className="md:col-span-2">
+                  <label className={labelCls}>Contre-indications / precautions moderees</label>
+                  <textarea className={inputCls} value={newMed.contraindicationsModerate} onChange={e => setNewMed(p => ({ ...p, contraindicationsModerate: e.target.value }))} rows={3} placeholder="Une precaution par ligne..." />
+                </div>
+                <div className="md:col-span-2">
+                  <label className={labelCls}>Effets indesirables structures</label>
+                  <textarea className={inputCls} value={newMed.adverseEffects} onChange={e => setNewMed(p => ({ ...p, adverseEffects: e.target.value }))} rows={3} placeholder="Format par ligne: Systeme | Effet | Frequence | Gravite | Conduite a tenir" />
+                </div>
+                <div className="md:col-span-2">
                   <label className={labelCls}>Avertissements</label>
                   <textarea className={inputCls} value={newMed.warnings} onChange={e => setNewMed(p => ({ ...p, warnings: e.target.value }))} rows={2} placeholder="Risques cliniques connus..." />
+                </div>
+
+                <div className="md:col-span-2 pt-2">
+                  <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Surdosage et toxicite</p>
+                </div>
+                <div>
+                  <label className={labelCls}>Seuil toxique enfant (mg/kg)</label>
+                  <input type="number" className={inputCls} value={newMed.pediatricToxicDose} onChange={e => setNewMed(p => ({ ...p, pediatricToxicDose: e.target.value }))} placeholder="ex. 100" />
+                </div>
+                <div>
+                  <label className={labelCls}>Seuil severe enfant (mg/kg)</label>
+                  <input type="number" className={inputCls} value={newMed.pediatricSevereDose} onChange={e => setNewMed(p => ({ ...p, pediatricSevereDose: e.target.value }))} placeholder="ex. 400" />
+                </div>
+                <div>
+                  <label className={labelCls}>Seuil toxique adulte (mg)</label>
+                  <input type="number" className={inputCls} value={newMed.adultToxicDose} onChange={e => setNewMed(p => ({ ...p, adultToxicDose: e.target.value }))} placeholder="ex. 25000" />
+                </div>
+                <div>
+                  <label className={labelCls}>Symptomes legers</label>
+                  <textarea className={inputCls} value={newMed.overdoseSymptomsMild} onChange={e => setNewMed(p => ({ ...p, overdoseSymptomsMild: e.target.value }))} rows={3} placeholder="Un symptome par ligne..." />
+                </div>
+                <div>
+                  <label className={labelCls}>Symptomes moderes</label>
+                  <textarea className={inputCls} value={newMed.overdoseSymptomsModerate} onChange={e => setNewMed(p => ({ ...p, overdoseSymptomsModerate: e.target.value }))} rows={3} placeholder="Un symptome par ligne..." />
+                </div>
+                <div>
+                  <label className={labelCls}>Symptomes severes</label>
+                  <textarea className={inputCls} value={newMed.overdoseSymptomsSevere} onChange={e => setNewMed(p => ({ ...p, overdoseSymptomsSevere: e.target.value }))} rows={3} placeholder="Un symptome par ligne..." />
                 </div>
                 <div className="md:col-span-2">
                   <label className={labelCls}>Prise en charge du surdosage</label>
@@ -331,9 +615,9 @@ export default function AdminRulesPage() {
                 </div>
                 <div className="md:col-span-2 flex gap-3 pt-1">
                   <Button type="submit" disabled={saving} className={accentButtonCls}>
-                    {saving ? 'Enregistrement...' : 'Enregistrer le medicament'}
+                    {saving ? 'Enregistrement...' : editingMedId ? 'Mettre a jour le medicament' : 'Enregistrer le medicament'}
                   </Button>
-                  <Button type="button" variant="outline" onClick={() => setShowAddMed(false)}>Annuler</Button>
+                  <Button type="button" variant="outline" onClick={resetMedicationForm}>Annuler</Button>
                 </div>
               </form>
             </Card>
@@ -385,7 +669,7 @@ export default function AdminRulesPage() {
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">
-                      {(med.contraindications?.length > 0 || med.overdose_management) && (
+                      {(med.contraindications?.length > 0 || med.overdose_management || med.pharmacological_data) && (
                         <button
                           type="button"
                           aria-label={isExpanded ? 'Replier les details du medicament' : 'Afficher les details du medicament'}
@@ -396,6 +680,13 @@ export default function AdminRulesPage() {
                           {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                         </button>
                       )}
+                      <button type="button" onClick={() => openEditMedication(med)}
+                        aria-label={`Modifier le medicament ${med.name}`}
+                        title={`Modifier le medicament ${med.name}`}
+                        className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </button>
                       <button
                         type="button"
                         aria-label={`Supprimer le medicament ${med.name}`}
@@ -411,13 +702,29 @@ export default function AdminRulesPage() {
                   {/* expanded detail */}
                   {isExpanded && (
                     <div className="border-t border-slate-100 bg-slate-50/60 px-4 py-4 space-y-3">
+                      {med.pharmacological_data?.mechanism && (
+                        <div>
+                          <p className="text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">Mecanisme d'action</p>
+                          <p className="text-xs text-slate-600 leading-relaxed">{med.pharmacological_data.mechanism}</p>
+                        </div>
+                      )}
+                      {med.pharmacological_data?.common_indications?.length > 0 && (
+                        <div>
+                          <p className="text-xs font-bold text-slate-600 uppercase tracking-wide mb-2">Indications</p>
+                          <div className="flex flex-wrap gap-2">
+                            {med.pharmacological_data.common_indications.map((item: string, i: number) => (
+                              <span key={i} className="rounded-lg border border-blue-100 bg-blue-50 px-2.5 py-1 text-xs text-blue-700">{item}</span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                       {med.contraindications?.length > 0 && (
                         <div>
                           <p className="text-xs font-bold text-slate-600 uppercase tracking-wide mb-2">Contre-indications</p>
                           <div className="flex flex-wrap gap-2">
                             {med.contraindications.map((ci, i) => (
-                              <span key={i} className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg border ${ci.severity === 'absolute' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-orange-50 text-orange-700 border-orange-200'}`}>
-                                <span className={`w-1.5 h-1.5 rounded-full ${ci.severity === 'absolute' ? 'bg-red-500' : 'bg-orange-400'}`} />
+                              <span key={i} className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg border ${ci.severity === 'critical' || ci.severity === 'absolute' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-orange-50 text-orange-700 border-orange-200'}`}>
+                                <span className={`w-1.5 h-1.5 rounded-full ${ci.severity === 'critical' || ci.severity === 'absolute' ? 'bg-red-500' : 'bg-orange-400'}`} />
                                 {ci.condition.replace(/_/g, ' ')}
                                 <span className="opacity-60">({ci.severity})</span>
                               </span>
@@ -429,6 +736,21 @@ export default function AdminRulesPage() {
                         <div>
                           <p className="text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">Protocole de surdosage</p>
                           <p className="text-xs text-slate-600 leading-relaxed">{med.overdose_management}</p>
+                        </div>
+                      )}
+                      {med.pharmacological_data?.overdose?.symptoms && (
+                        <div>
+                          <p className="text-xs font-bold text-slate-600 uppercase tracking-wide mb-2">Symptomes de surdosage</p>
+                          <div className="grid gap-2 md:grid-cols-3">
+                            {(['mild', 'moderate', 'severe'] as const).map(level => (
+                              <div key={level} className="rounded-lg border border-slate-200 bg-white p-2">
+                                <p className="mb-1 text-[11px] font-semibold uppercase text-slate-500">{level}</p>
+                                <p className="text-xs text-slate-600">
+                                  {(med.pharmacological_data.overdose.symptoms[level] || []).join(', ') || 'Non renseigne'}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       )}
                     </div>
@@ -471,9 +793,9 @@ export default function AdminRulesPage() {
             <Card className={`p-6 ${accentPanelCls}`}>
               <div className="flex items-center justify-between mb-5">
                 <h3 className="font-bold text-slate-900 flex items-center gap-2">
-                  <Zap className={`h-4 w-4 ${accentTextCls}`} /> Nouvelle regle d\'interaction
+                  <Zap className={`h-4 w-4 ${accentTextCls}`} /> {editingIntId ? 'Modifier la regle d\'interaction' : 'Nouvelle regle d\'interaction'}
                 </h3>
-                <button type="button" aria-label="Fermer le formulaire d'ajout d'interaction" title="Fermer le formulaire d'ajout d'interaction" onClick={() => setShowAddInt(false)} className="text-slate-400 hover:text-slate-600">
+                <button type="button" aria-label="Fermer le formulaire d'ajout d'interaction" title="Fermer le formulaire d'ajout d'interaction" onClick={resetInteractionForm} className="text-slate-400 hover:text-slate-600">
                   <X className="h-4 w-4" />
                 </button>
               </div>
@@ -515,9 +837,9 @@ export default function AdminRulesPage() {
                 </div>
                 <div className="md:col-span-2 flex gap-3 pt-1">
                   <Button type="submit" disabled={saving} className={accentButtonCls}>
-                    {saving ? 'Enregistrement...' : 'Enregistrer la regle'}
+                    {saving ? 'Enregistrement...' : editingIntId ? 'Mettre a jour la regle' : 'Enregistrer la regle'}
                   </Button>
-                  <Button type="button" variant="outline" onClick={() => setShowAddInt(false)}>Annuler</Button>
+                  <Button type="button" variant="outline" onClick={resetInteractionForm}>Annuler</Button>
                 </div>
               </form>
             </Card>
@@ -566,6 +888,15 @@ export default function AdminRulesPage() {
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
+                    <button
+                      type="button"
+                      aria-label={`Modifier l'interaction ${int.drug1} + ${int.drug2}`}
+                      title={`Modifier l'interaction ${int.drug1} + ${int.drug2}`}
+                      onClick={() => openEditInteraction(int)}
+                      className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition shrink-0"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </button>
                 </div>
               </Card>
             ))}
