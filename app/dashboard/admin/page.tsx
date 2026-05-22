@@ -386,7 +386,8 @@ export default function AdminRulesPage() {
       {/* Doctors quick view */}
       <div className="flex items-center justify-between">
         <div />
-        <div>
+        <div className="flex items-center gap-2">
+          <Button onClick={() => window.location.href = '/dashboard/admin/doctors'} className="h-9">Gerer les utilisateurs</Button>
           <Button onClick={() => setShowDoctors(s => !s)} variant="outline" className="h-9">Voir les docteurs ({doctors.length})</Button>
         </div>
       </div>
