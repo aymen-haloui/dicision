@@ -22,23 +22,23 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(parseInt(url.searchParams.get('limit') || '20', 10) || 20, 100)
     const offset = (page - 1) * limit
 
-    let whereClause = ''
-    const params: any[] = []
-    if (q) {
-      whereClause = `WHERE (full_name ILIKE $1 OR email ILIKE $1 OR specialization ILIKE $1)`
-      params.push(`%${q}%`)
-    }
+    const searchTerm = q ? `%${q}%` : null
 
-    // total count
-    const countQuery = whereClause ? sql`${sql.raw(`SELECT count(*)::int as total FROM users ${whereClause}`)}` : sql`SELECT count(*)::int as total FROM users`
-    const countRes = await countQuery
+    const countRes = await sql`
+      SELECT count(*)::int AS total
+      FROM users
+      ${q ? sql`WHERE (full_name ILIKE ${searchTerm} OR email ILIKE ${searchTerm} OR specialization ILIKE ${searchTerm})` : sql``}
+    `
     const total = countRes[0]?.total ?? 0
 
-    // data
-    const dataQuery = whereClause
-      ? sql`${sql.raw(`SELECT id, email, full_name, specialization, created_at FROM users ${whereClause} ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`)}`
-      : sql`${sql.raw(`SELECT id, email, full_name, specialization, created_at FROM users ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`)}`
-    const rows = await dataQuery
+    const rows = await sql`
+      SELECT id, email, full_name, specialization, created_at
+      FROM users
+      ${q ? sql`WHERE (full_name ILIKE ${searchTerm} OR email ILIKE ${searchTerm} OR specialization ILIKE ${searchTerm})` : sql``}
+      ORDER BY created_at DESC
+      LIMIT ${limit}
+      OFFSET ${offset}
+    `
 
     return NextResponse.json({ data: rows, total })
   } catch (err: any) {
