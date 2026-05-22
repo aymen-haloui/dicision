@@ -122,8 +122,6 @@ export default function AdminRulesPage() {
   const [error, setError] = useState('')
   const [medSearch, setMedSearch] = useState('')
   const [intSearch, setIntSearch] = useState('')
-  const [doctors, setDoctors] = useState<{ id: string; email: string; full_name: string; specialization?: string; created_at?: string }[]>([])
-  const [showDoctors, setShowDoctors] = useState(false)
 
   const [newMed, setNewMed] = useState(emptyMedicationForm())
   const [newInt, setNewInt] = useState({
@@ -140,14 +138,9 @@ export default function AdminRulesPage() {
     const [medsRes, intsRes] = await Promise.all([
       fetch('/api/admin/medications'),
       fetch('/api/admin/interactions'),
-      fetch('/api/admin/doctors'),
     ])
     if (medsRes.ok) setMedications(await medsRes.json())
     if (intsRes.ok) setInteractions(await intsRes.json())
-    try {
-      const docsRes = await fetch('/api/admin/doctors')
-      if (docsRes.ok) setDoctors(await docsRes.json())
-    } catch (e) { /* ignore */ }
     setLoading(false)
   }
 
@@ -312,15 +305,6 @@ export default function AdminRulesPage() {
     await loadData()
   }
 
-  async function handleDeleteDoctor(id: string) {
-    if (!confirm('Supprimer cet utilisateur definitivement ?')) return
-    setSaving(true)
-    const res = await fetch(`/api/admin/doctors/${id}`, { method: 'DELETE' })
-    if (!res.ok) setError((await res.json()).error || 'Echec de la suppression de l\'utilisateur')
-    await loadData()
-    setSaving(false)
-  }
-
   const filteredMeds = useMemo(() =>
     medications.filter(m =>
       !medSearch || m.name.toLowerCase().includes(medSearch.toLowerCase()) ||
@@ -384,37 +368,6 @@ export default function AdminRulesPage() {
       </div>
 
       {/* Doctors quick view */}
-      <div className="flex items-center justify-between">
-        <div />
-        <div className="flex items-center gap-2">
-          <Button onClick={() => window.location.href = '/dashboard/admin/doctors'} className="h-9">Gerer les utilisateurs</Button>
-          <Button onClick={() => setShowDoctors(s => !s)} variant="outline" className="h-9">Voir les docteurs ({doctors.length})</Button>
-        </div>
-      </div>
-      {showDoctors && (
-        <Card className="p-4">
-          <h3 className="font-semibold mb-3">Docteurs utilisant l'application</h3>
-          <div className="grid gap-2">
-            {doctors.map(d => (
-              <div key={d.id} className="flex items-center justify-between gap-4">
-                <div>
-                  <div className="font-medium">{d.full_name}</div>
-                  <div className="text-xs text-slate-500">{d.specialization || '—'} • {d.email}</div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="text-xs text-slate-400">{d.created_at ? new Date(d.created_at).toLocaleString() : ''}</div>
-                  <button type="button" aria-label={`Supprimer ${d.full_name}`} title={`Supprimer ${d.full_name}`} onClick={() => handleDeleteDoctor(d.id)} className="p-1.5 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 transition">
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
-            {doctors.length === 0 && <div className="text-sm text-slate-500">Aucun utilisateur trouve</div>}
-          </div>
-        </Card>
-      )}
-
-      {/* â”€â”€ STATS ROW â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { label: 'Medicaments', value: medications.length, icon: <Pill className="h-5 w-5" />, color: 'text-blue-600 bg-blue-50' },
