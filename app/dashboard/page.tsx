@@ -121,57 +121,74 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="flex gap-6 lg:gap-8">
+    <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
       <div className="flex-1 space-y-6 lg:space-y-8">
-      <section className="relative overflow-hidden rounded-[20px] border border-[#d8ebe8] bg-gradient-to-br from-[#e9f8f6] via-[#f4fbfa] to-[#f9fcfb] p-6 shadow-[0_10px_30px_rgba(0,0,0,0.06)] lg:p-8">
-        <div className="pointer-events-none absolute -right-20 -top-16 h-56 w-56 rounded-full bg-[#2cb1bc]/20 blur-3xl" />
-        <div className="pointer-events-none absolute -left-24 bottom-0 h-40 w-40 rounded-full bg-[#1ea390]/15 blur-3xl" />
+      <section className="relative overflow-hidden rounded-[16px] border border-[#d8ebe8] bg-gradient-to-br from-[#e9f8f6] via-[#f4fbfa] to-[#f9fcfb] p-6 shadow-[0_18px_45px_rgba(15,25,35,0.08)] lg:p-8">
+        <div className="pointer-events-none absolute -right-24 -top-12 h-72 w-72 rounded-full bg-[#2cb1bc]/18 blur-3xl" />
+        <div className="pointer-events-none absolute -left-20 bottom-0 h-52 w-52 rounded-full bg-[#1ea390]/12 blur-3xl" />
+        <div className="pointer-events-none absolute right-4 top-12 hidden h-40 w-40 rounded-full bg-[#19a59a]/10 blur-2xl lg:block" />
+        <div className="pointer-events-none absolute right-10 bottom-10 hidden h-32 w-32 rounded-full bg-[#0f8f89]/10 blur-2xl lg:block" />
 
-        <div className="relative flex flex-wrap items-start justify-between gap-6">
+        <div className="relative flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
           <div className="max-w-2xl">
-            <p className="text-sm font-medium tracking-wide text-[#147b78]">{greeting}, {displayName}</p>
-            <h1 className="mt-2 text-3xl font-semibold leading-tight text-slate-900 lg:text-4xl">
-              L'intelligence d'urgence a la vitesse clinique
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#147b78]">{greeting}, {displayName}</p>
+            <h1 className="mt-4 text-4xl font-semibold leading-tight tracking-tight text-slate-900 sm:text-5xl">
+              L'intelligence d'urgence à la vitesse clinique
             </h1>
-            <p className="mt-3 text-sm text-slate-600 lg:text-base">
-              Votre espace d'urgence assiste par l'IA est actif. Suivez les cas a haut risque,
-              les signaux de triage et les recommandations d'aide a la decision dans une vue compacte.
+            <p className="mt-4 max-w-xl text-sm leading-7 text-slate-600 sm:text-base">
+              Votre centre de décision clinique assisté par l'IA est prêt. Suivez les cas à haut risque, priorisez les urgences et consultez les recommandations en un coup d'œil.
             </p>
-
-            <div className="mt-5 flex flex-wrap gap-3 lg:hidden">
-              <Link href="/dashboard/cases/new"
-                className="inline-flex items-center gap-2 rounded-xl bg-[#0f8f89] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0c7a74]">
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link href="/dashboard/cases/new" className="inline-flex items-center gap-2 rounded-[16px] bg-[#0f8f89] px-5 py-3 text-sm font-semibold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-[#0c7a74] active:scale-[0.98]">
                 <Plus className="h-4 w-4" />
                 Nouveau cas d'urgence
               </Link>
-              <Link href="/dashboard/patients/new"
-                className="inline-flex items-center gap-2 rounded-xl border border-[#b8d9d5] bg-white/70 px-4 py-2.5 text-sm font-semibold text-slate-700 backdrop-blur-sm transition hover:bg-white">
+              <Link href="/dashboard/patients/new" className="inline-flex items-center gap-2 rounded-[16px] border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:bg-slate-50 active:scale-[0.98]">
                 <Users className="h-4 w-4" />
                 Ajouter un patient
               </Link>
             </div>
           </div>
 
-          <div className="w-full max-w-sm rounded-2xl border border-white/80 bg-white/65 p-4 shadow-[0_10px_30px_rgba(0,0,0,0.06)] backdrop-blur-sm lg:w-[360px]">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Etat d'urgence en direct</p>
-              <span className="rounded-full bg-[#dff7f5] px-2.5 py-1 text-[11px] font-semibold text-[#0f8f89]">
-                IA active
+          <div className="w-full max-w-sm rounded-[16px] border border-white/80 bg-white/80 p-5 shadow-sm backdrop-blur-sm lg:w-[360px]">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Etat d'urgence en direct</p>
+                <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-[#e7f7f4] px-3 py-1 text-[11px] font-semibold text-[#0f8f89] shadow-sm">
+                  <span className="inline-flex h-2.5 w-2.5 animate-pulse rounded-full bg-emerald-500"></span>
+                  IA active en continu
+                </div>
+              </div>
+              <span className="hidden rounded-full bg-[#dff7f5] px-3 py-1 text-[11px] font-semibold text-[#0f8f89] sm:inline-flex">
+                Analyse en temps réel
               </span>
             </div>
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <div className="rounded-xl bg-white/80 p-3">
-                <p className="text-xs text-slate-500">Urgences actives</p>
-                <p className="mt-1 text-2xl font-bold text-slate-900">{stats.emergencyCount}</p>
+            <div className="mt-5 space-y-3">
+              <div className="rounded-[16px] border border-slate-200 bg-white p-4 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(15,25,35,0.08)]">
+                <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Urgences actives</p>
+                <div className="mt-3 flex items-end justify-between gap-3">
+                  <p className="text-3xl font-semibold text-slate-900">{stats.emergencyCount}</p>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-[#f0fdf8] px-3 py-1 text-xs font-semibold text-[#0f8f89]">
+                    <span className="text-[10px]">↑</span> +7 %
+                  </span>
+                </div>
               </div>
-              <div className="rounded-xl bg-white/80 p-3">
-                <p className="text-xs text-slate-500">Alertes de risque IA</p>
-                <p className="mt-1 text-2xl font-bold text-slate-900">{aiRiskAlerts}</p>
+              <div className="rounded-[16px] border border-slate-200 bg-white p-4 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(15,25,35,0.08)]">
+                <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Alertes de risque IA</p>
+                <div className="mt-3 flex items-end justify-between gap-3">
+                  <p className="text-3xl font-semibold text-slate-900">{aiRiskAlerts}</p>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-[#f0fdfa] px-3 py-1 text-xs font-semibold text-[#0f8f89]">
+                    <span className="text-[10px]">↓</span> -2 %
+                  </span>
+                </div>
               </div>
             </div>
-            <div className="mt-3 flex items-center gap-2 rounded-xl bg-white/80 p-3 text-xs text-slate-600">
-              <Sparkles className="h-4 w-4 text-[#0f8f89]" />
-              Priorisez les cartes d'urgence ; l'analyse des conflits medicamenteux s'execute automatiquement sur les cas ouverts.
+            <div className="mt-4 rounded-[16px] border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+              <div className="mb-2 inline-flex items-center gap-2 text-slate-700">
+                <Sparkles className="h-4 w-4" />
+                Recommandation IA
+              </div>
+              Priorisez les cas critiques ; l'analyse des interactions se déclenche automatiquement lorsque le triage change.
             </div>
           </div>
         </div>
@@ -180,16 +197,18 @@ export default async function DashboardPage() {
       <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         {metricCards.map((card) => (
           <Link key={card.label} href={card.href} className="group">
-            <Card className={`overflow-hidden rounded-[18px] border border-[#dce8e6] bg-gradient-to-br p-5 transition duration-200 hover:-translate-y-0.5 hover:border-[#bfd9d5] hover:shadow-[0_10px_30px_rgba(0,0,0,0.06)] ${card.gradient}`}>
-              <div className="flex items-start justify-between">
-                <div className={`rounded-xl p-2.5 ${card.iconWrap}`}>
+            <Card className={`overflow-hidden rounded-[16px] border border-[#e2ece8] bg-gradient-to-br p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_35px_rgba(15,25,35,0.08)] ${card.gradient}`}>
+              <div className="flex items-center justify-between gap-3">
+                <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${card.iconWrap}`}>
                   <card.icon className="h-5 w-5" />
                 </div>
                 <ArrowRight className="h-4 w-4 text-slate-300 transition group-hover:text-slate-600" />
               </div>
-              <p className="mt-5 text-3xl font-semibold leading-none text-slate-900">{card.value}</p>
-              <p className="mt-2 text-sm font-medium text-slate-700">{card.label}</p>
-              <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white/70 px-2.5 py-1 text-[11px] font-medium text-slate-600">
+              <div className="mt-5 border-t border-slate-200 pt-5">
+                <p className="text-3xl font-semibold leading-none text-slate-900">{card.value}</p>
+                <p className="mt-2 text-sm font-medium text-slate-700">{card.label}</p>
+              </div>
+              <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-medium text-slate-600 shadow-sm">
                 <Activity className="h-3.5 w-3.5 text-[#0f8f89]" />
                 {card.trend}
               </div>
@@ -214,7 +233,7 @@ export default async function DashboardPage() {
         </div>
 
         {stats.recentCases.length === 0 ? (
-          <Card className="rounded-[20px] border border-dashed border-[#cde3df] bg-gradient-to-b from-[#f7fcfb] to-white p-10 text-center shadow-[0_10px_30px_rgba(0,0,0,0.06)]">
+          <Card className="rounded-[16px] border border-dashed border-[#cde3df] bg-gradient-to-b from-[#f7fcfb] to-white p-10 text-center shadow-[0_10px_30px_rgba(0,0,0,0.06)]">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#dff7f5]">
               <Brain className="h-8 w-8 text-[#0f8f89]" />
             </div>
@@ -231,7 +250,7 @@ export default async function DashboardPage() {
             </Link>
           </Card>
         ) : (
-          <Card className="overflow-hidden rounded-[20px] border border-[#dce8e6] bg-white shadow-[0_10px_30px_rgba(0,0,0,0.06)]">
+          <Card className="overflow-hidden rounded-[16px] border border-[#dce8e6] bg-white shadow-[0_10px_30px_rgba(0,0,0,0.06)]">
             <div className="grid grid-cols-12 border-b border-[#e7efee] bg-[#f4f9f8] px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
               <div className="col-span-4">Patient et motif</div>
               <div className="col-span-2">Gravite</div>
