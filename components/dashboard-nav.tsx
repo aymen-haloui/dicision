@@ -19,6 +19,11 @@ const BASE_NAV = [
   { href: '/dashboard/profile', label: 'Profil', icon: UserRound },
 ]
 
+const ADMIN_NAV = [
+  { href: '/dashboard/admin', label: 'Moteur de regles', icon: ShieldAlert },
+  { href: '/dashboard/admin/doctors', label: 'Utilisateurs', icon: UserRound },
+]
+
 export default function DashboardNav({ user }: { user: User }) {
   const path = usePathname()
 
@@ -31,7 +36,7 @@ export default function DashboardNav({ user }: { user: User }) {
 
   const links =
     user?.specialization === 'admin'
-      ? [...BASE_NAV, { href: '/dashboard/admin', label: 'Moteur de regles', icon: ShieldAlert }]
+      ? [...BASE_NAV, ...ADMIN_NAV]
       : BASE_NAV
 
   return (
