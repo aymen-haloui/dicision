@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import ProfileForm from '@/components/profile-form'
 import { prisma } from '@/lib/prisma'
+import { Shield, Mail, Calendar } from 'lucide-react'
 
 export const metadata = {
   title: 'Profil - HEXA',
@@ -16,74 +17,100 @@ function getInitials(name?: string | null) {
     .slice(0, 2) ?? '?'
 }
 
+function getRoleLabel(specialization?: string | null) {
+  if (!specialization) return 'Utilisateur'
+  const value = specialization.toLowerCase()
+  if (value.includes('admin')) return 'Administrateur'
+  if (value.includes('doctor') || value.includes('docteur') || value.includes('medecin')) return 'Médecin'
+  return specialization
+}
+
 export default async function ProfilePage() {
   const session = await getServerSession(authOptions)
   const user = session?.user
 
-  // fetch fresh user record to pass initial data for the client form
+  // fetch fresh user record including profile_image
   const dbUser = session?.user?.id
     ? await prisma.users.findUnique({
         where: { id: session.user.id as string },
-        select: { id: true, email: true, full_name: true, specialization: true },
+        select: { id: true, email: true, full_name: true, specialization: true, profile_image: true, created_at: true },
       })
     : null
 
   const displayUser = {
+    id: dbUser?.id,
     name: dbUser?.full_name ?? user?.name,
     email: dbUser?.email ?? user?.email,
     specialization: dbUser?.specialization ?? user?.specialization,
-    profile_image: user?.profile_image,
+    profile_image: dbUser?.profile_image,
+    createdAt: dbUser?.created_at,
   }
 
+  const joinDate = displayUser.createdAt 
+    ? new Date(displayUser.createdAt).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' })
+    : 'Non disponible'
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Profil</h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Gérez vos informations de compte et vos préférences.
-          </p>
-        </div>
+    <div className="max-w-4xl">
+      <div className="mb-12 space-y-2">
+        <h1 className="text-4xl font-bold text-slate-900">Compte</h1>
+        <p className="text-base text-slate-600">Gérez votre profil et vos préférences</p>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-[280px_1fr]">
-        <section className="rounded-3xl border border-slate-200 bg-white p-6">
-          <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-[#2CB1BC] text-2xl font-bold text-white overflow-hidden">
-              {displayUser.profile_image ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={displayUser.profile_image} alt={displayUser.name ?? 'avatar'} className="h-16 w-16 object-cover" />
-              ) : (
-                <span>{getInitials(displayUser.name)}</span>
-              )}
+      <div className="grid gap-12 lg:grid-cols-[320px_1fr]">
+        {/* Sticky Sidebar Profile Card */}
+        <div className="lg:sticky lg:top-24 h-fit">
+          <div className="space-y-6">
+            {/* Avatar Card */}
+            <div className="rounded-xl bg-white p-6 border border-slate-200">
+              <div className="space-y-4">
+                <div className="flex h-24 w-24 items-center justify-center rounded-xl bg-slate-200 overflow-hidden ring-2 ring-slate-100">
+                  {displayUser.profile_image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={displayUser.profile_image} alt={displayUser.name ?? 'avatar'} className="h-24 w-24 object-cover" />
+                  ) : (
+                    <span className="text-2xl font-bold text-slate-600">{getInitials(displayUser.name)}</span>
+                  )}
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-slate-900">{displayUser.name ?? 'Utilisateur'}</h2>
+                  <div className="mt-2 inline-flex items-center gap-2 rounded-lg bg-slate-100 px-3 py-1.5">
+                    <Shield className="h-3.5 w-3.5 text-slate-600" />
+                    <span className="text-xs font-medium text-slate-700">{getRoleLabel(displayUser.specialization)}</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div>
-              <p className="text-xl font-semibold text-slate-900">{displayUser.name ?? 'Utilisateur'}</p>
-              <p className="text-sm text-slate-500">{displayUser.specialization ?? 'Rôle non défini'}</p>
-            </div>
-          </div>
-        </section>
 
-        <section className="rounded-3xl border border-slate-200 bg-white p-6">
-          <h2 className="text-lg font-semibold text-slate-900">Détails du compte</h2>
-          <div className="mt-6 grid gap-4 text-sm text-slate-600">
-            <div className="grid gap-1">
-              <span className="font-semibold text-slate-900">Email</span>
-              <span>{displayUser.email ?? 'Aucun email associé'}</span>
-            </div>
-            <div className="grid gap-1">
-              <span className="font-semibold text-slate-900">Nom complet</span>
-              <span>{displayUser.name ?? 'N/A'}</span>
-            </div>
-            <div className="grid gap-1">
-              <span className="font-semibold text-slate-900">Spécialisation</span>
-              <span>{displayUser.specialization ?? 'N/A'}</span>
+            {/* Metadata Card */}
+            <div className="rounded-xl bg-white p-6 border border-slate-200 space-y-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">Email</p>
+                <div className="mt-2 flex items-start gap-3">
+                  <Mail className="h-4 w-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-slate-900 break-all">{displayUser.email ?? 'N/A'}</span>
+                </div>
+              </div>
+              <div className="border-t border-slate-200 pt-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">Inscrit</p>
+                <div className="mt-2 flex items-start gap-3">
+                  <Calendar className="h-4 w-4 text-slate-400 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-slate-900">{joinDate}</span>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="mt-6">
-            <ProfileForm initialUser={dbUser ?? undefined} />
+        </div>
+
+        {/* Main Form Section */}
+        <div className="rounded-xl bg-white p-8 border border-slate-200">
+          <div className="mb-8">
+            <h2 className="text-2xl font-semibold text-slate-900">Paramètres du profil</h2>
+            <p className="mt-1 text-sm text-slate-600">Mettez à jour vos informations personnelles</p>
           </div>
-        </section>
+          
+          <ProfileForm initialUser={dbUser ?? undefined} />
+        </div>
       </div>
     </div>
   )

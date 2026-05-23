@@ -14,15 +14,15 @@ interface User {
 }
 
 const BASE_NAV = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
   { href: '/dashboard/patients', label: 'Patients', icon: Users },
-  { href: '/dashboard/cases', label: 'Cases', icon: FolderOpen },
-  { href: '/dashboard/profile', label: 'Profile', icon: UserRound },
+  { href: '/dashboard/cases', label: 'Cas', icon: FolderOpen },
+  { href: '/dashboard/profile', label: 'Profil', icon: UserRound },
 ]
 
 const ADMIN_NAV = [
-  { href: '/dashboard/admin', label: 'Rules Engine', icon: ShieldAlert },
-  { href: '/dashboard/admin/doctors', label: 'Users', icon: UserRound },
+  { href: '/dashboard/admin', label: 'Moteur de Règles', icon: ShieldAlert },
+  { href: '/dashboard/admin/doctors', label: 'Utilisateurs', icon: UserRound },
 ]
 
 export default function DashboardNav({ user }: { user: User }) {
@@ -59,11 +59,8 @@ export default function DashboardNav({ user }: { user: User }) {
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
           
           {/* LEFT: Logo + Brand */}
-          <Link href="/dashboard" className="flex items-center gap-3 shrink-0 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-gradient-to-br from-[#0f8f89] to-[#0a6d66] transition duration-200 group-hover:shadow-md">
-              <span className="text-white font-bold text-sm leading-none">HX</span>
-            </div>
-            <span className="hidden text-base font-semibold text-slate-900 sm:inline">HEXA</span>
+          <Link href="/dashboard" className="shrink-0 group">
+            <span className="text-base font-semibold text-slate-900">HEXA</span>
           </Link>
 
           {/* CENTER: Navigation */}
@@ -133,7 +130,7 @@ export default function DashboardNav({ user }: { user: User }) {
                       onClick={() => setProfileOpen(false)}
                     >
                       <UserRound className="h-4 w-4" />
-                      <span>Profile Settings</span>
+                      <span>Paramètres du profil</span>
                     </Link>
                   </div>
 
@@ -149,7 +146,7 @@ export default function DashboardNav({ user }: { user: User }) {
                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-slate-600 hover:text-red-600 hover:bg-red-50/50 transition duration-150"
                   >
                     <LogOut className="h-4 w-4" />
-                    <span>Sign Out</span>
+                    <span>Se déconnecter</span>
                   </button>
                 </div>
               )}

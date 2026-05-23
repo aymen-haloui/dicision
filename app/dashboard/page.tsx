@@ -121,191 +121,161 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
-      <div className="flex-1 space-y-6 lg:space-y-8">
-      <section className="relative overflow-hidden rounded-[16px] border border-[#d8ebe8] bg-gradient-to-br from-[#e9f8f6] via-[#f4fbfa] to-[#f9fcfb] p-6 shadow-[0_18px_45px_rgba(15,25,35,0.08)] lg:p-8">
-        <div className="pointer-events-none absolute -right-24 -top-12 h-72 w-72 rounded-full bg-[#2cb1bc]/18 blur-3xl" />
-        <div className="pointer-events-none absolute -left-20 bottom-0 h-52 w-52 rounded-full bg-[#1ea390]/12 blur-3xl" />
-        <div className="pointer-events-none absolute right-4 top-12 hidden h-40 w-40 rounded-full bg-[#19a59a]/10 blur-2xl lg:block" />
-        <div className="pointer-events-none absolute right-10 bottom-10 hidden h-32 w-32 rounded-full bg-[#0f8f89]/10 blur-2xl lg:block" />
-
-        <div className="relative flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
-          <div className="max-w-2xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#147b78]">{greeting}, {displayName}</p>
-            <h1 className="mt-4 text-4xl font-semibold leading-tight tracking-tight text-slate-900 sm:text-5xl">
-              L'intelligence d'urgence à la vitesse clinique
+    <div className="flex flex-col gap-12 lg:flex-row lg:gap-10">
+      <div className="flex-1 space-y-12 lg:space-y-16">
+      <section className="pt-4">
+        <div className="flex flex-col gap-12 lg:flex-row lg:items-start lg:gap-16">
+          <div className="flex-1">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{greeting}, {displayName}</p>
+            <h1 className="mt-6 text-5xl font-bold leading-[1.1] tracking-tight text-slate-900 md:text-6xl">
+              Intelligence d'urgence
             </h1>
-            <p className="mt-4 max-w-xl text-sm leading-7 text-slate-600 sm:text-base">
-              Votre centre de décision clinique assisté par l'IA est prêt. Suivez les cas à haut risque, priorisez les urgences et consultez les recommandations en un coup d'œil.
+            <p className="mt-6 max-w-xl text-lg leading-8 text-slate-600">
+              Votre centre de décision clinique. Triage rapide, recommandations en temps réel, alertes de risque centralisées.
             </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link href="/dashboard/cases/new" className="inline-flex items-center gap-2 rounded-[16px] bg-[#0f8f89] px-5 py-3 text-sm font-semibold text-white shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-[#0c7a74] active:scale-[0.98]">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
+              <Link href="/dashboard/cases/new" className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition duration-200 hover:bg-slate-800 active:scale-[0.98]">
                 <Plus className="h-4 w-4" />
-                Nouveau cas d'urgence
+                Nouveau cas
               </Link>
-              <Link href="/dashboard/patients/new" className="inline-flex items-center gap-2 rounded-[16px] border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:bg-slate-50 active:scale-[0.98]">
+              <Link href="/dashboard/patients/new" className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-100 px-6 py-3 text-sm font-semibold text-slate-900 transition duration-200 hover:bg-slate-200 active:scale-[0.98]">
                 <Users className="h-4 w-4" />
-                Ajouter un patient
+                Ajouter patient
               </Link>
             </div>
           </div>
 
-          <div className="w-full max-w-sm rounded-[16px] border border-white/80 bg-white/80 p-5 shadow-sm backdrop-blur-sm lg:w-[360px]">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Etat d'urgence en direct</p>
-                <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-[#e7f7f4] px-3 py-1 text-[11px] font-semibold text-[#0f8f89] shadow-sm">
-                  <span className="inline-flex h-2.5 w-2.5 animate-pulse rounded-full bg-emerald-500"></span>
-                  IA active en continu
-                </div>
+          <div className="w-full space-y-4 lg:w-96 lg:flex-shrink-0">
+            <div className="rounded-xl bg-slate-50 p-6">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex h-2 w-2 animate-pulse rounded-full bg-emerald-500"></span>
+                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-700">IA active</span>
               </div>
-              <span className="hidden rounded-full bg-[#dff7f5] px-3 py-1 text-[11px] font-semibold text-[#0f8f89] sm:inline-flex">
-                Analyse en temps réel
-              </span>
+              <p className="mt-4 text-3xl font-bold text-slate-900">{stats.emergencyCount}</p>
+              <p className="mt-1 text-sm text-slate-600">Cas d'urgence détectés</p>
             </div>
-            <div className="mt-5 space-y-3">
-              <div className="rounded-[16px] border border-slate-200 bg-white p-4 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(15,25,35,0.08)]">
-                <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Urgences actives</p>
-                <div className="mt-3 flex items-end justify-between gap-3">
-                  <p className="text-3xl font-semibold text-slate-900">{stats.emergencyCount}</p>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-[#f0fdf8] px-3 py-1 text-xs font-semibold text-[#0f8f89]">
-                    <span className="text-[10px]">↑</span> +7 %
-                  </span>
-                </div>
-              </div>
-              <div className="rounded-[16px] border border-slate-200 bg-white p-4 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(15,25,35,0.08)]">
-                <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">Alertes de risque IA</p>
-                <div className="mt-3 flex items-end justify-between gap-3">
-                  <p className="text-3xl font-semibold text-slate-900">{aiRiskAlerts}</p>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-[#f0fdfa] px-3 py-1 text-xs font-semibold text-[#0f8f89]">
-                    <span className="text-[10px]">↓</span> -2 %
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div className="mt-4 rounded-[16px] border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-              <div className="mb-2 inline-flex items-center gap-2 text-slate-700">
-                <Sparkles className="h-4 w-4" />
-                Recommandation IA
-              </div>
-              Priorisez les cas critiques ; l'analyse des interactions se déclenche automatiquement lorsque le triage change.
+            <div className="rounded-xl bg-slate-50 p-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-700">Alertes IA</p>
+              <p className="mt-4 text-3xl font-bold text-slate-900">{aiRiskAlerts}</p>
+              <p className="mt-1 text-sm text-slate-600">Risques sous surveillance</p>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {metricCards.map((card) => (
-          <Link key={card.label} href={card.href} className="group">
-            <Card className={`overflow-hidden rounded-[16px] border border-[#e2ece8] bg-gradient-to-br p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_35px_rgba(15,25,35,0.08)] ${card.gradient}`}>
-              <div className="flex items-center justify-between gap-3">
-                <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${card.iconWrap}`}>
-                  <card.icon className="h-5 w-5" />
-                </div>
-                <ArrowRight className="h-4 w-4 text-slate-300 transition group-hover:text-slate-600" />
+      <section className="grid gap-6">
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+          <Link href={metricCards[0].href} className="group block rounded-xl bg-white p-6 transition duration-200 hover:bg-slate-50">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-medium text-slate-600">{metricCards[0].label}</p>
+                <p className="mt-3 text-3xl font-bold text-slate-900">{metricCards[0].value}</p>
               </div>
-              <div className="mt-5 border-t border-slate-200 pt-5">
-                <p className="text-3xl font-semibold leading-none text-slate-900">{card.value}</p>
-                <p className="mt-2 text-sm font-medium text-slate-700">{card.label}</p>
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-100 transition duration-200 group-hover:bg-slate-200">
+                <Users className="h-5 w-5 text-slate-600" />
               </div>
-              <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-medium text-slate-600 shadow-sm">
-                <Activity className="h-3.5 w-3.5 text-[#0f8f89]" />
-                {card.trend}
-              </div>
-            </Card>
+            </div>
+            <p className="mt-4 text-xs text-slate-500">{metricCards[0].trend}</p>
           </Link>
-        ))}
+
+          <Link href={metricCards[1].href} className="group block rounded-xl bg-white p-6 transition duration-200 hover:bg-slate-50">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-medium text-slate-600">{metricCards[1].label}</p>
+                <p className="mt-3 text-3xl font-bold text-slate-900">{metricCards[1].value}</p>
+              </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 transition duration-200 group-hover:bg-blue-200">
+                <FolderOpen className="h-5 w-5 text-blue-600" />
+              </div>
+            </div>
+            <p className="mt-4 text-xs text-slate-500">{metricCards[1].trend}</p>
+          </Link>
+
+          <Link href={metricCards[2].href} className="group block rounded-xl bg-white p-6 transition duration-200 hover:bg-red-50 md:col-span-2 xl:col-span-1">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-medium text-slate-600">{metricCards[2].label}</p>
+                <p className="mt-3 text-3xl font-bold text-slate-900">{metricCards[2].value}</p>
+              </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-red-100 transition duration-200 group-hover:bg-red-200">
+                <Siren className="h-5 w-5 text-red-600" />
+              </div>
+            </div>
+            <p className="mt-4 text-xs text-slate-500">{metricCards[2].trend}</p>
+          </Link>
+
+          <Link href={metricCards[3].href} className="group block rounded-xl bg-white p-6 transition duration-200 hover:bg-emerald-50 md:col-span-2 xl:col-span-1">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-medium text-slate-600">{metricCards[3].label}</p>
+                <p className="mt-3 text-3xl font-bold text-slate-900">{metricCards[3].value}</p>
+              </div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-100 transition duration-200 group-hover:bg-emerald-200">
+                <Activity className="h-5 w-5 text-emerald-600" />
+              </div>
+            </div>
+            <p className="mt-4 text-xs text-slate-500">{metricCards[3].trend}</p>
+          </Link>
+        </div>
       </section>
 
-      <section>
-        <div className="mb-4 flex items-center justify-between">
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-slate-900">Cas recents</h2>
-            <p className="mt-1 text-sm text-slate-500">Activite de triage en direct avec recommandations IA</p>
+            <h2 className="text-lg font-semibold text-slate-900">Cas récents</h2>
+            <p className="mt-1 text-sm text-slate-500">Flux de triage en direct</p>
           </div>
-          <Link
-            href="/dashboard/cases"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-[#cde3df] bg-white px-3 py-2 text-sm font-medium text-[#0f8f89] transition hover:bg-[#f3fbfa]"
-          >
-            Voir tout
-            <ArrowRight className="h-3.5 w-3.5" />
+          <Link href="/dashboard/cases" className="text-sm font-medium text-slate-600 hover:text-slate-900">
+            Voir tout →
           </Link>
         </div>
 
         {stats.recentCases.length === 0 ? (
-          <Card className="rounded-[16px] border border-dashed border-[#cde3df] bg-gradient-to-b from-[#f7fcfb] to-white p-10 text-center shadow-[0_10px_30px_rgba(0,0,0,0.06)]">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#dff7f5]">
-              <Brain className="h-8 w-8 text-[#0f8f89]" />
+          <div className="rounded-xl bg-slate-50 p-12 text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-lg bg-slate-200">
+              <Brain className="h-7 w-7 text-slate-600" />
             </div>
-            <h3 className="text-lg font-semibold text-slate-900">Aucun flux de cas actif pour le moment</h3>
-            <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">
-              Demarrez votre flux d'intelligence d'urgence en creant un nouveau cas.
-              Les recommandations de triage IA et les signaux de risque apparaitront ici en temps reel.
+            <h3 className="text-base font-semibold text-slate-900">Aucun cas pour le moment</h3>
+            <p className="mx-auto mt-2 max-w-sm text-sm text-slate-500">
+              Créez un nouveau cas pour démarrer votre flux d'analyse.
             </p>
             <Link href="/dashboard/cases/new">
-              <button className="mt-6 inline-flex items-center gap-2 rounded-xl bg-[#0f8f89] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0c7a74]">
+              <button className="mt-6 inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">
                 <Plus className="h-4 w-4" />
-                Creer le premier cas
+                Créer un cas
               </button>
             </Link>
-          </Card>
+          </div>
         ) : (
-          <Card className="overflow-hidden rounded-[16px] border border-[#dce8e6] bg-white shadow-[0_10px_30px_rgba(0,0,0,0.06)]">
-            <div className="grid grid-cols-12 border-b border-[#e7efee] bg-[#f4f9f8] px-5 py-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
-              <div className="col-span-4">Patient et motif</div>
-              <div className="col-span-2">Gravite</div>
-              <div className="col-span-2">Statut</div>
-              <div className="col-span-2">Horodatage</div>
-              <div className="col-span-2">Recommandation IA</div>
-            </div>
-
-            <div className="divide-y divide-[#edf2f1]">
-              {stats.recentCases.map((c: any) => (
-                <Link key={c.id} href={`/dashboard/cases/${c.id}`}>
-                  <div className="grid grid-cols-12 items-center px-5 py-4 transition hover:bg-[#f8fcfb]">
-                    <div className="col-span-4 flex min-w-0 items-center gap-3">
-                      <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${
-                        c.case_type === 'emergency' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'
-                      }`}>
-                        {c.case_type === 'emergency' ? <AlertTriangle className="h-4 w-4" /> : <FolderOpen className="h-4 w-4" />}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="truncate text-sm font-semibold text-slate-900">
-                          {c.first_name} {c.last_name}
-                        </p>
-                        <p className="truncate text-xs text-slate-500">
-                          {c.chief_complaint || 'Aucun motif renseigne'}
-                        </p>
-                      </div>
+          <div className="space-y-2">
+            {stats.recentCases.map((c: any) => (
+              <Link key={c.id} href={`/dashboard/cases/${c.id}`}>
+                <div className="flex items-start justify-between rounded-lg bg-white p-4 transition duration-200 hover:bg-slate-50">
+                  <div className="flex flex-1 items-start gap-4">
+                    <div className={`mt-1 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg ${
+                      c.case_type === 'emergency' ? 'bg-red-100' : 'bg-blue-100'
+                    }`}>
+                      {c.case_type === 'emergency' ? <AlertTriangle className="h-4 w-4 text-red-600" /> : <FolderOpen className="h-4 w-4 text-blue-600" />}
                     </div>
-
-                    <div className="col-span-2">
-                      <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold ${getSeverity(c).className}`}>
-                        <ShieldAlert className="h-3.5 w-3.5" />
-                        {getSeverity(c).label}
-                      </span>
-                    </div>
-
-                    <div className="col-span-2">
-                      <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold capitalize ${getStatusClass(c.status)}`}>
-                        {String(c.status || 'pending')}
-                      </span>
-                    </div>
-
-                    <div className="col-span-2 flex items-center gap-1.5 text-xs text-slate-500">
-                      <Clock3 className="h-3.5 w-3.5" />
-                      {new Date(c.created_at).toLocaleString()}
-                    </div>
-
-                    <div className="col-span-2 flex items-center justify-between gap-2">
-                      <p className="line-clamp-2 text-xs text-slate-600">{getAiHint(c)}</p>
-                      <ArrowRight className="h-4 w-4 shrink-0 text-slate-300" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-slate-900">
+                        {c.first_name} {c.last_name}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {c.chief_complaint || 'Sans motif'}
+                      </p>
                     </div>
                   </div>
-                </Link>
-              ))}
-            </div>
-          </Card>
+                  <div className="flex items-center gap-4 text-right text-xs">
+                    <div>
+                      <p className="font-semibold text-slate-900">{getSeverity(c).label}</p>
+                      <p className="text-slate-500">{String(c.status || 'pending')}</p>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
         )}
       </section>
       </div>
