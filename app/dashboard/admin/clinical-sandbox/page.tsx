@@ -16,31 +16,49 @@ const defaultPatient: ClinicalContext = {
     gender: 'M',
   },
   labs: {
-    potassium: { value: 6.8, unit: 'mEq/L', timestamp: new Date() },
-    creatinine: { value: 2.5, unit: 'mg/dL', timestamp: new Date() },
-    eGFR: { value: 25, unit: 'mL/min', timestamp: new Date() },
-    spo2: { value: 88, unit: '%', timestamp: new Date() },
+    potassium: { name: 'potassium', value: 6.8, unit: 'mEq/L', timestamp: new Date() },
+    creatinine: { name: 'creatinine', value: 2.5, unit: 'mg/dL', timestamp: new Date() },
+    eGFR: { name: 'eGFR', value: 25, unit: 'mL/min', timestamp: new Date() },
+    spo2: { name: 'spo2', value: 88, unit: '%', timestamp: new Date() },
   },
   vitals: {
+    heart_rate: 110,
     spo2: 84,
     heartRate: 110,
+    blood_pressure_systolic: 160,
+    blood_pressure_diastolic: 95,
     bloodPressure: { systolic: 160, diastolic: 95 },
     temperature: 37.2,
   },
   medications: [
-    { name: 'Warfarin', category: 'ANTICOAGULANT', dose: '5mg' },
-    { name: 'Ibuprofen', category: 'NSAID', dose: '400mg' },
-    { name: 'Metformin', category: 'ANTIDIABETIC', dose: '1000mg' },
+    { id: 'med-1', name: 'Warfarin', category: 'ANTICOAGULANT', dose: '5mg', dosage: '5mg', frequency: 'daily', route: 'oral' },
+    { id: 'med-2', name: 'Ibuprofen', category: 'NSAID', dose: '400mg', dosage: '400mg', frequency: 'tid', route: 'oral' },
+    { id: 'med-3', name: 'Metformin', category: 'ANTIDIABETIC', dose: '1000mg', dosage: '1000mg', frequency: 'bid', route: 'oral' },
   ],
   symptoms: ['dizziness', 'shortness_of_breath'],
   allergies: [],
   conditions: ['diabetes', 'hypertension'],
+  timestamp: new Date(),
 }
 
 export default function ClinicalSandboxPage() {
   const [patient, setPatient] = useState(defaultPatient)
   const [result, setResult] = useState<ClinicalEngineResult | null>(null)
   const [loading, setLoading] = useState(false)
+
+  function scoreWidthClass(score: number) {
+    if (score <= 0) return 'w-0'
+    if (score <= 10) return 'w-1/12'
+    if (score <= 20) return 'w-1/6'
+    if (score <= 30) return 'w-1/4'
+    if (score <= 40) return 'w-1/3'
+    if (score <= 50) return 'w-1/2'
+    if (score <= 60) return 'w-2/3'
+    if (score <= 70) return 'w-3/4'
+    if (score <= 80) return 'w-5/6'
+    if (score <= 90) return 'w-11/12'
+    return 'w-full'
+  }
 
   async function simulate() {
     setLoading(true)
@@ -86,7 +104,9 @@ export default function ClinicalSandboxPage() {
                   <label className="block text-sm font-medium text-slate-700 mb-1">Age</label>
                   <input
                     type="number"
-                    value={patient.patient.age}
+                    value={patient.patient.age ?? ''}
+                    title="Age du patient"
+                    placeholder="Age"
                     onChange={(e) =>
                       setPatient({
                         ...patient,
@@ -103,6 +123,8 @@ export default function ClinicalSandboxPage() {
                     type="number"
                     step="0.1"
                     value={patient.labs.potassium.value}
+                    title="Potassium"
+                    placeholder="Potassium"
                     onChange={(e) =>
                       setPatient({
                         ...patient,
@@ -121,6 +143,8 @@ export default function ClinicalSandboxPage() {
                   <input
                     type="number"
                     value={patient.labs.eGFR.value}
+                    title="eGFR"
+                    placeholder="eGFR"
                     onChange={(e) =>
                       setPatient({
                         ...patient,
@@ -136,6 +160,8 @@ export default function ClinicalSandboxPage() {
                   <input
                     type="number"
                     value={patient.vitals.spo2}
+                    title="SpO2"
+                    placeholder="SpO2"
                     onChange={(e) =>
                       setPatient({
                         ...patient,
@@ -151,7 +177,7 @@ export default function ClinicalSandboxPage() {
                   <div className="space-y-2 text-sm">
                     {patient.medications.map((med, i) => (
                       <div key={i} className="flex items-center">
-                        <input type="checkbox" defaultChecked className="mr-2" />
+                        <input type="checkbox" defaultChecked title={`Select medication ${med.name}`} className="mr-2" />
                         <span className="text-slate-700">{med.name}</span>
                       </div>
                     ))}
@@ -203,8 +229,7 @@ export default function ClinicalSandboxPage() {
                           </div>
                           <div className="w-full bg-slate-200 rounded-full h-2">
                             <div
-                              className="bg-blue-500 h-2 rounded-full"
-                              style={{ width: `${Math.min(((score as number) / 100) * 100, 100)}%` }}
+                              className={`bg-blue-500 h-2 rounded-full ${scoreWidthClass(Number(score))}`}
                             />
                           </div>
                         </div>

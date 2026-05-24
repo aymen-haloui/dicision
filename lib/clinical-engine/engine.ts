@@ -1,8 +1,6 @@
-import { ClinicalContext, ClinicalEngineConfig, ClinicalEngineResult, DEFAULT_ENGINE_CONFIG, RuleValidationResult, RuleValidationError, ClinicalRuleDefinition, RuleOutputs, TriggeredRule, RuleGroup } from '../../types/clinical-engine'
+import { ClinicalContext, ClinicalEngineConfig, ClinicalEngineResult, DEFAULT_ENGINE_CONFIG, RuleValidationResult, RuleValidationError, ClinicalRuleDefinition, RuleOutputs, TriggeredRule, RuleGroup } from '@/types/clinical-engine'
 import { recordRuleAudit } from './audit'
-import postgres from 'postgres'
-
-const sql = postgres(process.env.DATABASE_URL!)
+import sql from '@/lib/postgres'
 
 // Simple validator placeholder — real validator implemented separately
 function validateRuleStructure(rule: any): RuleValidationResult {
@@ -56,7 +54,7 @@ function evaluateCondition(condition: any, context: ClinicalContext): boolean {
   }
 }
 
-function mergeRiskScores(dest: Record<string, number>, src: Record<string, number> | undefined) {
+function mergeRiskScores(dest: Record<string, number | undefined>, src: Record<string, number | undefined> | undefined) {
   if (!src) return
   for (const k of Object.keys(src)) {
     const v = Number(src[k])
@@ -66,7 +64,12 @@ function mergeRiskScores(dest: Record<string, number>, src: Record<string, numbe
 }
 
 export async function loadEnabledRules(): Promise<ClinicalRuleDefinition[]> {
-  const rows = await sql`SELECT id, name, description, category, severity, priority, enabled, trigger_type, conditions, outputs, created_at, updated_at, created_by, version, tags FROM clinical_rules WHERE enabled = true ORDER BY priority DESC, created_at DESC`
+  const rows = await sql`
+    SELECT id, name, description, category, severity, priority, enabled, trigger_type, conditions, outputs, created_at, updated_at, created_by, version, tags
+    FROM clinical_rules
+    WHERE enabled = true
+    ORDER BY priority DESC, created_at DESC
+  `
   return rows as unknown as ClinicalRuleDefinition[]
 }
 
@@ -125,7 +128,10 @@ export async function evaluateRulesForContext(
     }
 
     // total risk score recompute
-    result.total_risk_score = Math.min(Object.values(result.risk_scores).reduce((s, v) => s + (v || 0), 0), config.max_risk_score)
+    result.total_risk_score = Math.min(
+      Object.values(result.risk_scores).reduce<number>((sum, value) => sum + (value ?? 0), 0),
+      config.max_risk_score,
+    )
 
     // add triggered rule audit
     const triggered: TriggeredRule = {

@@ -141,7 +141,6 @@ function makeEmptyRuleForm(): ClinicalRuleForm {
     contraindications: [{ id: makeId(), medication: 'Metformin', reason: 'Insuffisance renale grave' }],
     recommendations: ['Arreter Metformin'],
     warnings: ['Surveiller creatinine et fonction renale'],
-    warnings: [],
   }
 }
 
@@ -568,6 +567,7 @@ export default function AdminClinicalRules() {
                 <select
                   value={categoryFilter}
                   onChange={e => { setCategoryFilter(e.target.value); setPage(1) }}
+                  title="Filtre de catégorie"
                   className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                 >
                   <option value="">Toutes catégories</option>
@@ -578,6 +578,7 @@ export default function AdminClinicalRules() {
                 <select
                   value={severityFilter}
                   onChange={e => { setSeverityFilter(e.target.value); setPage(1) }}
+                  title="Filtre de gravité"
                   className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                 >
                   <option value="">Toutes gravités</option>
@@ -588,6 +589,7 @@ export default function AdminClinicalRules() {
                 <select
                   value={statusFilter}
                   onChange={e => { setStatusFilter(e.target.value as any); setPage(1) }}
+                  title="Filtre de statut"
                   className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                 >
                   <option value="all">Tous statuts</option>
@@ -686,7 +688,7 @@ export default function AdminClinicalRules() {
                 <h3 className="text-lg font-semibold text-slate-900">{editingId ? 'Modifier la règle' : 'Nouvelle règle'}</h3>
                 <p className="text-sm text-slate-500">Construisez les conditions et les résultats sans toucher au JSON.</p>
               </div>
-              <button type="button" onClick={resetForm} className="text-slate-400 hover:text-slate-600">
+              <button type="button" onClick={resetForm} title="Fermer le formulaire" className="text-slate-400 hover:text-slate-600">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -708,6 +710,7 @@ export default function AdminClinicalRules() {
                     id="rule-category"
                     value={form.category}
                     onChange={e => setForm(form => ({ ...form, category: e.target.value }))}
+                    title="Catégorie de la règle"
                     className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                   >
                     {CATEGORY_OPTIONS.map(option => <option key={option} value={option}>{option}</option>)}
@@ -719,6 +722,7 @@ export default function AdminClinicalRules() {
                     id="rule-severity"
                     value={form.severity}
                     onChange={e => setForm(form => ({ ...form, severity: e.target.value as SeverityLevel }))}
+                    title="Sévérité de la règle"
                     className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                   >
                     {SEVERITY_OPTIONS.map(option => <option key={option} value={option}>{option}</option>)}
@@ -730,6 +734,7 @@ export default function AdminClinicalRules() {
                     id="rule-trigger"
                     value={form.triggerType}
                     onChange={e => setForm(form => ({ ...form, triggerType: e.target.value }))}
+                    title="Type de déclencheur"
                     className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                   >
                     {TRIGGER_TYPES.map(option => <option key={option} value={option}>{option}</option>)}
@@ -741,6 +746,7 @@ export default function AdminClinicalRules() {
                     id="rule-status"
                     value={form.enabled ? 'enabled' : 'disabled'}
                     onChange={e => setForm(form => ({ ...form, enabled: e.target.value === 'enabled' }))}
+                    title="Statut de la règle"
                     className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                   >
                     <option value="enabled">Activée</option>
@@ -756,6 +762,7 @@ export default function AdminClinicalRules() {
                   value={form.description}
                   onChange={e => setForm(form => ({ ...form, description: e.target.value }))}
                   rows={3}
+                  placeholder="Décrivez le comportement clinique de la règle"
                   className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                 />
               </div>
@@ -771,6 +778,7 @@ export default function AdminClinicalRules() {
                     <select
                       value={form.conditionJoin}
                       onChange={e => setForm(form => ({ ...form, conditionJoin: e.target.value as 'all' | 'any' }))}
+                      title="Mode de combinaison des conditions"
                       className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                     >
                       <option value="all">ET</option>
@@ -787,6 +795,7 @@ export default function AdminClinicalRules() {
                         <select
                           value={condition.conditionType}
                           onChange={e => updateCondition(condition.id, { conditionType: e.target.value as ConditionType })}
+                          title="Type de condition"
                           className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                         >
                           {CONDITION_TYPES.map(option => <option key={option} value={option}>{option}</option>)}
@@ -805,6 +814,7 @@ export default function AdminClinicalRules() {
                         <select
                           value={condition.operator}
                           onChange={e => updateCondition(condition.id, { operator: e.target.value as Operator })}
+                          title="Opérateur de comparaison"
                           className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                         >
                           {OPERATORS.map(option => <option key={option} value={option}>{option}</option>)}
@@ -847,6 +857,7 @@ export default function AdminClinicalRules() {
                     <select
                       value={form.urgency}
                       onChange={e => setForm(form => ({ ...form, urgency: e.target.value as SeverityLevel }))}
+                      title="Urgence globale"
                       className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                     >
                       {SEVERITY_OPTIONS.map(option => <option key={option} value={option}>{option}</option>)}
@@ -900,6 +911,7 @@ export default function AdminClinicalRules() {
                         <select
                           value={alert.severity}
                           onChange={e => updateAlert(alert.id, { severity: e.target.value as SeverityLevel })}
+                          title="Sévérité de l'alerte"
                           className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                         >
                           {SEVERITY_OPTIONS.map(option => <option key={option} value={option}>{option}</option>)}

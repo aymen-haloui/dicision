@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
-import postgres from 'postgres'
-
-const sql = postgres(process.env.DATABASE_URL!)
+import sql from '@/lib/postgres'
 
 async function ensureAuth() {
   const session = await getServerSession(authOptions)
@@ -24,20 +22,22 @@ export async function GET(request: NextRequest) {
     const enabled = searchParams.get('enabled')
     const tag = searchParams.get('tag')
     const search = searchParams.get('search')
+    // Build parameterized query
+    const conditions: string[] = []
+    const params: any[] = []
+    if (category) { params.push(category); conditions.push(`category = $${params.length}`) }
+    if (severity) { params.push(severity); conditions.push(`severity = $${params.length}`) }
+    if (enabled !== null) { params.push(enabled === 'true'); conditions.push(`enabled = $${params.length}`) }
+    if (tag) { params.push(tag); conditions.push(`$${params.length} = ANY(tags)`) }
+    if (search) { params.push(`%${search}%`); params.push(`%${search}%`); conditions.push(`(name ILIKE $${params.length-1} OR description ILIKE $${params.length})`) }
 
-    let query = sql`SELECT id, name, description, category, severity, priority, enabled, trigger_type, created_at, updated_at, tags FROM clinical_rules WHERE 1=1`
-
-    if (category) query = sql`${query} AND category = ${category}`
-    if (severity) query = sql`${query} AND severity = ${severity}`
-    if (enabled !== null) query = sql`${query} AND enabled = ${enabled === 'true'}`
-    if (tag) query = sql`${query} AND ${tag} = ANY(tags)`
-    if (search) query = sql`${query} AND (name ILIKE ${`%${search}%`} OR description ILIKE ${`%${search}%`})`
-
-    query = sql`${query} ORDER BY priority DESC, created_at DESC`
-
-    const results = await query
+    const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : ''
+    const sqlText = `SELECT id, name, description, category, severity, priority, enabled, trigger_type, created_at, updated_at, tags FROM clinical_rules ${where} ORDER BY priority DESC, created_at DESC`
+    const results = await sql.unsafe(sqlText, params)
     return NextResponse.json(results)
   } catch (error: any) {
-    return NextResponse.json({ error: 'Erreur de filtrage' }, { status: 500 })
+    console.error('GET /api/admin/clinical-rules/search error:', error)
+    const message = process.env.NODE_ENV === 'production' ? 'Erreur de filtrage' : error?.message || String(error)
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { validateRule } from '@/lib/clinical-engine/validator'
-import postgres from 'postgres'
-
-const sql = postgres(process.env.DATABASE_URL!)
+import sql from '@/lib/postgres'
 
 async function ensureAuth() {
   const session = await getServerSession(authOptions)
@@ -26,7 +24,9 @@ export async function GET(request: NextRequest) {
     `
     return NextResponse.json(rules)
   } catch (error: any) {
-    return NextResponse.json({ error: 'Échec du chargement des règles cliniques' }, { status: 500 })
+    console.error('GET /api/admin/clinical-rules error:', error)
+    const message = process.env.NODE_ENV === 'production' ? 'Échec du chargement des règles cliniques' : error?.message || String(error)
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
 
@@ -70,6 +70,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(result[0], { status: 201 })
   } catch (error: any) {
     console.error('Error creating rule:', error)
-    return NextResponse.json({ error: 'Échec de la création de la règle clinique' }, { status: 500 })
+    const message = process.env.NODE_ENV === 'production' ? 'Échec de la création de la règle clinique' : error?.message || String(error)
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

@@ -1,7 +1,5 @@
-import postgres from 'postgres'
+import sql from '@/lib/postgres'
 import { seedRules } from './seed-rules'
-
-const sql = postgres(process.env.DATABASE_URL!)
 
 export async function seedClinicalRules() {
   console.log('🌱 Seeding clinical rules...')

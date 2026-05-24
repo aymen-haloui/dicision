@@ -140,8 +140,11 @@ export interface ClinicalEngineResult {
 export interface PatientContext {
   id: string
   age: number | null
+  name?: string
   gender?: string
+  weight?: number
   weight_kg?: number
+  height?: number
   allergies?: string[]
   comorbidities?: string[]
   medical_history?: string[]
@@ -155,6 +158,7 @@ export interface LabResult {
   name: string
   value: number
   unit: string
+  timestamp?: Date
   reference_min?: number
   reference_max?: number
   critical_min?: number
@@ -164,8 +168,13 @@ export interface LabResult {
 
 export interface VitalSign {
   heart_rate?: number // bpm
+  heartRate?: number
   blood_pressure_systolic?: number // mmHg
   blood_pressure_diastolic?: number // mmHg
+  bloodPressure?: {
+    systolic?: number
+    diastolic?: number
+  }
   respiratory_rate?: number // breaths/min
   temperature?: number // °C
   spo2?: number // %
@@ -175,6 +184,8 @@ export interface VitalSign {
 export interface MedicationContext {
   id: string
   name: string
+  category?: string
+  dose?: string
   dosage: string
   frequency: string
   duration?: string
@@ -192,6 +203,8 @@ export interface ClinicalContext {
   vitals: VitalSign
   symptoms?: string[]
   emergency_flags?: string[]
+  allergies?: string[]
+  conditions?: string[]
   
   // Medications & treatments
   medications: MedicationContext[]

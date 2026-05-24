@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { validateRule } from '@/lib/clinical-engine/validator'
-import postgres from 'postgres'
-
-const sql = postgres(process.env.DATABASE_URL!)
+import sql from '@/lib/postgres'
 
 async function ensureAuth() {
   const session = await getServerSession(authOptions)
@@ -35,7 +33,9 @@ export async function GET(
 
     return NextResponse.json(result[0])
   } catch (error: any) {
-    return NextResponse.json({ error: 'Échec du chargement de la règle clinique' }, { status: 500 })
+    console.error('GET /api/admin/clinical-rules/[id] error:', error)
+    const message = process.env.NODE_ENV === 'production' ? 'Échec du chargement de la règle clinique' : error?.message || String(error)
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
 
@@ -91,7 +91,8 @@ export async function PUT(
     return NextResponse.json(result[0])
   } catch (error: any) {
     console.error('Error updating rule:', error)
-    return NextResponse.json({ error: 'Échec de la mise à jour de la règle clinique' }, { status: 500 })
+    const message = process.env.NODE_ENV === 'production' ? 'Échec de la mise à jour de la règle clinique' : error?.message || String(error)
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
 
@@ -107,6 +108,8 @@ export async function DELETE(
     await sql`DELETE FROM clinical_rules WHERE id = ${id}`
     return NextResponse.json({ success: true })
   } catch (error: any) {
-    return NextResponse.json({ error: 'Échec de la suppression de la règle clinique' }, { status: 500 })
+    console.error('Error deleting rule:', error)
+    const message = process.env.NODE_ENV === 'production' ? 'Échec de la suppression de la règle clinique' : error?.message || String(error)
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

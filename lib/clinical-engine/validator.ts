@@ -1,4 +1,4 @@
-import { RuleValidationResult, RuleValidationError, ClinicalRuleDefinition, RuleGroup, RuleCondition, ComparisonOperator } from '../../types/clinical-engine'
+import { RuleValidationResult, RuleValidationError, ClinicalRuleDefinition, RuleGroup, RuleCondition, ComparisonOperator } from '@/types/clinical-engine'
 
 const ALLOWED_OPERATORS: ComparisonOperator[] = ['=', '!=', '>', '<', '>=', '<=', 'includes', 'not_includes']
 const ALLOWED_CONDITION_TYPES = ['LAB_RESULT','MEDICATION','CONDITION','VITAL_SIGN','SYMPTOM','ALLERGY','AGE','EMERGENCY_FLAG','CUSTOM']
