@@ -3,6 +3,7 @@ import { authOptions } from '@/lib/auth'
 import Link from 'next/link'
 import { Card } from '@/components/ui/card'
 import { DashboardQuickActions } from '@/components/dashboard-quick-actions'
+import { prisma } from '@/lib/prisma'
 import {
   Users,
   FolderOpen,
@@ -16,38 +17,60 @@ import {
   Siren,
   ShieldAlert,
 } from 'lucide-react'
-import postgres from 'postgres'
 
-const sql = postgres(process.env.DATABASE_URL!)
-
-async function getDashboardStats(userId: string) {
-  try {
-    const [user, patients, cases, emergencies, assessments, recentCases] = await Promise.all([
-      sql`SELECT full_name FROM users WHERE id = ${userId} LIMIT 1`,
-      sql`SELECT COUNT(*) as count FROM patients WHERE user_id = ${userId}`,
-      sql`SELECT COUNT(*) as count FROM cases WHERE user_id = ${userId}`,
-      sql`SELECT COUNT(*) as count FROM cases WHERE user_id = ${userId} AND case_type = 'emergency'`,
-      sql`SELECT COUNT(*) as count FROM risk_assessments ra JOIN cases c ON ra.case_id = c.id WHERE c.user_id = ${userId}`,
-      sql`
-        SELECT c.id, c.case_type, c.chief_complaint, c.status, c.created_at,
-               p.first_name, p.last_name
-        FROM cases c
-        JOIN patients p ON c.patient_id = p.id
-        WHERE c.user_id = ${userId}
-        ORDER BY c.created_at DESC
-        LIMIT 6
-      `,
-    ])
+async function getDashboardStats(userId?: string) {
+  if (!userId) {
     return {
-      userName: user[0]?.full_name,
-      patientCount: Number(patients[0]?.count ?? 0),
-      caseCount: Number(cases[0]?.count ?? 0),
-      emergencyCount: Number(emergencies[0]?.count ?? 0),
-      assessmentCount: Number(assessments[0]?.count ?? 0),
-      recentCases: recentCases || [],
+      userName: undefined,
+      patientCount: 0,
+      caseCount: 0,
+      emergencyCount: 0,
+      assessmentCount: 0,
+      recentCases: [],
     }
-  } catch {
-    return { userName: undefined, patientCount: 0, caseCount: 0, emergencyCount: 0, assessmentCount: 0, recentCases: [] }
+  }
+
+  const [user, patientCount, caseCount, emergencyCount, assessmentCount, recentCases] = await Promise.all([
+    prisma.users.findUnique({
+      where: { id: userId },
+      select: { full_name: true },
+    }),
+    prisma.patients.count({ where: { user_id: userId } }),
+    prisma.cases.count({ where: { user_id: userId } }),
+    prisma.cases.count({ where: { user_id: userId, case_type: 'emergency' } }),
+    prisma.risk_assessments.count({
+      where: {
+        cases: {
+          is: {
+            user_id: userId,
+          },
+        },
+      },
+    }),
+    prisma.cases.findMany({
+      where: { user_id: userId },
+      orderBy: { created_at: 'desc' },
+      take: 6,
+      select: {
+        id: true,
+        case_type: true,
+        chief_complaint: true,
+        status: true,
+        created_at: true,
+        patients: {
+          select: { first_name: true, last_name: true },
+        },
+      },
+    }),
+  ])
+
+  return {
+    userName: user?.full_name,
+    patientCount,
+    caseCount,
+    emergencyCount,
+    assessmentCount,
+    recentCases,
   }
 }
 
@@ -66,36 +89,46 @@ export default async function DashboardPage() {
       value: stats.patientCount,
       icon: Users,
       href: '/dashboard/patients',
-      gradient: 'from-[#dff7f5] via-[#effcfb] to-white',
-      iconWrap: 'bg-[#19a7a1]/12 text-[#0f8f89]',
-      trend: '+8,4 % cette semaine',
+      trend:
+        stats.patientCount === 0
+          ? 'Aucun patient enregistré'
+          : stats.patientCount === 1
+          ? '1 patient enregistré'
+          : `${stats.patientCount} patients enregistrés`,
     },
     {
       label: 'Cas actifs',
       value: stats.caseCount,
       icon: FolderOpen,
       href: '/dashboard/cases',
-      gradient: 'from-[#e7f1ff] via-[#f3f8ff] to-white',
-      iconWrap: 'bg-[#4d89f5]/12 text-[#3b72d8]',
-      trend: '+4 nouveaux aujourd\'hui',
+      trend:
+        stats.caseCount === 0
+          ? 'Aucun cas actif'
+          : stats.caseCount === 1
+          ? '1 cas actif'
+          : `${stats.caseCount} cas actifs`,
     },
     {
       label: 'Cas d\'urgence',
       value: stats.emergencyCount,
       icon: Siren,
       href: '/dashboard/cases',
-      gradient: 'from-[#ffe8e8] via-[#fff2f2] to-white',
-      iconWrap: 'bg-[#ff6464]/12 text-[#dc3f3f]',
-      trend: stats.emergencyCount > 0 ? 'Triage prioritaire actif' : 'Aucune file critique',
+      trend:
+        stats.emergencyCount === 0
+          ? 'Aucune file critique'
+          : stats.emergencyCount === 1
+          ? '1 cas d\'urgence'
+          : `${stats.emergencyCount} cas d\'urgence`,
     },
     {
       label: 'Evaluations du risque',
       value: stats.assessmentCount,
       icon: Activity,
       href: '/dashboard/cases',
-      gradient: 'from-[#e7fbf2] via-[#f0fdf8] to-white',
-      iconWrap: 'bg-[#25b67a]/12 text-[#139561]',
-      trend: `${aiRiskAlerts} alertes IA surveillees`,
+      trend:
+        stats.assessmentCount === 0
+          ? 'Aucune évaluation enregistrée'
+          : `${stats.assessmentCount} évaluations enregistrées`,
     },
   ]
 
@@ -259,7 +292,7 @@ export default async function DashboardPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-slate-900">
-                        {c.first_name} {c.last_name}
+                        {c.patients?.first_name} {c.patients?.last_name}
                       </p>
                       <p className="mt-1 text-xs text-slate-500">
                         {c.chief_complaint || 'Sans motif'}
