@@ -134,28 +134,28 @@ export default async function DashboardPage() {
               Votre centre de décision clinique. Triage rapide, recommandations en temps réel, alertes de risque centralisées.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
-              <Link href="/dashboard/cases/new" className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-900 px-6 py-3 text-sm font-semibold text-white transition duration-200 hover:bg-slate-800 active:scale-[0.98]">
+              <Link href="/dashboard/cases/new" className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#2CB1BC] px-6 py-3 text-sm font-semibold text-white transition duration-200 hover:bg-[#239AA3] active:scale-[0.98]">
                 <Plus className="h-4 w-4" />
                 Nouveau cas
               </Link>
-              <Link href="/dashboard/patients/new" className="inline-flex items-center justify-center gap-2 rounded-lg bg-slate-100 px-6 py-3 text-sm font-semibold text-slate-900 transition duration-200 hover:bg-slate-200 active:scale-[0.98]">
-                <Users className="h-4 w-4" />
+              <Link href="/dashboard/patients/new" className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#2CB1BC]/20 bg-[#F1FAF9] px-6 py-3 text-sm font-semibold text-[#0F8F89] transition duration-200 hover:bg-[#E6F9F7] active:scale-[0.98]">
+                <Users className="h-4 w-4 text-[#0F8F89]" />
                 Ajouter patient
               </Link>
             </div>
           </div>
 
           <div className="w-full space-y-4 lg:w-96 lg:flex-shrink-0">
-            <div className="rounded-xl bg-slate-50 p-6">
+            <div className="rounded-xl bg-[#F7FAFC] p-6">
               <div className="flex items-center gap-2">
-                <span className="inline-flex h-2 w-2 animate-pulse rounded-full bg-emerald-500"></span>
-                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-700">IA active</span>
+                <span className="inline-flex h-2 w-2 animate-pulse rounded-full bg-[#2CB1BC]"></span>
+                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[#0F8F89]">IA active</span>
               </div>
               <p className="mt-4 text-3xl font-bold text-slate-900">{stats.emergencyCount}</p>
               <p className="mt-1 text-sm text-slate-600">Cas d'urgence détectés</p>
             </div>
-            <div className="rounded-xl bg-slate-50 p-6">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-700">Alertes IA</p>
+            <div className="rounded-xl bg-[#F7FAFC] p-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#0F8F89]">Alertes IA</p>
               <p className="mt-4 text-3xl font-bold text-slate-900">{aiRiskAlerts}</p>
               <p className="mt-1 text-sm text-slate-600">Risques sous surveillance</p>
             </div>
@@ -165,53 +165,53 @@ export default async function DashboardPage() {
 
       <section className="grid gap-6">
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-          <Link href={metricCards[0].href} className="group block rounded-xl bg-white p-6 transition duration-200 hover:bg-slate-50">
+          <Link href={metricCards[0].href} className="group block rounded-xl bg-white p-6 transition duration-200 hover:bg-[#F1FAF9]">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-xs font-medium text-slate-600">{metricCards[0].label}</p>
                 <p className="mt-3 text-3xl font-bold text-slate-900">{metricCards[0].value}</p>
               </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-100 transition duration-200 group-hover:bg-slate-200">
-                <Users className="h-5 w-5 text-slate-600" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#ECFEFA] transition duration-200 group-hover:bg-[#C7F3EB]">
+                <Users className="h-5 w-5 text-[#0F8F89]" />
               </div>
             </div>
             <p className="mt-4 text-xs text-slate-500">{metricCards[0].trend}</p>
           </Link>
 
-          <Link href={metricCards[1].href} className="group block rounded-xl bg-white p-6 transition duration-200 hover:bg-slate-50">
+          <Link href={metricCards[1].href} className="group block rounded-xl bg-white p-6 transition duration-200 hover:bg-[#EFF6FF]">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-xs font-medium text-slate-600">{metricCards[1].label}</p>
                 <p className="mt-3 text-3xl font-bold text-slate-900">{metricCards[1].value}</p>
               </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 transition duration-200 group-hover:bg-blue-200">
-                <FolderOpen className="h-5 w-5 text-blue-600" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#E7F1FF] transition duration-200 group-hover:bg-[#D6E5FF]">
+                <FolderOpen className="h-5 w-5 text-[#3B72D8]" />
               </div>
             </div>
             <p className="mt-4 text-xs text-slate-500">{metricCards[1].trend}</p>
           </Link>
 
-          <Link href={metricCards[2].href} className="group block rounded-xl bg-white p-6 transition duration-200 hover:bg-red-50 md:col-span-2 xl:col-span-1">
+          <Link href={metricCards[2].href} className="group block rounded-xl bg-white p-6 transition duration-200 hover:bg-[#FEF2F2] md:col-span-2 xl:col-span-1">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-xs font-medium text-slate-600">{metricCards[2].label}</p>
                 <p className="mt-3 text-3xl font-bold text-slate-900">{metricCards[2].value}</p>
               </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-red-100 transition duration-200 group-hover:bg-red-200">
-                <Siren className="h-5 w-5 text-red-600" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#FEE2E2] transition duration-200 group-hover:bg-[#FECACA]">
+                <Siren className="h-5 w-5 text-[#DC2626]" />
               </div>
             </div>
             <p className="mt-4 text-xs text-slate-500">{metricCards[2].trend}</p>
           </Link>
 
-          <Link href={metricCards[3].href} className="group block rounded-xl bg-white p-6 transition duration-200 hover:bg-emerald-50 md:col-span-2 xl:col-span-1">
+          <Link href={metricCards[3].href} className="group block rounded-xl bg-white p-6 transition duration-200 hover:bg-[#ECFDF5] md:col-span-2 xl:col-span-1">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-xs font-medium text-slate-600">{metricCards[3].label}</p>
                 <p className="mt-3 text-3xl font-bold text-slate-900">{metricCards[3].value}</p>
               </div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-100 transition duration-200 group-hover:bg-emerald-200">
-                <Activity className="h-5 w-5 text-emerald-600" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-[#DCFCE7] transition duration-200 group-hover:bg-[#BBF7D0]">
+                <Activity className="h-5 w-5 text-[#16A34A]" />
               </div>
             </div>
             <p className="mt-4 text-xs text-slate-500">{metricCards[3].trend}</p>
@@ -225,13 +225,13 @@ export default async function DashboardPage() {
             <h2 className="text-lg font-semibold text-slate-900">Cas récents</h2>
             <p className="mt-1 text-sm text-slate-500">Flux de triage en direct</p>
           </div>
-          <Link href="/dashboard/cases" className="text-sm font-medium text-slate-600 hover:text-slate-900">
+          <Link href="/dashboard/cases" className="text-sm font-medium text-[#2CB1BC] hover:text-[#1C948F]">
             Voir tout →
           </Link>
         </div>
 
         {stats.recentCases.length === 0 ? (
-          <div className="rounded-xl bg-slate-50 p-12 text-center">
+          <div className="rounded-xl bg-[#F7FAFC] p-12 text-center">
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-lg bg-slate-200">
               <Brain className="h-7 w-7 text-slate-600" />
             </div>
@@ -240,7 +240,7 @@ export default async function DashboardPage() {
               Créez un nouveau cas pour démarrer votre flux d'analyse.
             </p>
             <Link href="/dashboard/cases/new">
-              <button className="mt-6 inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">
+              <button className="mt-6 inline-flex items-center gap-2 rounded-lg bg-[#2CB1BC] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#239AA3]">
                 <Plus className="h-4 w-4" />
                 Créer un cas
               </button>

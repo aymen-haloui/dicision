@@ -42,13 +42,22 @@ export async function PATCH(req: Request) {
       const imageFile = formData.get('image') as File | null
       
       if (imageFile) {
+        if (!imageFile.type.startsWith('image/')) {
+          return NextResponse.json({ error: 'Le fichier doit être une image.' }, { status: 400 })
+        }
+
+        const maxSize = 5 * 1024 * 1024
+        if (imageFile.size > maxSize) {
+          return NextResponse.json({ error: 'L’image dépasse la taille maximale de 5 MB.' }, { status: 400 })
+        }
+
         // Convert image file to base64 data URL
         const buffer = await imageFile.arrayBuffer()
         const base64 = Buffer.from(buffer).toString('base64')
         const mimeType = imageFile.type || 'image/jpeg'
         profile_image = `data:${mimeType};base64,${base64}`
       }
-      
+
       full_name = formData.get('full_name') as string | undefined
       specialization = formData.get('specialization') as string | undefined
     } else {
