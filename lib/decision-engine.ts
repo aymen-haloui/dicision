@@ -45,7 +45,292 @@ interface Recommendation {
   action: string
 }
 
-// ─── helpers ────────────────────────────────────────────────────────────────
+interface ClinicalRule {
+  id: string
+  name: string
+  description: string | null
+  category: string | null
+  severity: string | null
+  enabled: boolean
+  trigger_type: string | null
+  conditions: any
+  outputs: any
+  finding?: {
+    type: string
+    description: string
+    recommendation: string
+  }
+  recommendation?: {
+    title: string
+    description: string
+    priority: 'low' | 'medium' | 'high'
+    action: string
+  }
+  score: number | null
+}
+
+type RuleContext = {
+  patient: Record<string, any>
+  medications: Array<Record<string, any>>
+  labs: Record<string, any>
+  vitals: Record<string, any>
+  lifestyle: Record<string, any>
+  case: Record<string, any>
+}
+
+const RULE_SEVERITY_SCORES: Record<string, number> = {
+  critical: 40,
+  high: 25,
+  moderate: 10,
+  low: 5,
+}
+
+function getPathValue(context: RuleContext, path: string) {
+  const parts = path.split('.')
+  let current: any = context
+  for (const part of parts) {
+    if (current == null) return undefined
+    current = current[part]
+  }
+  return current
+}
+
+function evaluateAtomicCondition(condition: any, context: RuleContext): boolean {
+  const { fact, operator, value } = condition
+  const actual = getPathValue(context, fact)
+
+  switch (operator) {
+    case 'equals':
+      return actual === value
+    case 'not_equals':
+      return actual !== value
+    case 'contains':
+      if (Array.isArray(actual)) {
+        return actual.includes(value)
+      }
+      if (typeof actual === 'string' && typeof value === 'string') {
+        return actual.toLowerCase().includes(value.toLowerCase())
+      }
+      return false
+    case 'in':
+      return Array.isArray(value) ? value.includes(actual) : false
+    case 'gt':
+      return typeof actual === 'number' && typeof value === 'number' && actual > value
+    case 'gte':
+      return typeof actual === 'number' && typeof value === 'number' && actual >= value
+    case 'lt':
+      return typeof actual === 'number' && typeof value === 'number' && actual < value
+    case 'lte':
+      return typeof actual === 'number' && typeof value === 'number' && actual <= value
+    case 'exists':
+      return actual !== undefined && actual !== null && !(Array.isArray(actual) && actual.length === 0)
+    case 'regex':
+      try { return new RegExp(String(value), 'i').test(String(actual)) } catch { return false }
+    default:
+      return false
+  }
+}
+
+function evaluateCondition(condition: any, context: RuleContext): boolean {
+  if (!condition || typeof condition !== 'object') return false
+  if (condition.all) {
+    return Array.isArray(condition.all) && condition.all.every((item: any) => evaluateCondition(item, context))
+  }
+  if (condition.any) {
+    return Array.isArray(condition.any) && condition.any.some((item: any) => evaluateCondition(item, context))
+  }
+  if (condition.not) {
+    return !evaluateCondition(condition.not, context)
+  }
+  if (condition.fact && condition.operator) {
+    return evaluateAtomicCondition(condition, context)
+  }
+  return false
+}
+
+async function loadClinicalRules(): Promise<ClinicalRule[]> {
+  const rows = await sql`
+    SELECT id, name, description, category, severity, enabled, trigger_type, conditions, outputs, finding, recommendation, score
+    FROM clinical_rules
+    WHERE enabled = true
+    ORDER BY created_at DESC
+  `
+  return rows as unknown as ClinicalRule[]
+}
+
+function buildClinicalRuleContext(caseData: any, medications: CaseMedication[]): RuleContext {
+  const labs = {
+    potassium: caseData.potassium ? parseFloat(caseData.potassium) : undefined,
+    sodium: caseData.sodium ? parseFloat(caseData.sodium) : undefined,
+    glycemia: caseData.glycemia ? parseFloat(caseData.glycemia) : undefined,
+    lactates: caseData.lactates ? parseFloat(caseData.lactates) : undefined,
+    asat: caseData.asat ? parseFloat(caseData.asat) : undefined,
+    alat: caseData.alat ? parseFloat(caseData.alat) : undefined,
+  }
+
+  const vitals = {
+    heartRate: caseData.vital_signs?.heartRate,
+    bloodPressure: caseData.vital_signs?.bloodPressure,
+    temperature: caseData.vital_signs?.temperature,
+  }
+
+  const patientAgeYears = caseData.date_of_birth ? (() => {
+    const dob = new Date(caseData.date_of_birth)
+    const now = new Date()
+    let age = now.getFullYear() - dob.getFullYear()
+    if (now.getMonth() < dob.getMonth() || (now.getMonth() === dob.getMonth() && now.getDate() < dob.getDate())) {
+      age--
+    }
+    return age
+  })() : undefined
+
+  return {
+    patient: {
+      age: patientAgeYears,
+      allergies: caseData.allergies,
+      comorbidities: caseData.comorbidities,
+      gender: caseData.gender,
+      renal_creatinine_clearance: caseData.renal_creatinine_clearance,
+      hepatic_status: caseData.hepatic_status,
+      pregnancy_status: caseData.pregnancy_status,
+      smoking_status: caseData.smoking_status,
+      alcohol_use: caseData.alcohol_use,
+      immunodepression: caseData.immunodepression,
+      sudden_medication_stop: caseData.sudden_medication_stop,
+      breastfeeding_status: caseData.pregnancy_status === 'breastfeeding',
+    },
+    medications: medications.map(med => ({
+      id: med.medication_id,
+      name: med.name,
+      dosage: med.dosage,
+      frequency: med.frequency,
+      route: med.route,
+      contraindications: med.contraindications,
+      max_daily_dose_adult: med.max_daily_dose_adult,
+      max_daily_dose_child: med.max_daily_dose_child,
+      toxicity_thresholds: med.toxicity_thresholds,
+    })),
+    labs,
+    vitals,
+    lifestyle: {
+      smoking_status: caseData.smoking_status,
+      alcohol_use: caseData.alcohol_use,
+      immunodepression: caseData.immunodepression,
+      sudden_medication_stop: caseData.sudden_medication_stop,
+      breastfeeding_status: caseData.pregnancy_status === 'breastfeeding',
+    },
+    case: {
+      case_type: caseData.case_type,
+      symptoms: caseData.symptoms,
+      vital_signs: caseData.vital_signs,
+    },
+  }
+}
+
+function applyClinicalRules(
+  rules: ClinicalRule[],
+  context: RuleContext,
+  addFinding: (finding: Finding, score: number) => void,
+  addRec: (recommendation: Recommendation) => void
+) {
+  for (const rule of rules) {
+    try {
+      if (!rule.enabled || !evaluateCondition(rule.conditions, context)) continue
+      const outputs = rule.outputs ?? {}
+      const outputsScore = Array.isArray(outputs.risk_scores)
+        ? outputs.risk_scores.reduce((sum: number, item: any) => {
+            const value = typeof item.value === 'number' ? item.value : parseFloat(String(item.value) || '0')
+            return sum + (Number.isFinite(value) ? value : 0)
+          }, 0)
+        : null
+      const score = outputsScore != null && outputsScore > 0
+        ? outputsScore
+        : rule.score ?? RULE_SEVERITY_SCORES[rule.severity?.toLowerCase() ?? 'moderate'] ?? 10
+
+      if (Array.isArray(outputs.risk_scores) && outputs.risk_scores.length > 0) {
+        addFinding({
+          type: 'risk_score',
+          severity: (rule.severity as Finding['severity']) ?? 'moderate',
+          description: outputs.risk_scores.map((item: any) => `${item.name} +${item.value}`).join(', '),
+          recommendation: `Analyser les facteurs de risque identifiés par la règle ${rule.name}.`,
+        }, score)
+      } else if (rule.finding?.description) {
+        addFinding({
+          type: rule.finding.type || 'clinical_rule',
+          severity: (rule.severity as Finding['severity']) ?? 'moderate',
+          description: rule.finding.description,
+          recommendation: rule.finding.recommendation,
+        }, score)
+      }
+
+      if (Array.isArray(outputs.alerts)) {
+        for (const alert of outputs.alerts) {
+          addFinding({
+            type: alert.type || 'alert',
+            severity: (String(alert.severity).toLowerCase() as Finding['severity']) || 'critical',
+            description: alert.message || '',
+            recommendation: `Vérifier l'alerte générée par la règle ${rule.name}.`,
+          }, score)
+        }
+      }
+
+      if (Array.isArray(outputs.contraindications)) {
+        for (const ci of outputs.contraindications) {
+          addRec({
+            title: `Contre-indication : ${ci.medication ?? 'médicament'}`,
+            description: ci.reason ?? '',
+            priority: 'high',
+            action: `Revoir contre-indication pour ${ci.medication ?? 'médicament'}`,
+          })
+        }
+      }
+
+      if (Array.isArray(outputs.recommendations)) {
+        for (const recText of outputs.recommendations) {
+          addRec({
+            title: 'Recommandation clinique',
+            description: String(recText),
+            priority: 'medium',
+            action: String(recText),
+          })
+        }
+      }
+
+      if (Array.isArray(outputs.warnings)) {
+        for (const warning of outputs.warnings) {
+          addRec({
+            title: 'Avertissement',
+            description: String(warning),
+            priority: 'low',
+            action: String(warning),
+          })
+        }
+      }
+
+      if (outputs.urgency) {
+        addRec({
+          title: `Urgence : ${outputs.urgency}`,
+          description: `La règle ${rule.name} a déclenché un niveau d'urgence ${outputs.urgency}.`,
+          priority: outputs.urgency.toLowerCase() === 'critical' ? 'high' : 'medium',
+          action: `Traiter comme urgence ${outputs.urgency}.`,
+        })
+      }
+
+      if (rule.recommendation?.title) {
+        addRec({
+          title: rule.recommendation.title,
+          description: rule.recommendation.description,
+          priority: rule.recommendation.priority || 'medium',
+          action: rule.recommendation.action,
+        })
+      }
+    } catch (error) {
+      console.warn('Failed to evaluate clinical rule', rule.id, error)
+    }
+  }
+}
+
+// ─── helpers ───────────────────────────────────────────────────────────────────────────────
 
 /** Parse a dosage string like "500mg", "1g", "10mg/kg" → milligrams per dose */
 function parseDosageMg(dosageStr: string, weightKg?: number): number | null {
@@ -184,7 +469,12 @@ export async function analyzeCase(
 
     const addRec = (r: Recommendation) => recommendations.push(r)
 
-    // ── 3. ALLERGY CHECK ────────────────────────────────────────────────────
+    // ── 3. CLINICAL RULES EVALUATION ─────────────────────────────────────────
+    const clinicalRules = await loadClinicalRules()
+    const clinicalContext = buildClinicalRuleContext(caseData, medications)
+    applyClinicalRules(clinicalRules, clinicalContext, addFinding, addRec)
+
+    // ── 4. ALLERGY CHECK ────────────────────────────────────────────────────
     if (caseData.allergies) {
       const allergyText = caseData.allergies.toLowerCase()
       for (const med of medications) {

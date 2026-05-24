@@ -97,7 +97,7 @@ export default function DoctorsAdminPage() {
         ) : (
           filtered.map(d => {
             const role = getRole(d.specialization)
-            const initials = d.full_name?.split(' ').map(part => part[0]).join('').slice(0, 2).toUpperCase() || 'U'
+            const initials = d.full_name?.split(' ').map((part: string) => part[0]).join('').slice(0, 2).toUpperCase() || 'U'
             return (
               <div key={d.id} className="flex items-center justify-between rounded-lg bg-white p-4 transition duration-200 hover:bg-slate-50">
                 <div className="flex items-center gap-3 flex-1 min-w-0">

@@ -37,7 +37,7 @@ export default async function EditPatientPage({
     notFound()
   }
 
-  const initialConditions = patient.patient_conditions.map(condition => ({
+  const initialConditions = patient.patient_conditions.map((condition: any) => ({
     id: condition.id,
     condition_name: condition.condition_name,
     category: condition.category || '',
@@ -47,7 +47,7 @@ export default async function EditPatientPage({
     notes: condition.notes || '',
   }))
 
-  const initialAllergies = patient.patient_allergies.map(allergy => ({
+  const initialAllergies = patient.patient_allergies.map((allergy: any) => ({
     id: allergy.id,
     allergen_name: allergy.allergen_name,
     allergen_category: allergy.allergen_category || '',
@@ -56,7 +56,7 @@ export default async function EditPatientPage({
     onset_delay: allergy.onset_delay || '',
   }))
 
-  const initialMedications = patient.patient_medications.map(medication => ({
+  const initialMedications = patient.patient_medications.map((medication: any) => ({
     id: medication.id,
     medication_name: medication.medications.name,
     dosage: medication.dosage || '',
@@ -66,7 +66,7 @@ export default async function EditPatientPage({
     ongoing: medication.ongoing ?? true,
   }))
 
-  const initialLifestyle = patient.patient_lifestyle.map(({ created_at, sleep_hours, ...lifestyle }) => ({
+  const initialLifestyle = patient.patient_lifestyle.map(({ created_at, sleep_hours, ...lifestyle }: any) => ({
     ...lifestyle,
     sleep_hours: sleep_hours?.toString() || '',
   }))

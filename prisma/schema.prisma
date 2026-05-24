@@ -55,6 +55,34 @@ model interactions {
   medications_interactions_medication_id_2Tomedications medications @relation("interactions_medication_id_2Tomedications", fields: [medication_id_2], references: [id], onDelete: Cascade, onUpdate: NoAction)
 }
 
+model clinical_rules {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String   @db.VarChar(255)
+  description  String?  @db.Text
+  category     String   @db.VarChar(100)
+  severity     String   @db.VarChar(50)
+  priority     Int      @default(0) @db.SmallInt
+  enabled      Boolean  @default(true)
+  trigger_type String?  @db.VarChar(100)
+  conditions   Json     @default("{}") // RuleGroup structure
+  outputs      Json     @default("{}") // RuleOutputs structure
+  created_at   DateTime @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime @updatedAt @db.Timestamptz(6)
+  created_by   String?  @db.VarChar(255)
+  version      Int      @default(1)
+  tags         String[] @default([])
+}
+
+model rules_audit {
+  id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  case_id             String?  @db.Uuid
+  rule_id             String?  @db.Uuid
+  rule_name           String?  @db.VarChar(255)
+  matched_conditions  Json?
+  outputs_applied     Json?
+  created_at          DateTime @default(now()) @db.Timestamptz(6)
+}
+
 model medications {
   id                                                     String                    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name                                                   String                    @unique @db.VarChar(255)

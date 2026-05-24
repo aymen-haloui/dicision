@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card } from '@/components/ui/card'
+import AdminClinicalRules from '@/components/admin-clinical-rules'
 import {
   Pill, Zap, Plus, Trash2, Search, AlertTriangle,
   ChevronDown, ChevronUp, FlaskConical, ShieldAlert, X,
@@ -36,6 +37,27 @@ interface Interaction {
   recommendation: string
   medication_id_1: string
   medication_id_2: string
+}
+
+interface ClinicalRule {
+  id: string
+  name: string
+  description: string | null
+  severity: string
+  condition: any
+  finding: {
+    type: string
+    description: string
+    recommendation: string
+  }
+  recommendation: {
+    title: string
+    description: string
+    priority: string
+    action: string
+  }
+  score: number | null
+  is_active: boolean
 }
 
 const SEV_PILL: Record<string, string> = {
@@ -111,36 +133,55 @@ function numberOrNull(value: string) {
 }
 
 export default function AdminRulesPage() {
-  const [tab, setTab] = useState<'medications' | 'interactions'>('medications')
+  const [tab, setTab] = useState<'medications' | 'interactions' | 'clinical_rules'>('medications')
   const [medications, setMedications] = useState<Medication[]>([])
   const [interactions, setInteractions] = useState<Interaction[]>([])
+  const [rules, setRules] = useState<ClinicalRule[]>([])
   const [loading, setLoading] = useState(true)
   const [showAddMed, setShowAddMed] = useState(false)
   const [showAddInt, setShowAddInt] = useState(false)
+  const [showAddRule, setShowAddRule] = useState(false)
   const [expandedMed, setExpandedMed] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [medSearch, setMedSearch] = useState('')
   const [intSearch, setIntSearch] = useState('')
+  const [ruleSearch, setRuleSearch] = useState('')
 
   const [newMed, setNewMed] = useState(emptyMedicationForm())
   const [newInt, setNewInt] = useState({
     medicationId1: '', medicationId2: '', interactionType: '',
     severity: 'moderate', description: '', recommendation: '',
   })
+  const [newRule, setNewRule] = useState({
+    name: '', description: '', severity: 'high',
+    active: true,
+    conditionJson: '{\n  "all": [\n    { "fact": "patient.age", "operator": "lt", "value": 6 }\n  ]\n}',
+    findingType: 'clinical_rule',
+    findingDescription: '',
+    findingRecommendation: '',
+    recommendationTitle: '',
+    recommendationDescription: '',
+    recommendationAction: '',
+    recommendationPriority: 'high',
+    score: '25',
+  })
   const [editingMedId, setEditingMedId] = useState<string | null>(null)
   const [editingIntId, setEditingIntId] = useState<string | null>(null)
+  const [editingRuleId, setEditingRuleId] = useState<string | null>(null)
 
   useEffect(() => { loadData() }, [])
 
   async function loadData() {
     setLoading(true)
-    const [medsRes, intsRes] = await Promise.all([
+    const [medsRes, intsRes, rulesRes] = await Promise.all([
       fetch('/api/admin/medications'),
       fetch('/api/admin/interactions'),
+      fetch('/api/admin/clinical-rules'),
     ])
     if (medsRes.ok) setMedications(await medsRes.json())
     if (intsRes.ok) setInteractions(await intsRes.json())
+    if (rulesRes.ok) setRules(await rulesRes.json())
     setLoading(false)
   }
 
@@ -178,6 +219,13 @@ export default function AdminRulesPage() {
       dosingAdults: Array.isArray(pharmacologicalData.dosing?.adults) ? pharmacologicalData.dosing.adults.join('\n') : '',
       dosingChildren: Array.isArray(pharmacologicalData.dosing?.children) ? pharmacologicalData.dosing.children.join('\n') : '',
       renalAdjustment: Array.isArray(pharmacologicalData.dosing?.renal_adjustment) ? pharmacologicalData.dosing.renal_adjustment.join('\n') : '',
+      adverseEffects: Array.isArray(pharmacologicalData.adverse_effects)
+        ? pharmacologicalData.adverse_effects.map((item: any) =>
+            typeof item === 'string'
+              ? item
+              : `${item.system || ''} | ${item.effect || ''} | ${item.frequency || ''} | ${item.severity || ''} | ${item.action || ''}`
+          ).join('\n')
+        : '',
     })
   }
 
@@ -258,6 +306,24 @@ export default function AdminRulesPage() {
     setShowAddInt(false)
   }
 
+  function resetRuleForm() {
+    setNewRule({
+      name: '', description: '', severity: 'high',
+      active: true,
+      conditionJson: '{\n  "all": [\n    { "fact": "patient.age", "operator": "lt", "value": 6 }\n  ]\n}',
+      findingType: 'clinical_rule',
+      findingDescription: '',
+      findingRecommendation: '',
+      recommendationTitle: '',
+      recommendationDescription: '',
+      recommendationAction: '',
+      recommendationPriority: 'high',
+      score: '25',
+    })
+    setEditingRuleId(null)
+    setShowAddRule(false)
+  }
+
   function openEditInteraction(int: Interaction) {
     setEditingIntId(int.id)
     setNewInt({
@@ -271,6 +337,29 @@ export default function AdminRulesPage() {
     setShowAddInt(true)
     setError('')
     setShowAddMed(false)
+  }
+
+  function openEditRule(rule: ClinicalRule) {
+    setEditingRuleId(rule.id)
+    setNewRule({
+      name: rule.name,
+      description: rule.description || '',
+      severity: rule.severity || 'high',
+      active: rule.is_active,
+      conditionJson: JSON.stringify(rule.condition ?? { all: [] }, null, 2),
+      findingType: rule.finding?.type || 'clinical_rule',
+      findingDescription: rule.finding?.description || '',
+      findingRecommendation: rule.finding?.recommendation || '',
+      recommendationTitle: rule.recommendation?.title || '',
+      recommendationDescription: rule.recommendation?.description || '',
+      recommendationAction: rule.recommendation?.action || '',
+      recommendationPriority: rule.recommendation?.priority || 'high',
+      score: rule.score != null ? String(rule.score) : '25',
+    })
+    setShowAddRule(true)
+    setError('')
+    setShowAddMed(false)
+    setShowAddInt(false)
   }
 
   async function handleAddInteraction(e: React.FormEvent) {
@@ -290,6 +379,58 @@ export default function AdminRulesPage() {
     setSaving(false)
   }
 
+  async function handleAddRule(e: React.FormEvent) {
+    e.preventDefault()
+    setSaving(true); setError('')
+
+    let condition
+    try {
+      condition = JSON.parse(newRule.conditionJson)
+    } catch (err) {
+      setError('Le format JSON de la condition est invalide.')
+      setSaving(false)
+      return
+    }
+
+    const payload = {
+      name: newRule.name,
+      description: newRule.description,
+      severity: newRule.severity,
+      is_active: newRule.active,
+      condition,
+      finding: {
+        type: newRule.findingType,
+        description: newRule.findingDescription,
+        recommendation: newRule.findingRecommendation,
+      },
+      recommendation: {
+        title: newRule.recommendationTitle,
+        description: newRule.recommendationDescription,
+        priority: newRule.recommendationPriority,
+        action: newRule.recommendationAction,
+      },
+      score: numberOrNull(newRule.score),
+    }
+
+    const url = editingRuleId ? `/api/admin/clinical-rules/${editingRuleId}` : '/api/admin/clinical-rules'
+    const method = editingRuleId ? 'PUT' : 'POST'
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+
+    if (res.ok) {
+      resetRuleForm()
+      await loadData()
+    } else {
+      const body = await res.json()
+      setError(body.error || 'Echec de la sauvegarde de la regle clinique')
+    }
+
+    setSaving(false)
+  }
+
   async function handleDeleteMedication(id: string) {
     if (!confirm('Supprimer ce medicament ? Toutes les regles d\'interaction et les donnees de cas associees seront egalement supprimees.')) return
     await fetch(`/api/admin/medications/${id}`, { method: 'DELETE' })
@@ -302,6 +443,12 @@ export default function AdminRulesPage() {
       method: 'DELETE', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
     })
+    await loadData()
+  }
+
+  async function handleDeleteRule(id: string) {
+    if (!confirm('Supprimer cette regle clinique ?')) return
+    await fetch(`/api/admin/clinical-rules/${id}`, { method: 'DELETE' })
     await loadData()
   }
 
@@ -318,8 +465,17 @@ export default function AdminRulesPage() {
       i.severity.toLowerCase().includes(intSearch.toLowerCase())
     ), [interactions, intSearch])
 
+  const filteredRules = useMemo(() =>
+    rules.filter(rule =>
+      !ruleSearch ||
+      rule.name.toLowerCase().includes(ruleSearch.toLowerCase()) ||
+      (rule.description || '').toLowerCase().includes(ruleSearch.toLowerCase()) ||
+      rule.severity.toLowerCase().includes(ruleSearch.toLowerCase())
+    ), [rules, ruleSearch])
+
   const criticalCount = interactions.filter(i => i.severity === 'critical').length
   const severeCount = interactions.filter(i => i.severity === 'severe').length
+  const activeRulesCount = rules.filter(rule => rule.is_active).length
   const accentTextCls = 'text-[#2CB1BC]'
   const accentButtonCls = 'bg-[#2CB1BC] hover:bg-[#239AA3] text-white'
   const accentPanelCls = 'border-teal-200 bg-teal-50'
@@ -372,7 +528,7 @@ export default function AdminRulesPage() {
         {[
           { label: 'Medicaments', value: medications.length, icon: <Pill className="h-5 w-5" />, color: 'text-blue-600 bg-blue-50' },
           { label: 'Regles d\'interaction', value: interactions.length, icon: <Zap className="h-5 w-5" />, color: 'text-violet-600 bg-violet-50' },
-          { label: 'Interactions critiques', value: criticalCount, icon: <AlertTriangle className="h-5 w-5" />, color: 'text-red-600 bg-red-50' },
+          { label: 'Regles cliniques actives', value: activeRulesCount, icon: <ShieldAlert className="h-5 w-5" />, color: 'text-teal-600 bg-teal-50' },
           { label: 'Contre-indications', value: medications.reduce((n, m) => n + (m.contraindications?.length || 0), 0), icon: <FlaskConical className="h-5 w-5" />, color: 'text-amber-600 bg-amber-50' },
         ].map(s => (
           <Card key={s.label} className="p-4 flex items-center gap-3">
@@ -395,7 +551,7 @@ export default function AdminRulesPage() {
 
       {/* â”€â”€ TABS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="flex gap-1 bg-slate-100 p-1 rounded-xl w-fit">
-        {(['medications', 'interactions'] as const).map(t => (
+        {(['medications', 'interactions', 'clinical_rules'] as const).map(t => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -405,10 +561,9 @@ export default function AdminRulesPage() {
                 : 'text-slate-500 hover:text-slate-700'
             }`}
           >
-            {t === 'medications'
-              ? <span className="flex items-center gap-2"><Pill className="h-4 w-4" />Medicaments ({medications.length})</span>
-              : <span className="flex items-center gap-2"><Zap className="h-4 w-4" />Interactions ({interactions.length})</span>
-            }
+            {t === 'medications' && <span className="flex items-center gap-2"><Pill className="h-4 w-4" />Medicaments ({medications.length})</span>}
+            {t === 'interactions' && <span className="flex items-center gap-2"><Zap className="h-4 w-4" />Interactions ({interactions.length})</span>}
+            {t === 'clinical_rules' && <span className="flex items-center gap-2"><ShieldAlert className="h-4 w-4" />Regles ({rules.length})</span>}
           </button>
         ))}
       </div>
@@ -857,6 +1012,8 @@ export default function AdminRulesPage() {
           </div>
         </div>
       )}
+
+      {tab === 'clinical_rules' && <AdminClinicalRules />}
     </div>
   )
 }
