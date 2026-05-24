@@ -80,7 +80,6 @@ export default function ProfileForm({ initialUser }: { initialUser?: User }) {
         body: JSON.stringify({ 
           full_name: fullName, 
           specialization,
-          profile_image: imageFile ? null : imagePreview,
         }),
       })
       if (!res.ok) throw new Error('Save failed')

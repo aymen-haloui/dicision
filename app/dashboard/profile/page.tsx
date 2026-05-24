@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import ProfileForm from '@/components/profile-form'
 import { prisma } from '@/lib/prisma'
+import { redirect } from 'next/navigation'
 import { Shield, Mail, Calendar } from 'lucide-react'
 
 export const metadata = {
@@ -27,15 +28,17 @@ function getRoleLabel(specialization?: string | null) {
 
 export default async function ProfilePage() {
   const session = await getServerSession(authOptions)
-  const user = session?.user
+  if (!session?.user?.id) {
+    redirect('/auth/login')
+  }
+
+  const user = session.user
 
   // fetch fresh user record including profile_image
-  const dbUser = session?.user?.id
-    ? await prisma.users.findUnique({
-        where: { id: session.user.id as string },
-        select: { id: true, email: true, full_name: true, specialization: true, profile_image: true, created_at: true },
-      })
-    : null
+  const dbUser = await prisma.users.findUnique({
+    where: { id: session.user.id as string },
+    select: { id: true, email: true, full_name: true, specialization: true, profile_image: true, created_at: true },
+  })
 
   const displayUser = {
     id: dbUser?.id,
