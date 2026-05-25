@@ -17,10 +17,34 @@ function parseJsonField<T>(value: unknown, fallback: T): T {
   return value as T
 }
 
+function normalizeContraindications(value: unknown): Array<{ condition: string; severity: string }> {
+  const parsed = parseJsonField<any[]>(value, [])
+  if (!Array.isArray(parsed)) return []
+
+  return parsed
+    .map((item: any) => {
+      if (typeof item === 'string') {
+        const condition = item.trim()
+        if (!condition) return null
+        return { condition, severity: 'moderate' }
+      }
+
+      if (item && typeof item === 'object') {
+        const condition = typeof item.condition === 'string' ? item.condition.trim() : ''
+        if (!condition) return null
+        const severity = typeof item.severity === 'string' && item.severity.trim() ? item.severity : 'moderate'
+        return { condition, severity }
+      }
+
+      return null
+    })
+    .filter((item): item is { condition: string; severity: string } => item !== null)
+}
+
 function normalizeMedicationRow(row: any) {
   return {
     ...row,
-    contraindications: parseJsonField(row.contraindications, []),
+    contraindications: normalizeContraindications(row.contraindications),
     toxicity_thresholds: parseJsonField(row.toxicity_thresholds, {}),
     pharmacological_data: parseJsonField(row.pharmacological_data, {}),
   }

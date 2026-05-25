@@ -836,13 +836,26 @@ export default function AdminRulesPage() {
                         <div>
                           <p className="text-xs font-bold text-slate-600 uppercase tracking-wide mb-2">Contre-indications</p>
                           <div className="flex flex-wrap gap-2">
-                            {med.contraindications.map((ci, i) => (
-                              <span key={i} className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg border ${ci.severity === 'critical' || ci.severity === 'absolute' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-orange-50 text-orange-700 border-orange-200'}`}>
-                                <span className={`w-1.5 h-1.5 rounded-full ${ci.severity === 'critical' || ci.severity === 'absolute' ? 'bg-red-500' : 'bg-orange-400'}`} />
-                                {ci.condition.replace(/_/g, ' ')}
-                                <span className="opacity-60">({ci.severity})</span>
-                              </span>
-                            ))}
+                            {med.contraindications.map((ci, i) => {
+                              const conditionLabel = typeof (ci as any)?.condition === 'string'
+                                ? (ci as any).condition
+                                : typeof ci === 'string'
+                                  ? ci
+                                  : ''
+                              const severityLabel = typeof (ci as any)?.severity === 'string' && (ci as any).severity
+                                ? (ci as any).severity
+                                : 'moderate'
+                              if (!conditionLabel) return null
+                              const isCritical = severityLabel === 'critical' || severityLabel === 'absolute'
+
+                              return (
+                                <span key={i} className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg border ${isCritical ? 'bg-red-50 text-red-700 border-red-200' : 'bg-orange-50 text-orange-700 border-orange-200'}`}>
+                                  <span className={`w-1.5 h-1.5 rounded-full ${isCritical ? 'bg-red-500' : 'bg-orange-400'}`} />
+                                  {conditionLabel.replace(/_/g, ' ')}
+                                  <span className="opacity-60">({severityLabel})</span>
+                                </span>
+                              )
+                            })}
                           </div>
                         </div>
                       )}
