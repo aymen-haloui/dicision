@@ -4,10 +4,21 @@ import postgres from 'postgres'
 let sql: ReturnType<typeof postgres>
 
 if (!globalThis.__postgres_sql) {
-  if (!process.env.DATABASE_URL) {
+  const connectionString = process.env.DATABASE_URL ?? process.env.DATABASE_URL_UNPOOLED
+  if (!connectionString) {
     throw new Error('DATABASE_URL is not set')
   }
-  globalThis.__postgres_sql = postgres(process.env.DATABASE_URL, { ssl: process.env.DB_SSL === 'true' })
+
+  const requiresSsl =
+    process.env.DB_SSL === 'true' ||
+    connectionString.includes('.neon.tech') ||
+    /sslmode=require/i.test(connectionString)
+
+  if (!process.env.DATABASE_URL) {
+    process.env.DATABASE_URL = connectionString
+  }
+
+  globalThis.__postgres_sql = postgres(connectionString, { ssl: requiresSsl })
 }
 
 sql = globalThis.__postgres_sql
