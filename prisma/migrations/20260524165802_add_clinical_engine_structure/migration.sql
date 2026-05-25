@@ -41,78 +41,78 @@
 
 */
 -- DropForeignKey
-ALTER TABLE "patient_lifestyle" DROP CONSTRAINT "patient_lifestyle_patient_id_fkey";
+ALTER TABLE "patient_lifestyle" DROP CONSTRAINT IF EXISTS "patient_lifestyle_patient_id_fkey";
 
 -- DropForeignKey
-ALTER TABLE "patients" DROP CONSTRAINT "patients_user_id_fkey";
+ALTER TABLE "patients" DROP CONSTRAINT IF EXISTS "patients_user_id_fkey";
 
 -- AlterTable
-ALTER TABLE "cases" DROP COLUMN "vital_signs",
-ADD COLUMN     "priority_level" VARCHAR(20);
+ALTER TABLE "cases" DROP COLUMN IF EXISTS "vital_signs",
+ADD COLUMN IF NOT EXISTS     "priority_level" VARCHAR(20);
 
 -- AlterTable
-ALTER TABLE "patient_lifestyle" ADD COLUMN     "blood_donor" BOOLEAN DEFAULT false,
-ADD COLUMN     "diet_type" TEXT,
-ADD COLUMN     "housing_conditions" TEXT,
-ADD COLUMN     "immunodepression" VARCHAR(50),
-ADD COLUMN     "night_shift" BOOLEAN DEFAULT false,
-ADD COLUMN     "previous_intoxication" BOOLEAN DEFAULT false,
-ADD COLUMN     "prolonged_fasting" BOOLEAN DEFAULT false,
-ADD COLUMN     "regular_checkup" BOOLEAN DEFAULT true,
-ADD COLUMN     "restrictive_diet" BOOLEAN DEFAULT false,
-ADD COLUMN     "self_diagnosis" BOOLEAN DEFAULT false,
-ADD COLUMN     "sleep_hours" DECIMAL(3,1),
-ADD COLUMN     "sudden_medication_stop" BOOLEAN DEFAULT false,
-ADD COLUMN     "sun_exposure" VARCHAR(50),
-ADD COLUMN     "uncontrolled_natural_products" BOOLEAN DEFAULT false;
+ALTER TABLE "patient_lifestyle" ADD COLUMN IF NOT EXISTS     "blood_donor" BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS     "diet_type" TEXT,
+ADD COLUMN IF NOT EXISTS     "housing_conditions" TEXT,
+ADD COLUMN IF NOT EXISTS     "immunodepression" VARCHAR(50),
+ADD COLUMN IF NOT EXISTS     "night_shift" BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS     "previous_intoxication" BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS     "prolonged_fasting" BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS     "regular_checkup" BOOLEAN DEFAULT true,
+ADD COLUMN IF NOT EXISTS     "restrictive_diet" BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS     "self_diagnosis" BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS     "sleep_hours" DECIMAL(3,1),
+ADD COLUMN IF NOT EXISTS     "sudden_medication_stop" BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS     "sun_exposure" VARCHAR(50),
+ADD COLUMN IF NOT EXISTS     "uncontrolled_natural_products" BOOLEAN DEFAULT false;
 
 -- AlterTable
-ALTER TABLE "patients" DROP COLUMN "alat",
-DROP COLUMN "allergies",
-DROP COLUMN "allergy_reaction_types",
-DROP COLUMN "asat",
-DROP COLUMN "bilirubin",
-DROP COLUMN "blood_donor",
-DROP COLUMN "comorbidities",
-DROP COLUMN "creatinine",
-DROP COLUMN "crp",
-DROP COLUMN "diet_type",
-DROP COLUMN "extended_profile",
-DROP COLUMN "glycemia",
-DROP COLUMN "hepatic_status",
-DROP COLUMN "housing_conditions",
-DROP COLUMN "immunodepression",
-DROP COLUMN "lactates",
-DROP COLUMN "night_shift",
-DROP COLUMN "potassium",
-DROP COLUMN "previous_intoxication",
-DROP COLUMN "professional_exposure",
-DROP COLUMN "prolonged_fasting",
-DROP COLUMN "regular_checkup",
-DROP COLUMN "renal_creatinine_clearance",
-DROP COLUMN "renal_stage",
-DROP COLUMN "restrictive_diet",
-DROP COLUMN "self_diagnosis",
-DROP COLUMN "sleep_hours",
-DROP COLUMN "sodium",
-DROP COLUMN "substance_use",
-DROP COLUMN "sudden_medication_stop",
-DROP COLUMN "sun_exposure",
-DROP COLUMN "uncontrolled_natural_products",
-ADD COLUMN     "breastfeeding_status" BOOLEAN DEFAULT false,
-ADD COLUMN     "pregnancy_trimester" VARCHAR(20),
+ALTER TABLE "patients" DROP COLUMN IF EXISTS "alat",
+DROP COLUMN IF EXISTS "allergies",
+DROP COLUMN IF EXISTS "allergy_reaction_types",
+DROP COLUMN IF EXISTS "asat",
+DROP COLUMN IF EXISTS "bilirubin",
+DROP COLUMN IF EXISTS "blood_donor",
+DROP COLUMN IF EXISTS "comorbidities",
+DROP COLUMN IF EXISTS "creatinine",
+DROP COLUMN IF EXISTS "crp",
+DROP COLUMN IF EXISTS "diet_type",
+DROP COLUMN IF EXISTS "extended_profile",
+DROP COLUMN IF EXISTS "glycemia",
+DROP COLUMN IF EXISTS "hepatic_status",
+DROP COLUMN IF EXISTS "housing_conditions",
+DROP COLUMN IF EXISTS "immunodepression",
+DROP COLUMN IF EXISTS "lactates",
+DROP COLUMN IF EXISTS "night_shift",
+DROP COLUMN IF EXISTS "potassium",
+DROP COLUMN IF EXISTS "previous_intoxication",
+DROP COLUMN IF EXISTS "professional_exposure",
+DROP COLUMN IF EXISTS "prolonged_fasting",
+DROP COLUMN IF EXISTS "regular_checkup",
+DROP COLUMN IF EXISTS "renal_creatinine_clearance",
+DROP COLUMN IF EXISTS "renal_stage",
+DROP COLUMN IF EXISTS "restrictive_diet",
+DROP COLUMN IF EXISTS "self_diagnosis",
+DROP COLUMN IF EXISTS "sleep_hours",
+DROP COLUMN IF EXISTS "sodium",
+DROP COLUMN IF EXISTS "substance_use",
+DROP COLUMN IF EXISTS "sudden_medication_stop",
+DROP COLUMN IF EXISTS "sun_exposure",
+DROP COLUMN IF EXISTS "uncontrolled_natural_products",
+ADD COLUMN IF NOT EXISTS     "breastfeeding_status" BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS     "pregnancy_trimester" VARCHAR(20),
 ALTER COLUMN "weight" SET DATA TYPE DECIMAL(5,2),
-DROP COLUMN "pregnancy_status",
-ADD COLUMN     "pregnancy_status" BOOLEAN DEFAULT false,
+DROP COLUMN IF EXISTS "pregnancy_status",
+ADD COLUMN IF NOT EXISTS     "pregnancy_status" BOOLEAN DEFAULT false,
 ALTER COLUMN "height" SET DATA TYPE DECIMAL(5,2),
 ALTER COLUMN "smoking_status" DROP DEFAULT,
 ALTER COLUMN "alcohol_use" DROP DEFAULT;
 
 -- AlterTable
-ALTER TABLE "users" ADD COLUMN     "profile_image" TEXT;
+ALTER TABLE "users" ADD COLUMN IF NOT EXISTS     "profile_image" TEXT;
 
 -- CreateTable
-CREATE TABLE "clinical_rules" (
+CREATE TABLE IF NOT EXISTS "clinical_rules" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "name" VARCHAR(255) NOT NULL,
     "description" TEXT,
@@ -133,7 +133,7 @@ CREATE TABLE "clinical_rules" (
 );
 
 -- CreateTable
-CREATE TABLE "patient_conditions" (
+CREATE TABLE IF NOT EXISTS "patient_conditions" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "patient_id" UUID NOT NULL,
     "condition_name" TEXT NOT NULL,
@@ -148,7 +148,7 @@ CREATE TABLE "patient_conditions" (
 );
 
 -- CreateTable
-CREATE TABLE "patient_allergies" (
+CREATE TABLE IF NOT EXISTS "patient_allergies" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "patient_id" UUID NOT NULL,
     "allergen_name" TEXT NOT NULL,
@@ -162,7 +162,7 @@ CREATE TABLE "patient_allergies" (
 );
 
 -- CreateTable
-CREATE TABLE "patient_medications" (
+CREATE TABLE IF NOT EXISTS "patient_medications" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "patient_id" UUID NOT NULL,
     "medication_id" UUID NOT NULL,
@@ -177,7 +177,7 @@ CREATE TABLE "patient_medications" (
 );
 
 -- CreateTable
-CREATE TABLE "case_vitals" (
+CREATE TABLE IF NOT EXISTS "case_vitals" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "case_id" UUID NOT NULL,
     "systolic_bp" INTEGER,
@@ -193,7 +193,7 @@ CREATE TABLE "case_vitals" (
 );
 
 -- CreateTable
-CREATE TABLE "case_lab_results" (
+CREATE TABLE IF NOT EXISTS "case_lab_results" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "case_id" UUID NOT NULL,
     "test_name" TEXT NOT NULL,
@@ -206,7 +206,7 @@ CREATE TABLE "case_lab_results" (
 );
 
 -- CreateTable
-CREATE TABLE "case_symptoms" (
+CREATE TABLE IF NOT EXISTS "case_symptoms" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "case_id" UUID NOT NULL,
     "symptom_name" TEXT NOT NULL,
@@ -218,7 +218,7 @@ CREATE TABLE "case_symptoms" (
 );
 
 -- CreateTable
-CREATE TABLE "case_emergency_flags" (
+CREATE TABLE IF NOT EXISTS "case_emergency_flags" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "case_id" UUID NOT NULL,
     "convulsions" BOOLEAN DEFAULT false,
@@ -236,7 +236,7 @@ CREATE TABLE "case_emergency_flags" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "patients_medical_record_number_key" ON "patients"("medical_record_number");
+CREATE UNIQUE INDEX IF NOT EXISTS "patients_medical_record_number_key" ON "patients"("medical_record_number");
 
 -- AddForeignKey
 ALTER TABLE "patient_conditions" ADD CONSTRAINT "patient_conditions_patient_id_fkey" FOREIGN KEY ("patient_id") REFERENCES "patients"("id") ON DELETE CASCADE ON UPDATE CASCADE;

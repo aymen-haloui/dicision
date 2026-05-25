@@ -4,6 +4,20 @@ import { authOptions } from '@/lib/auth'
 import { validateRule } from '@/lib/clinical-engine/validator'
 import sql from '@/lib/postgres'
 
+function sortRules<T extends { priority?: number | null; created_at?: string | Date | null }>(rules: T[]) {
+  return rules.sort((left, right) => {
+    const leftPriority = left.priority ?? 0
+    const rightPriority = right.priority ?? 0
+    if (leftPriority !== rightPriority) return rightPriority - leftPriority
+
+    const leftCreated = left.created_at ? new Date(left.created_at).getTime() : 0
+    const rightCreated = right.created_at ? new Date(right.created_at).getTime() : 0
+    if (leftCreated !== rightCreated) return rightCreated - leftCreated
+
+    return 0
+  })
+}
+
 async function ensureAuth() {
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) {
@@ -17,12 +31,8 @@ export async function GET(request: NextRequest) {
     const userId = await ensureAuth()
     if (typeof userId !== 'string') return userId
 
-    const rules = await sql`
-      SELECT *
-      FROM clinical_rules
-      ORDER BY priority DESC, created_at DESC
-    `
-    return NextResponse.json(rules)
+    const rules = await sql`SELECT * FROM clinical_rules`
+    return NextResponse.json(sortRules(rules))
   } catch (error: any) {
     console.error('GET /api/admin/clinical-rules error:', error)
     const message = process.env.NODE_ENV === 'production' ? 'Échec du chargement des règles cliniques' : error?.message || String(error)

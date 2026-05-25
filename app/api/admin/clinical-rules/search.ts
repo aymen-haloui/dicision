@@ -3,6 +3,20 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import sql from '@/lib/postgres'
 
+function sortRules<T extends { priority?: number | null; created_at?: string | Date | null }>(rules: T[]) {
+  return rules.sort((left, right) => {
+    const leftPriority = left.priority ?? 0
+    const rightPriority = right.priority ?? 0
+    if (leftPriority !== rightPriority) return rightPriority - leftPriority
+
+    const leftCreated = left.created_at ? new Date(left.created_at).getTime() : 0
+    const rightCreated = right.created_at ? new Date(right.created_at).getTime() : 0
+    if (leftCreated !== rightCreated) return rightCreated - leftCreated
+
+    return 0
+  })
+}
+
 async function ensureAuth() {
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) {
@@ -32,9 +46,9 @@ export async function GET(request: NextRequest) {
     if (search) { params.push(`%${search}%`); params.push(`%${search}%`); conditions.push(`(name ILIKE $${params.length-1} OR description ILIKE $${params.length})`) }
 
     const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : ''
-    const sqlText = `SELECT * FROM clinical_rules ${where} ORDER BY priority DESC, created_at DESC`
+    const sqlText = `SELECT * FROM clinical_rules ${where}`
     const results = await sql.unsafe(sqlText, params)
-    return NextResponse.json(results)
+    return NextResponse.json(sortRules(results as any[]))
   } catch (error: any) {
     console.error('GET /api/admin/clinical-rules/search error:', error)
     const message = process.env.NODE_ENV === 'production' ? 'Erreur de filtrage' : error?.message || String(error)
