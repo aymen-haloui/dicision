@@ -4,7 +4,8 @@ import { notFound } from 'next/navigation'
 import { Activity, FlaskConical, HeartPulse, Pencil, ShieldAlert, User } from 'lucide-react'
 
 import { authOptions } from '@/lib/auth'
-import { getCasesByPatientId, getPatientById } from '@/lib/db'
+import { getCasesByPatientId } from '@/lib/db'
+import { prisma } from '@/lib/prisma'
 import { Card } from '@/components/ui/card'
 
 export const metadata = {
@@ -58,10 +59,13 @@ export default async function PatientDetailPage({
   const session = await getServerSession(authOptions)
   const userId = session?.user?.id || ''
 
-  const patient = await getPatientById(id, userId)
-  if (!patient) {
-    notFound()
-  }
+  const patient = await prisma.patients.findFirst({
+    where: { id, user_id: userId },
+    include: { patient_lifestyle: true, patient_allergies: true },
+  })
+  if (!patient) notFound()
+
+  const lifestyle = (patient.patient_lifestyle && patient.patient_lifestyle[0]) || {}
   const ep = (patient.extended_profile || {}) as Record<string, any>
 
   const cases = await getCasesByPatientId(id, userId)
@@ -108,18 +112,18 @@ export default async function PatientDetailPage({
           fields={[
             { label: 'Tabagisme', value: patient.smoking_status },
             { label: 'Consommation d\'alcool', value: patient.alcohol_use },
-            { label: 'Usage de substances', value: patient.substance_use },
-            { label: 'Exposition professionnelle', value: patient.professional_exposure },
-            { label: 'Activite physique', value: patient.physical_activity },
-            { label: 'Regime alimentaire', value: patient.diet_type },
-            { label: 'Niveau de stress', value: patient.stress_level },
-            { label: 'Qualite du sommeil', value: patient.sleep_quality },
-            { label: 'Heures de sommeil', value: patient.sleep_hours },
-            { label: 'Travail de nuit', value: patient.night_shift },
-            { label: 'Exposition au soleil', value: patient.sun_exposure },
-            { label: 'Jeune prolonge', value: patient.prolonged_fasting },
-            { label: 'Regime restrictif', value: patient.restrictive_diet },
-            { label: 'Produits naturels non controles', value: patient.uncontrolled_natural_products },
+            { label: 'Usage de substances', value: patient.substance_use ?? lifestyle.substance_use },
+            { label: 'Exposition professionnelle', value: patient.professional_exposure ?? lifestyle.professional_exposure },
+            { label: 'Activite physique', value: patient.physical_activity ?? lifestyle.physical_activity },
+            { label: 'Regime alimentaire', value: patient.diet_type ?? lifestyle.diet_type },
+            { label: 'Niveau de stress', value: patient.stress_level ?? lifestyle.stress_level },
+            { label: 'Qualite du sommeil', value: patient.sleep_quality ?? lifestyle.sleep_quality },
+            { label: 'Heures de sommeil', value: patient.sleep_hours ?? lifestyle.sleep_hours },
+            { label: 'Travail de nuit', value: patient.night_shift ?? lifestyle.night_shift },
+            { label: 'Exposition au soleil', value: patient.sun_exposure ?? lifestyle.sun_exposure },
+            { label: 'Jeune prolonge', value: patient.prolonged_fasting ?? lifestyle.prolonged_fasting },
+            { label: 'Regime restrictif', value: patient.restrictive_diet ?? lifestyle.restrictive_diet },
+            { label: 'Produits naturels non controles', value: patient.uncontrolled_natural_products ?? lifestyle.uncontrolled_natural_products },
           ]}
         />
 
@@ -127,16 +131,16 @@ export default async function PatientDetailPage({
           title="Facteurs medicaux"
           icon={<ShieldAlert className="h-5 w-5" />}
           fields={[
-            { label: 'Allergies', value: patient.allergies },
+            { label: 'Allergies', value: patient.allergies || (patient.patient_allergies?.length ? patient.patient_allergies.map((a:any)=>a.allergen_name).join(', ') : null) },
             { label: 'Type de reaction allergique', value: patient.allergy_reaction_types },
             { label: 'Comorbidites', value: patient.comorbidities },
-            { label: 'Immunodepression', value: patient.immunodepression },
-            { label: 'Donneur de sang', value: patient.blood_donor },
-            { label: 'Arret brutal de traitement', value: patient.sudden_medication_stop },
-            { label: 'Suivi medical regulier', value: patient.regular_checkup },
-            { label: 'Autodiagnostic', value: patient.self_diagnosis },
-            { label: 'Conditions de logement', value: patient.housing_conditions },
-            { label: 'Antecedent d\'intoxication', value: patient.previous_intoxication },
+            { label: 'Immunodepression', value: patient.immunodepression ?? lifestyle.immunodepression },
+            { label: 'Donneur de sang', value: patient.blood_donor ?? lifestyle.blood_donor },
+            { label: 'Arret brutal de traitement', value: patient.sudden_medication_stop ?? lifestyle.sudden_medication_stop },
+            { label: 'Suivi medical regulier', value: patient.regular_checkup ?? lifestyle.regular_checkup },
+            { label: 'Autodiagnostic', value: patient.self_diagnosis ?? lifestyle.self_diagnosis },
+            { label: 'Conditions de logement', value: patient.housing_conditions ?? lifestyle.housing_conditions },
+            { label: 'Antecedent d\'intoxication', value: patient.previous_intoxication ?? lifestyle.previous_intoxication },
           ]}
         />
 

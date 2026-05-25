@@ -127,10 +127,10 @@ const TRIGGER_TYPES = [
 ]
 
 const SEVERITY_BADGE: Record<SeverityLevel, string> = {
-  CRITICAL: 'bg-red-50 text-red-700 border-red-200',
-  HIGH: 'bg-orange-50 text-orange-700 border-orange-200',
-  MODERATE: 'bg-amber-50 text-amber-700 border-amber-200',
-  LOW: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  CRITICAL: 'bg-[var(--color-destructive)] text-[var(--color-destructive-foreground)] border-[var(--color-border)]',
+  HIGH: 'bg-[var(--color-accent)] text-[var(--color-accent-foreground)] border-[var(--color-border)]',
+  MODERATE: 'bg-[var(--color-secondary)] text-[var(--color-secondary-foreground)] border-[var(--color-border)]',
+  LOW: 'bg-[var(--color-muted)] text-[var(--color-muted-foreground)] border-[var(--color-border)]',
 }
 
 const FIELD_CATALOG: Record<ConditionType, FieldGroup[]> = {
@@ -912,7 +912,7 @@ export default function AdminClinicalRules() {
       </div>
 
       {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-destructive)]/10 px-4 py-3 text-sm text-[var(--color-destructive-foreground)]">
           {error}
         </div>
       )}
@@ -1586,7 +1586,7 @@ export default function AdminClinicalRules() {
 
                 <div className="space-y-4">
                   {simulationError && (
-                    <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-destructive)]/10 px-4 py-3 text-sm text-[var(--color-destructive-foreground)]">
                       {simulationError}
                     </div>
                   )}

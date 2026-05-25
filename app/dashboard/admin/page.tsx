@@ -61,16 +61,16 @@ interface ClinicalRule {
 }
 
 const SEV_PILL: Record<string, string> = {
-  critical: 'bg-red-100 text-red-700 border border-red-200',
-  severe:   'bg-orange-100 text-orange-700 border border-orange-200',
-  moderate: 'bg-yellow-100 text-yellow-700 border border-yellow-200',
-  mild:     'bg-emerald-100 text-emerald-700 border border-emerald-200',
+  critical: 'bg-[var(--color-destructive)] text-[var(--color-destructive-foreground)] border border-[var(--color-border)]',
+  severe:   'bg-[var(--color-accent)] text-[var(--color-accent-foreground)] border border-[var(--color-border)]',
+  moderate: 'bg-[var(--color-secondary)] text-[var(--color-secondary-foreground)] border border-[var(--color-border)]',
+  mild:     'bg-[var(--color-muted)] text-[var(--color-muted-foreground)] border border-[var(--color-border)]',
 }
 const SEV_DOT: Record<string, string> = {
-  critical: 'bg-red-500',
-  severe:   'bg-orange-500',
-  moderate: 'bg-yellow-500',
-  mild:     'bg-emerald-500',
+  critical: 'bg-[var(--color-destructive)]',
+  severe:   'bg-[var(--color-accent)]',
+  moderate: 'bg-[var(--color-secondary)]',
+  mild:     'bg-[var(--color-muted)]',
 }
 const SEV_LABEL: Record<string, string> = {
   critical: 'Critique',
@@ -79,12 +79,12 @@ const SEV_LABEL: Record<string, string> = {
   mild: 'Faible',
 }
 const CATEGORY_COLORS: Record<string, string> = {
-  nsaid:        'bg-blue-100 text-blue-700',
-  antibiotic:   'bg-violet-100 text-violet-700',
-  antidiabetic: 'bg-teal-100 text-teal-700',
-  anticoagulant:'bg-amber-100 text-amber-700',
-  statin:       'bg-indigo-100 text-indigo-700',
-  analgesic:    'bg-sky-100 text-sky-700',
+  nsaid:        'bg-[var(--color-primary)] text-[var(--color-primary-foreground)]',
+  antibiotic:   'bg-[var(--color-accent)] text-[var(--color-accent-foreground)]',
+  antidiabetic: 'bg-[var(--color-secondary)] text-[var(--color-secondary-foreground)]',
+  anticoagulant:'bg-[var(--color-destructive)] text-[var(--color-destructive-foreground)]',
+  statin:       'bg-[var(--color-muted)] text-[var(--color-muted-foreground)]',
+  analgesic:    'bg-[var(--color-accent)] text-[var(--color-accent-foreground)]',
 }
 
 const MEDICATION_CATEGORIES = [
@@ -479,15 +479,15 @@ export default function AdminRulesPage() {
   const criticalCount = interactions.filter(i => i.severity === 'critical').length
   const severeCount = interactions.filter(i => i.severity === 'severe').length
   const activeRulesCount = rules.filter(rule => rule.is_active).length
-  const accentTextCls = 'text-[#2CB1BC]'
-  const accentButtonCls = 'bg-[#2CB1BC] hover:bg-[#239AA3] text-white'
-  const accentPanelCls = 'border-teal-200 bg-teal-50'
-  const accentNoteCls = 'text-[#2CB1BC] bg-[#eef1ff] border border-[#cdd4ff]'
+  const accentTextCls = 'text-[var(--color-primary)]'
+  const accentButtonCls = 'bg-[var(--color-primary)] hover:bg-[var(--color-ring)] text-[var(--color-primary-foreground)]'
+  const accentPanelCls = 'border-[var(--color-border)] bg-[var(--color-muted)]'
+  const accentNoteCls = 'text-[var(--color-primary)] bg-[var(--color-muted)] border border-[var(--color-border)]'
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 gap-3">
-        <div className="w-8 h-8 border-4 border-slate-200 border-t-[#2CB1BC] rounded-full animate-spin" />
+        <div className="flex flex-col items-center justify-center h-64 gap-3">
+        <div className="w-8 h-8 border-4 border-slate-200 border-t-[var(--color-primary)] rounded-full animate-spin" />
         <p className="text-slate-500 text-sm">Chargement de la base des regles cliniques...</p>
       </div>
     )
@@ -599,8 +599,8 @@ export default function AdminRulesPage() {
 
           {/* add form */}
           {showAddMed && (
-            <div className="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-slate-950/35 px-4 py-6 backdrop-blur-sm sm:px-6 lg:px-8">
-              <Card className={`mx-auto w-full max-w-6xl rounded-3xl border border-slate-200 p-6 shadow-2xl ${accentPanelCls}`}>
+            <div className="w-full">
+              <Card className={`w-full rounded-2xl border border-slate-200 p-6 ${accentPanelCls}`}>
               <div className="flex items-center justify-between mb-5">
                 <h3 className="font-bold text-slate-900 flex items-center gap-2">
                   <Plus className={`h-4 w-4 ${accentTextCls}`} /> Nouveau medicament
@@ -904,8 +904,8 @@ export default function AdminRulesPage() {
 
           {/* add form */}
           {showAddInt && (
-            <div className="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-slate-950/35 px-4 py-6 backdrop-blur-sm sm:px-6 lg:px-8">
-              <Card className={`mx-auto w-full max-w-3xl rounded-3xl border border-slate-200 p-6 shadow-2xl ${accentPanelCls}`}>
+            <div className="w-full">
+              <Card className={`w-full rounded-2xl border border-slate-200 p-6 ${accentPanelCls}`}>
                 <div className="flex items-center justify-between gap-4 border-b border-slate-200 pb-4">
                   <div>
                     <div className="flex items-center gap-2">
