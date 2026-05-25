@@ -3,6 +3,7 @@ import { inferRuleFamily } from './rule-family'
 import { recordRuleAudit } from './audit'
 
 function deepGet(obj: any, path: string): any {
+  if (typeof path !== 'string' || !path.trim()) return undefined
   const parts = path.split('.')
   function walk(current: any, index: number): any {
     if (current == null) return undefined

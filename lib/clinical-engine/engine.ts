@@ -17,6 +17,7 @@ function validateRuleStructure(rule: any): RuleValidationResult {
 }
 
 function deepGet(obj: any, path: string): any {
+  if (typeof path !== 'string' || !path.trim()) return undefined
   const parts = path.split('.')
 
   function walk(current: any, index: number): any {
