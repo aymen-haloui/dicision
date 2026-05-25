@@ -67,10 +67,21 @@ export async function getUserById(userId: string) {
 export async function getPatientsByUserId(userId: string) {
   try {
     const result = await sql`
-      SELECT id, first_name, last_name, date_of_birth, gender, medical_record_number, allergies, comorbidities
-      FROM patients
-      WHERE user_id = ${userId}
-      ORDER BY created_at DESC
+      SELECT
+        p.id,
+        p.first_name,
+        p.last_name,
+        p.date_of_birth,
+        p.gender,
+        p.medical_record_number,
+        EXISTS (
+          SELECT 1
+          FROM patient_allergies pa
+          WHERE pa.patient_id = p.id
+        ) AS has_allergies
+      FROM patients p
+      WHERE p.user_id = ${userId}
+      ORDER BY p.created_at DESC
     `
 
     return result

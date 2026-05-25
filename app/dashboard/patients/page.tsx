@@ -77,7 +77,7 @@ export default async function PatientsPage() {
                   </div>
 
                   <div className="flex items-center gap-3 shrink-0">
-                    {p.allergies && (
+                    {p.has_allergies && (
                       <span className="hidden sm:flex items-center gap-1 text-xs text-amber-600 bg-amber-50 border border-amber-100 px-2 py-1 rounded-lg">
                         <AlertCircle className="h-3 w-3" /> Allergies
                       </span>

@@ -113,8 +113,13 @@ export default function DashboardNav({ user }: { user: User }) {
                 <div className="absolute right-0 mt-1 w-56 rounded-xl border border-slate-200 bg-white shadow-lg overflow-hidden">
                   {/* User Info */}
                   <div className="flex items-center gap-3 px-4 py-3 border-b border-slate-100">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#0f8f89] to-[#0a6d66] text-sm font-bold text-white">
-                      {initials}
+                      <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#0f8f89] to-[#0a6d66] text-sm font-bold text-white">
+                        {user?.profile_image ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={user.profile_image} alt={user?.name || 'avatar'} className="h-full w-full object-cover" />
+                        ) : (
+                          initials
+                        )}
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-semibold text-slate-900 truncate">{user?.name}</p>
