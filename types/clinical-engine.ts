@@ -152,6 +152,11 @@ export interface PatientContext {
   pregnancy_status?: 'not_pregnant' | 'pregnant' | 'breastfeeding'
   smoking_status?: string
   alcohol_use?: string
+  renal_creatinine_clearance?: number
+  hepatic_status?: string
+  breastfeeding_status?: boolean
+  sudden_medication_stop?: boolean
+  immunodepression?: string
 }
 
 export interface LabResult {
@@ -192,6 +197,12 @@ export interface MedicationContext {
   route: string
   generic_name?: string
   contraindications?: Contraindication[]
+  warnings?: string
+  toxicity_thresholds?: Record<string, number | null | undefined>
+  overdose_management?: string
+  max_daily_dose_adult?: number | null
+  max_daily_dose_child?: number | null
+  pharmacological_data?: Record<string, any>
 }
 
 export interface ClinicalContext {

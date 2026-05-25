@@ -14,14 +14,38 @@ function validateRuleStructure(rule: any): RuleValidationResult {
   return { is_valid: errors.length === 0, errors, warnings }
 }
 
-function deepGet(obj: any, path: string) {
+function deepGet(obj: any, path: string): any {
   const parts = path.split('.')
-  let cur = obj
-  for (const p of parts) {
-    if (!cur) return undefined
-    cur = cur[p]
+
+  function walk(current: any, index: number): any {
+    if (current == null) return undefined
+    if (index >= parts.length) return current
+
+    const key = parts[index]
+
+    if (Array.isArray(current)) {
+      const values = current
+        .map(item => walk(item, index))
+        .flatMap(value => (Array.isArray(value) ? value : value === undefined ? [] : [value]))
+      return values.length > 0 ? values : undefined
+    }
+
+    return walk(current[key], index + 1)
   }
-  return cur
+
+  return walk(obj, 0)
+}
+
+function asArray(value: any): any[] {
+  return Array.isArray(value) ? value : value === undefined || value === null ? [] : [value]
+}
+
+function compareMany(actual: any, predicate: (item: any) => boolean): boolean {
+  return asArray(actual).some(predicate)
+}
+
+function compareText(actual: any, value: any): boolean {
+  return String(actual).toLowerCase().includes(String(value).toLowerCase())
 }
 
 function evaluateCondition(condition: any, context: ClinicalContext): boolean {
@@ -41,6 +65,29 @@ function evaluateCondition(condition: any, context: ClinicalContext): boolean {
   const { type, field, operator, value } = condition as any
   const actual = deepGet(context, field)
 
+  if (Array.isArray(actual)) {
+    switch (operator) {
+      case '=':
+        return actual.some(item => item === value)
+      case '!=':
+        return actual.every(item => item !== value)
+      case '>':
+        return actual.some(item => typeof item === 'number' && typeof value === 'number' && item > value)
+      case '>=':
+        return actual.some(item => typeof item === 'number' && typeof value === 'number' && item >= value)
+      case '<':
+        return actual.some(item => typeof item === 'number' && typeof value === 'number' && item < value)
+      case '<=':
+        return actual.some(item => typeof item === 'number' && typeof value === 'number' && item <= value)
+      case 'includes':
+        return actual.some(item => typeof item === 'string' ? compareText(item, value) : item === value)
+      case 'not_includes':
+        return actual.every(item => typeof item === 'string' ? !compareText(item, value) : item !== value)
+      default:
+        return false
+    }
+  }
+
   switch (operator) {
     case '=': return actual === value
     case '!=': return actual !== value
@@ -48,8 +95,8 @@ function evaluateCondition(condition: any, context: ClinicalContext): boolean {
     case '>=': return typeof actual === 'number' && actual >= value
     case '<': return typeof actual === 'number' && actual < value
     case '<=': return typeof actual === 'number' && actual <= value
-    case 'includes': return Array.isArray(actual) ? actual.includes(value) : typeof actual === 'string' && String(actual).toLowerCase().includes(String(value).toLowerCase())
-    case 'not_includes': return Array.isArray(actual) ? !actual.includes(value) : typeof actual === 'string' && !String(actual).toLowerCase().includes(String(value).toLowerCase())
+    case 'includes': return typeof actual === 'string' && compareText(actual, value)
+    case 'not_includes': return typeof actual === 'string' && !compareText(actual, value)
     default: return false
   }
 }

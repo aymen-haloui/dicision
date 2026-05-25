@@ -4,14 +4,10 @@ import { evaluateRulesForContext } from '@/lib/clinical-engine/engine'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    // Build a minimal ClinicalContext expected by engine
-    const context = {
-      patient: body.patient,
-      labs: body.labs || {},
-      vitals: body.vitals || {},
-      medications: body.medications || [],
-      symptoms: body.symptoms || [],
-      timestamp: new Date(),
+    const context = body?.patient && body?.labs ? body.patient : body
+
+    if (!context.timestamp) {
+      context.timestamp = new Date()
     }
 
     const result = await evaluateRulesForContext(context as any)

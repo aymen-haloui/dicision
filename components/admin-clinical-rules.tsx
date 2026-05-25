@@ -46,6 +46,7 @@ type ContraindicationEntry = {
   id: string
   medication: string
   reason: string
+  severity: SeverityLevel
 }
 
 type ClinicalRuleForm = {
@@ -63,6 +64,19 @@ type ClinicalRuleForm = {
   contraindications: ContraindicationEntry[]
   recommendations: string[]
   warnings: string[]
+}
+
+type FieldDataType = 'string' | 'number' | 'boolean' | 'array' | 'date'
+
+type FieldOption = {
+  value: string
+  label: string
+  dataType: FieldDataType
+}
+
+type FieldGroup = {
+  label: string
+  options: FieldOption[]
 }
 
 interface ClinicalRule {
@@ -119,6 +133,217 @@ const SEVERITY_BADGE: Record<SeverityLevel, string> = {
   LOW: 'bg-emerald-50 text-emerald-700 border-emerald-200',
 }
 
+const FIELD_CATALOG: Record<ConditionType, FieldGroup[]> = {
+  AGE: [{ label: 'Patient age', options: [{ value: 'patient.age', label: 'Patient age', dataType: 'number' }] }],
+  CONDITION: [
+    {
+      label: 'Patient profile',
+      options: [
+        { value: 'patient.id', label: 'Patient ID', dataType: 'string' },
+        { value: 'patient.name', label: 'Patient name', dataType: 'string' },
+        { value: 'patient.gender', label: 'Gender', dataType: 'string' },
+        { value: 'patient.weight', label: 'Weight', dataType: 'number' },
+        { value: 'patient.weight_kg', label: 'Weight (kg)', dataType: 'number' },
+        { value: 'patient.height', label: 'Height', dataType: 'number' },
+        { value: 'patient.immunostatus', label: 'Immunostatus', dataType: 'string' },
+        { value: 'patient.pregnancy_status', label: 'Pregnancy status', dataType: 'string' },
+        { value: 'patient.smoking_status', label: 'Smoking status', dataType: 'string' },
+        { value: 'patient.alcohol_use', label: 'Alcohol use', dataType: 'string' },
+        { value: 'patient.renal_creatinine_clearance', label: 'Creatinine clearance', dataType: 'number' },
+        { value: 'patient.hepatic_status', label: 'Hepatic status', dataType: 'string' },
+        { value: 'patient.breastfeeding_status', label: 'Breastfeeding status', dataType: 'boolean' },
+        { value: 'patient.sudden_medication_stop', label: 'Sudden medication stop', dataType: 'boolean' },
+        { value: 'patient.immunodepression', label: 'Immunodepression', dataType: 'string' },
+      ],
+    },
+    {
+      label: 'Clinical context',
+      options: [
+        { value: 'case_type', label: 'Case type', dataType: 'string' },
+        { value: 'presenting_complaint', label: 'Presenting complaint', dataType: 'string' },
+        { value: 'duration_of_illness', label: 'Duration of illness', dataType: 'string' },
+        { value: 'timestamp', label: 'Timestamp', dataType: 'date' },
+      ],
+    },
+    {
+      label: 'Conditions and flags',
+      options: [
+        { value: 'conditions', label: 'Conditions', dataType: 'array' },
+        { value: 'allergies', label: 'Allergies', dataType: 'array' },
+        { value: 'symptoms', label: 'Symptoms', dataType: 'array' },
+        { value: 'emergency_flags', label: 'Emergency flags', dataType: 'array' },
+        { value: 'interactions_found', label: 'Interactions found', dataType: 'array' },
+      ],
+    },
+  ],
+  LAB_RESULT: [
+    {
+      label: 'Common labs',
+      options: [
+        { value: 'labs.potassium.value', label: 'Potassium', dataType: 'number' },
+        { value: 'labs.sodium.value', label: 'Sodium', dataType: 'number' },
+        { value: 'labs.glycemia.value', label: 'Glycemia', dataType: 'number' },
+        { value: 'labs.lactates.value', label: 'Lactates', dataType: 'number' },
+        { value: 'labs.asat.value', label: 'ASAT', dataType: 'number' },
+        { value: 'labs.alat.value', label: 'ALAT', dataType: 'number' },
+        { value: 'labs.creatinine.value', label: 'Creatinine', dataType: 'number' },
+        { value: 'labs.eGFR.value', label: 'eGFR', dataType: 'number' },
+      ],
+    },
+  ],
+  VITAL_SIGN: [
+    {
+      label: 'Vitals',
+      options: [
+        { value: 'vitals.heart_rate', label: 'Heart rate', dataType: 'number' },
+        { value: 'vitals.heartRate', label: 'Heart rate (camel)', dataType: 'number' },
+        { value: 'vitals.blood_pressure_systolic', label: 'Blood pressure systolic', dataType: 'number' },
+        { value: 'vitals.blood_pressure_diastolic', label: 'Blood pressure diastolic', dataType: 'number' },
+        { value: 'vitals.bloodPressure.systolic', label: 'BP systolic (object)', dataType: 'number' },
+        { value: 'vitals.bloodPressure.diastolic', label: 'BP diastolic (object)', dataType: 'number' },
+        { value: 'vitals.respiratory_rate', label: 'Respiratory rate', dataType: 'number' },
+        { value: 'vitals.temperature', label: 'Temperature', dataType: 'number' },
+        { value: 'vitals.spo2', label: 'SpO2', dataType: 'number' },
+        { value: 'vitals.glucose', label: 'Glucose', dataType: 'number' },
+      ],
+    },
+  ],
+  MEDICATION: [
+    {
+      label: 'Medication info',
+      options: [
+        { value: 'medications.name', label: 'Medication name', dataType: 'array' },
+        { value: 'medications.category', label: 'Medication category', dataType: 'array' },
+        { value: 'medications.dosage', label: 'Dosage', dataType: 'array' },
+        { value: 'medications.frequency', label: 'Frequency', dataType: 'array' },
+        { value: 'medications.duration', label: 'Duration', dataType: 'array' },
+        { value: 'medications.route', label: 'Route', dataType: 'array' },
+        { value: 'medications.generic_name', label: 'Generic name', dataType: 'array' },
+        { value: 'medications.warnings', label: 'Warnings', dataType: 'array' },
+        { value: 'medications.overdose_management', label: 'Overdose management', dataType: 'array' },
+        { value: 'medications.max_daily_dose_adult', label: 'Adult max daily dose', dataType: 'array' },
+        { value: 'medications.max_daily_dose_child', label: 'Child max daily dose', dataType: 'array' },
+        { value: 'medications.contraindications.target', label: 'Contraindication target', dataType: 'array' },
+        { value: 'medications.contraindications.reason', label: 'Contraindication reason', dataType: 'array' },
+        { value: 'medications.contraindications.severity', label: 'Contraindication severity', dataType: 'array' },
+        { value: 'medications.toxicity_thresholds.adult_toxic_dose', label: 'Adult toxic dose', dataType: 'array' },
+        { value: 'medications.toxicity_thresholds.child_toxic_dose_per_kg', label: 'Child toxic dose/kg', dataType: 'array' },
+        { value: 'medications.toxicity_thresholds.child_severe_dose_per_kg', label: 'Child severe dose/kg', dataType: 'array' },
+      ],
+    },
+  ],
+  SYMPTOM: [{ label: 'Symptoms', options: [{ value: 'symptoms', label: 'Symptoms', dataType: 'array' }, { value: 'presenting_complaint', label: 'Presenting complaint', dataType: 'string' }] }],
+  ALLERGY: [{ label: 'Allergies', options: [{ value: 'allergies', label: 'Allergies', dataType: 'array' }, { value: 'patient.allergies', label: 'Patient allergies', dataType: 'array' }] }],
+  EMERGENCY_FLAG: [{ label: 'Emergency flags', options: [{ value: 'emergency_flags', label: 'Emergency flags', dataType: 'array' }] }],
+}
+
+function getFieldGroups(conditionType: ConditionType): FieldGroup[] {
+  return FIELD_CATALOG[conditionType] || FIELD_CATALOG.CONDITION
+}
+
+function getFieldOption(conditionType: ConditionType, field: string): FieldOption | undefined {
+  return getFieldGroups(conditionType).flatMap(group => group.options).find(option => option.value === field)
+}
+
+function getDefaultField(conditionType: ConditionType): string {
+  return getFieldGroups(conditionType).flatMap(group => group.options)[0]?.value || ''
+}
+
+function getOperatorOptions(dataType?: FieldDataType): Operator[] {
+  switch (dataType) {
+    case 'number':
+    case 'date':
+      return ['=', '!=', '>', '<', '>=', '<=']
+    case 'boolean':
+      return ['=', '!=']
+    case 'array':
+      return ['includes', 'not_includes']
+    default:
+      return OPERATORS
+  }
+}
+
+function parseConditionValue(field: string, value: string): string | number | boolean {
+  const fieldOption = Object.values(FIELD_CATALOG).flatMap(group => group.flatMap(section => section.options)).find(option => option.value === field)
+  if (!fieldOption) return value
+  if (fieldOption.dataType === 'number') {
+    const parsed = Number(value)
+    return Number.isFinite(parsed) ? parsed : value
+  }
+  if (fieldOption.dataType === 'boolean') {
+    return value === 'true'
+  }
+  return value
+}
+
+function mapLegacyConditionType(type?: string): ConditionType {
+  switch (type) {
+    case 'LAB_RESULT': return 'LAB_RESULT'
+    case 'MEDICATION': return 'MEDICATION'
+    case 'VITAL_SIGN': return 'VITAL_SIGN'
+    case 'SYMPTOM': return 'SYMPTOM'
+    case 'ALLERGY': return 'ALLERGY'
+    case 'AGE': return 'AGE'
+    case 'EMERGENCY_FLAG': return 'EMERGENCY_FLAG'
+    default: return 'CONDITION'
+  }
+}
+
+function normalizeRuleConditions(ruleConditions: any) {
+  if (!ruleConditions) return { logic: 'AND', conditions: [] as any[] }
+  if (Array.isArray(ruleConditions.conditions)) {
+    return { logic: ruleConditions.logic === 'OR' ? 'OR' : 'AND', conditions: ruleConditions.conditions }
+  }
+  if (Array.isArray(ruleConditions.items)) {
+    return {
+      logic: ruleConditions.logic === 'any' ? 'OR' : 'AND',
+      conditions: ruleConditions.items.map((item: any) => ({
+        type: mapLegacyConditionType(item.condition_type),
+        field: item.field || '',
+        operator: item.operator || '=',
+        value: item.value,
+      })),
+    }
+  }
+  if (Array.isArray(ruleConditions.all)) return { logic: 'AND', conditions: ruleConditions.all }
+  if (Array.isArray(ruleConditions.any)) return { logic: 'OR', conditions: ruleConditions.any }
+  return { logic: 'AND', conditions: [] as any[] }
+}
+
+function normalizeRiskScores(riskScores: any): RiskScoreEntry[] {
+  if (Array.isArray(riskScores)) {
+    return riskScores.map((item: any) => ({ id: makeId(), name: item.name || '', value: String(item.value ?? '') }))
+  }
+  if (riskScores && typeof riskScores === 'object') {
+    return Object.entries(riskScores).map(([name, value]) => ({ id: makeId(), name, value: String(value ?? '') }))
+  }
+  return [{ id: makeId(), name: 'renal_risk', value: '20' }]
+}
+
+function normalizeAlertEntries(alerts: any): AlertEntry[] {
+  if (!Array.isArray(alerts) || alerts.length === 0) {
+    return [{ id: makeId(), type: 'clinical', severity: 'CRITICAL', message: 'Verifier la fonction renale' }]
+  }
+  return alerts.map((item: any) => ({
+    id: makeId(),
+    type: item.type || 'clinical',
+    severity: item.severity ?? 'CRITICAL',
+    message: item.message || '',
+  }))
+}
+
+function normalizeContraindications(contraindications: any): ContraindicationEntry[] {
+  if (!Array.isArray(contraindications) || contraindications.length === 0) {
+    return [{ id: makeId(), medication: 'Metformin', reason: 'Insuffisance renale grave', severity: 'CRITICAL' }]
+  }
+  return contraindications.map((item: any) => ({
+    id: makeId(),
+    medication: item.medication || item.target || '',
+    reason: item.reason || '',
+    severity: item.severity ?? 'CRITICAL',
+  }))
+}
+
 function makeId() {
   return `id_${Math.random().toString(36).slice(2, 10)}`
 }
@@ -138,7 +363,7 @@ function makeEmptyRuleForm(): ClinicalRuleForm {
     riskScores: [{ id: makeId(), name: 'renal_risk', value: '20' }],
     urgency: 'HIGH',
     alerts: [{ id: makeId(), type: 'clinical', severity: 'CRITICAL', message: 'Verifier la fonction renale' }],
-    contraindications: [{ id: makeId(), medication: 'Metformin', reason: 'Insuffisance renale grave' }],
+    contraindications: [{ id: makeId(), medication: 'Metformin', reason: 'Insuffisance renale grave', severity: 'CRITICAL' }],
     recommendations: ['Arreter Metformin'],
     warnings: ['Surveiller creatinine et fonction renale'],
   }
@@ -160,17 +385,20 @@ function formatDate(value: string) {
 }
 
 function buildConditionSummary(conditions: any): string {
-  if (!conditions || !Array.isArray(conditions.items)) return 'Aucune condition defini'
-  return conditions.items
-    .map((item: any) => `${item.condition_type} ${item.field} ${item.operator} ${item.value}`)
-    .join(` ${conditions.logic === 'any' ? 'OU' : 'ET'} `)
+  const normalized = normalizeRuleConditions(conditions)
+  if (!normalized.conditions.length) return 'Aucune condition définie'
+  return normalized.conditions
+    .map((item: any) => `${item.type || item.condition_type || 'CONDITION'} ${item.field} ${item.operator} ${item.value}`)
+    .join(` ${normalized.logic === 'OR' ? 'OU' : 'ET'} `)
 }
 
 function buildOutputSummary(outputs: any): string {
   if (!outputs) return 'Aucun output defini'
   const parts: string[] = []
-  if (outputs.risk_scores?.length) {
+  if (Array.isArray(outputs.risk_scores)) {
     parts.push(outputs.risk_scores.map((r: any) => `${r.name} +${r.value}`).join(', '))
+  } else if (outputs.risk_scores && typeof outputs.risk_scores === 'object') {
+    parts.push(Object.entries(outputs.risk_scores).map(([name, value]) => `${name} +${value}`).join(', '))
   }
   if (outputs.urgency) {
     parts.push(`Urgence ${outputs.urgency}`)
@@ -184,8 +412,13 @@ function buildOutputSummary(outputs: any): string {
   if (outputs.recommendations?.length) {
     parts.push(`${outputs.recommendations.length} recommandation(s)`)
   }
-  if (outputs.warnings?.length) {
-    parts.push(`${outputs.warnings.length} avertissement(s)`)
+  const warningCount = Array.isArray(outputs.therapeutic_warnings)
+    ? outputs.therapeutic_warnings.length
+    : Array.isArray(outputs.warnings)
+      ? outputs.warnings.length
+      : 0
+  if (warningCount) {
+    parts.push(`${warningCount} avertissement(s)`)
   }
   return parts.join(' · ') || 'Aucun output defini'
 }
@@ -236,7 +469,7 @@ export default function AdminClinicalRules() {
       return
     }
 
-    const conditions = rule.conditions ?? { logic: 'all', items: [] }
+    const conditions = normalizeRuleConditions(rule.conditions)
     const outputs = rule.outputs ?? {}
 
     setForm({
@@ -246,37 +479,26 @@ export default function AdminClinicalRules() {
       severity: rule.severity ?? 'HIGH',
       enabled: rule.enabled ?? true,
       triggerType: rule.trigger_type ?? 'COMPOSITE',
-      conditionJoin: conditions.logic === 'any' ? 'any' : 'all',
-      conditions: Array.isArray(conditions.items) && conditions.items.length > 0
-        ? conditions.items.map((item: any) => ({
+      conditionJoin: conditions.logic === 'OR' ? 'any' : 'all',
+      conditions: conditions.conditions.length > 0
+        ? conditions.conditions.map((item: any) => ({
           id: makeId(),
-          conditionType: item.condition_type || 'CONDITION',
-          field: item.field || '',
+          conditionType: mapLegacyConditionType(item.type),
+          field: item.field || getDefaultField(mapLegacyConditionType(item.type)),
           operator: item.operator || '=',
           value: item.value != null ? String(item.value) : '',
         }))
-        : [{ id: makeId(), conditionType: 'LAB_RESULT', field: 'creatinine', operator: '>', value: '2' }],
-      riskScores: Array.isArray(outputs.risk_scores) && outputs.risk_scores.length > 0
-        ? outputs.risk_scores.map((item: any) => ({ id: makeId(), name: item.name || '', value: String(item.value ?? '') }))
-        : [{ id: makeId(), name: 'renal_risk', value: '20' }],
+        : [{ id: makeId(), conditionType: 'AGE', field: 'patient.age', operator: '>', value: '65' }],
+      riskScores: normalizeRiskScores(outputs.risk_scores),
       urgency: outputs.urgency ?? 'HIGH',
-      alerts: Array.isArray(outputs.alerts) && outputs.alerts.length > 0
-        ? outputs.alerts.map((item: any) => ({
-          id: makeId(),
-          type: item.type || 'clinical',
-          severity: item.severity ?? 'CRITICAL',
-          message: item.message || '',
-        }))
-        : [{ id: makeId(), type: 'clinical', severity: 'CRITICAL', message: 'Verifier la fonction renale' }],
-      contraindications: Array.isArray(outputs.contraindications) && outputs.contraindications.length > 0
-        ? outputs.contraindications.map((item: any) => ({
-          id: makeId(),
-          medication: item.medication || '',
-          reason: item.reason || '',
-        }))
-        : [{ id: makeId(), medication: 'Metformin', reason: 'Insuffisance renale grave' }],
+      alerts: normalizeAlertEntries(outputs.alerts),
+      contraindications: normalizeContraindications(outputs.contraindications),
       recommendations: Array.isArray(outputs.recommendations) ? outputs.recommendations.slice() : ['Arreter Metformin'],
-      warnings: Array.isArray(outputs.warnings) ? outputs.warnings.slice() : ['Surveiller creatinine et fonction renale'],
+      warnings: Array.isArray(outputs.therapeutic_warnings)
+        ? outputs.therapeutic_warnings.map((item: any) => item.warning || '').filter(Boolean)
+        : Array.isArray(outputs.warnings)
+          ? outputs.warnings.slice()
+          : ['Surveiller creatinine et fonction renale'],
     })
     setEditingId(rule.id)
     setShowEditor(true)
@@ -293,7 +515,7 @@ export default function AdminClinicalRules() {
   function addCondition() {
     setForm(form => ({
       ...form,
-      conditions: [...form.conditions, { id: makeId(), conditionType: 'CONDITION', field: '', operator: '=', value: '' }],
+      conditions: [...form.conditions, { id: makeId(), conditionType: 'CONDITION', field: getDefaultField('CONDITION'), operator: '=', value: '' }],
     }))
   }
 
@@ -340,7 +562,7 @@ export default function AdminClinicalRules() {
   function addContraindication() {
     setForm(form => ({
       ...form,
-      contraindications: [...form.contraindications, { id: makeId(), medication: '', reason: '' }],
+      contraindications: [...form.contraindications, { id: makeId(), medication: '', reason: '', severity: 'CRITICAL' }],
     }))
   }
 
@@ -400,27 +622,36 @@ export default function AdminClinicalRules() {
       enabled: form.enabled,
       trigger_type: form.triggerType || null,
       conditions: {
-        logic: form.conditionJoin,
-        items: form.conditions.map(item => ({
-          condition_type: item.conditionType,
+        logic: form.conditionJoin === 'any' ? 'OR' : 'AND',
+        conditions: form.conditions.map(item => ({
+          type: item.conditionType,
           field: item.field,
           operator: item.operator,
-          value: parseNumber(item.value),
+          value: parseConditionValue(item.field, item.value),
         })),
       },
       outputs: {
         risk_scores: form.riskScores
           .filter(row => row.name.trim())
-          .map(row => ({ name: row.name.trim(), value: parseNumber(row.value) })),
+          .reduce<Record<string, number | string>>((acc, row) => {
+            acc[row.name.trim()] = parseNumber(row.value) as number | string
+            return acc
+          }, {}),
         urgency: form.urgency,
         alerts: form.alerts.filter(a => a.message.trim()).map(a => ({
           type: a.type.trim() || 'clinical',
           severity: a.severity,
           message: a.message.trim(),
         })),
-        contraindications: form.contraindications.filter(c => c.medication.trim() || c.reason.trim()),
+        contraindications: form.contraindications
+          .filter(c => c.medication.trim() || c.reason.trim())
+          .map(c => ({
+            target: c.medication.trim(),
+            reason: c.reason.trim(),
+            severity: c.severity,
+          })),
         recommendations: form.recommendations.filter(Boolean),
-        warnings: form.warnings.filter(Boolean),
+        therapeutic_warnings: form.warnings.filter(Boolean).map(warning => ({ warning })),
       },
     }
   }
@@ -794,7 +1025,14 @@ export default function AdminClinicalRules() {
                         <Label>Type</Label>
                         <select
                           value={condition.conditionType}
-                          onChange={e => updateCondition(condition.id, { conditionType: e.target.value as ConditionType })}
+                          onChange={e => {
+                            const nextType = e.target.value as ConditionType
+                            updateCondition(condition.id, {
+                              conditionType: nextType,
+                              field: getDefaultField(nextType),
+                              operator: getOperatorOptions(getFieldOption(nextType, getDefaultField(nextType))?.dataType)[0],
+                            })
+                          }}
                           title="Type de condition"
                           className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                         >
@@ -803,22 +1041,44 @@ export default function AdminClinicalRules() {
                       </div>
                       <div>
                         <Label>Champ ciblé</Label>
-                        <Input
-                          value={condition.field}
-                          onChange={e => updateCondition(condition.id, { field: e.target.value })}
-                          placeholder="ex. creatinine"
-                        />
+                        <select
+                          value={condition.field || getDefaultField(condition.conditionType)}
+                          onChange={e => {
+                            const nextField = e.target.value
+                            const nextFieldOption = getFieldOption(condition.conditionType, nextField)
+                            updateCondition(condition.id, {
+                              field: nextField,
+                              operator: getOperatorOptions(nextFieldOption?.dataType)[0],
+                            })
+                          }}
+                          title="Champ clinique"
+                          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                        >
+                          {getFieldGroups(condition.conditionType).map(group => (
+                            <optgroup key={group.label} label={group.label}>
+                              {group.options.map(option => (
+                                <option key={option.value} value={option.value}>{option.label}</option>
+                              ))}
+                            </optgroup>
+                          ))}
+                        </select>
                       </div>
                       <div>
                         <Label>Opérateur</Label>
+                        {(() => {
+                          const fieldOption = getFieldOption(condition.conditionType, condition.field || getDefaultField(condition.conditionType))
+                          const operatorOptions = getOperatorOptions(fieldOption?.dataType)
+                          return (
                         <select
                           value={condition.operator}
                           onChange={e => updateCondition(condition.id, { operator: e.target.value as Operator })}
                           title="Opérateur de comparaison"
                           className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
                         >
-                          {OPERATORS.map(option => <option key={option} value={option}>{option}</option>)}
+                          {operatorOptions.map(option => <option key={option} value={option}>{option}</option>)}
                         </select>
+                          )
+                        })()}
                       </div>
                       <div>
                         <Label>Valeur</Label>
@@ -939,7 +1199,7 @@ export default function AdminClinicalRules() {
                       </Button>
                     </div>
                     {form.contraindications.map(ci => (
-                      <div key={ci.id} className="grid gap-3 lg:grid-cols-[1fr_1fr_auto]">
+                      <div key={ci.id} className="grid gap-3 lg:grid-cols-[1fr_1fr_140px_auto]">
                         <Input
                           value={ci.medication}
                           onChange={e => updateContraindication(ci.id, { medication: e.target.value })}
@@ -950,6 +1210,14 @@ export default function AdminClinicalRules() {
                           onChange={e => updateContraindication(ci.id, { reason: e.target.value })}
                           placeholder="Raison"
                         />
+                        <select
+                          value={ci.severity}
+                          onChange={e => updateContraindication(ci.id, { severity: e.target.value as SeverityLevel })}
+                          title="Sévérité de la contre-indication"
+                          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                        >
+                          {SEVERITY_OPTIONS.map(option => <option key={option} value={option}>{option}</option>)}
+                        </select>
                         <Button type="button" variant="outline" size="sm" onClick={() => removeContraindication(ci.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
