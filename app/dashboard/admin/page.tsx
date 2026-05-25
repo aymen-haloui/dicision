@@ -141,6 +141,7 @@ export default function AdminRulesPage() {
   const [showAddMed, setShowAddMed] = useState(false)
   const [showAddInt, setShowAddInt] = useState(false)
   const [showAddRule, setShowAddRule] = useState(false)
+  const [medStep, setMedStep] = useState(0)
   const [expandedMed, setExpandedMed] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -189,6 +190,7 @@ export default function AdminRulesPage() {
     setNewMed(emptyMedicationForm())
     setEditingMedId(null)
     setShowAddMed(false)
+    setMedStep(0)
   }
 
   function populateMedicationForm(med: Medication) {
@@ -296,6 +298,7 @@ export default function AdminRulesPage() {
     setEditingMedId(med.id)
     populateMedicationForm(med)
     setShowAddMed(true)
+    setMedStep(0)
     setError('')
     setShowAddInt(false)
   }
@@ -902,58 +905,76 @@ export default function AdminRulesPage() {
           {/* add form */}
           {showAddInt && (
             <div className="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-slate-950/35 px-4 py-6 backdrop-blur-sm sm:px-6 lg:px-8">
-              <Card className={`mx-auto w-full max-w-4xl rounded-3xl border border-slate-200 p-6 shadow-2xl ${accentPanelCls}`}>
-              <div className="flex items-center justify-between mb-5">
-                <h3 className="font-bold text-slate-900 flex items-center gap-2">
-                  <Zap className={`h-4 w-4 ${accentTextCls}`} /> {editingIntId ? 'Modifier la regle d\'interaction' : 'Nouvelle regle d\'interaction'}
-                </h3>
-                <button type="button" aria-label="Fermer le formulaire d'ajout d'interaction" title="Fermer le formulaire d'ajout d'interaction" onClick={resetInteractionForm} className="text-slate-400 hover:text-slate-600">
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-              <form onSubmit={handleAddInteraction} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className={labelCls}>Medicament 1 *</label>
-                  <select aria-label="Medicament 1" value={newInt.medicationId1} onChange={e => setNewInt(p => ({ ...p, medicationId1: e.target.value }))} required className={inputCls}>
-                    <option value="">Selectionner un medicament...</option>
-                    {medications.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-                  </select>
+              <Card className={`mx-auto w-full max-w-3xl rounded-3xl border border-slate-200 p-6 shadow-2xl ${accentPanelCls}`}>
+                <div className="flex items-center justify-between gap-4 border-b border-slate-200 pb-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <Zap className={`h-4 w-4 ${accentTextCls}`} />
+                      <h3 className="font-bold text-slate-900">{editingIntId ? 'Modifier la regle d\'interaction' : 'Nouvelle regle d\'interaction'}</h3>
+                    </div>
+                    <p className="mt-1 text-xs text-slate-500">Surface compacte pour lier deux médicaments et décrire le risque en une seule vue.</p>
+                  </div>
+                  <button type="button" aria-label="Fermer le formulaire d'ajout d'interaction" title="Fermer le formulaire d'ajout d'interaction" onClick={resetInteractionForm} className="text-slate-400 hover:text-slate-600">
+                    <X className="h-4 w-4" />
+                  </button>
                 </div>
-                <div>
-                  <label className={labelCls}>Medicament 2 *</label>
-                  <select aria-label="Medicament 2" value={newInt.medicationId2} onChange={e => setNewInt(p => ({ ...p, medicationId2: e.target.value }))} required className={inputCls}>
-                    <option value="">Selectionner un medicament...</option>
-                    {medications.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className={labelCls}>Type d\'interaction</label>
-                  <input className={inputCls} value={newInt.interactionType} onChange={e => setNewInt(p => ({ ...p, interactionType: e.target.value }))} placeholder="ex. Risque hemorragique" />
-                </div>
-                <div>
-                  <label className={labelCls}>Gravite *</label>
-                  <select aria-label="Gravite" value={newInt.severity} onChange={e => setNewInt(p => ({ ...p, severity: e.target.value }))} className={inputCls}>
-                    <option value="mild">Faible</option>
-                    <option value="moderate">Moderee</option>
-                    <option value="severe">Severe</option>
-                    <option value="critical">Critique</option>
-                  </select>
-                </div>
-                <div className="md:col-span-2">
-                  <label className={labelCls}>Description</label>
-                  <textarea className={inputCls} value={newInt.description} onChange={e => setNewInt(p => ({ ...p, description: e.target.value }))} rows={2} placeholder="Mecanisme de l'interaction..." />
-                </div>
-                <div className="md:col-span-2">
-                  <label className={labelCls}>Recommandation clinique</label>
-                  <textarea className={inputCls} value={newInt.recommendation} onChange={e => setNewInt(p => ({ ...p, recommendation: e.target.value }))} rows={2} placeholder="Que doit faire le clinicien..." />
-                </div>
-                <div className="md:col-span-2 flex gap-3 pt-1">
-                  <Button type="submit" disabled={saving} className={accentButtonCls}>
-                    {saving ? 'Enregistrement...' : editingIntId ? 'Mettre a jour la regle' : 'Enregistrer la regle'}
-                  </Button>
-                  <Button type="button" variant="outline" onClick={resetInteractionForm}>Annuler</Button>
-                </div>
-              </form>
+
+                <form onSubmit={handleAddInteraction} className="mt-4 space-y-4">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    <div className="md:col-span-2">
+                      <label className={labelCls}>Medicament 1 *</label>
+                      <select aria-label="Medicament 1" value={newInt.medicationId1} onChange={e => setNewInt(p => ({ ...p, medicationId1: e.target.value }))} required className={inputCls}>
+                        <option value="">Selectionner un medicament...</option>
+                        {medications.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className={labelCls}>Gravite *</label>
+                      <select aria-label="Gravite" value={newInt.severity} onChange={e => setNewInt(p => ({ ...p, severity: e.target.value }))} className={inputCls}>
+                        <option value="mild">Faible</option>
+                        <option value="moderate">Moderee</option>
+                        <option value="severe">Severe</option>
+                        <option value="critical">Critique</option>
+                      </select>
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className={labelCls}>Medicament 2 *</label>
+                      <select aria-label="Medicament 2" value={newInt.medicationId2} onChange={e => setNewInt(p => ({ ...p, medicationId2: e.target.value }))} required className={inputCls}>
+                        <option value="">Selectionner un medicament...</option>
+                        {medications.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className={labelCls}>Type d\'interaction</label>
+                      <input className={inputCls} value={newInt.interactionType} onChange={e => setNewInt(p => ({ ...p, interactionType: e.target.value }))} placeholder="ex. Risque hemorragique" />
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                      <label className={labelCls}>Description</label>
+                      <textarea className={inputCls} value={newInt.description} onChange={e => setNewInt(p => ({ ...p, description: e.target.value }))} rows={3} placeholder="Mecanisme de l'interaction..." />
+                    </div>
+                    <div>
+                      <label className={labelCls}>Recommandation clinique</label>
+                      <textarea className={inputCls} value={newInt.recommendation} onChange={e => setNewInt(p => ({ ...p, recommendation: e.target.value }))} rows={3} placeholder="Que doit faire le clinicien..." />
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-slate-200 bg-white p-3 text-xs text-slate-600">
+                    <span className="font-semibold text-slate-900">Aperçu:</span>{' '}
+                    {medications.find(m => m.id === newInt.medicationId1)?.name || 'Médicament 1'} × {medications.find(m => m.id === newInt.medicationId2)?.name || 'Médicament 2'}
+                    {' · '}
+                    {newInt.severity || 'moderate'}
+                  </div>
+
+                  <div className="flex flex-wrap gap-3 pt-1">
+                    <Button type="submit" disabled={saving} className={accentButtonCls}>
+                      {saving ? 'Enregistrement...' : editingIntId ? 'Mettre a jour la regle' : 'Enregistrer la regle'}
+                    </Button>
+                    <Button type="button" variant="outline" onClick={resetInteractionForm}>Annuler</Button>
+                  </div>
+                </form>
               </Card>
             </div>
           )}
