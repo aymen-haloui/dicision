@@ -881,16 +881,16 @@ export default function AdminClinicalRules() {
   }, [pageCount, page])
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-2xl border border-[var(--color-border)] bg-white p-4 shadow-sm">
-        <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-          <div className="space-y-3">
+    <div className="space-y-4">
+      <div className="rounded-2xl border border-[var(--color-border)] bg-white p-3.5 shadow-sm">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
+          <div className="space-y-2.5">
             <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-1 text-xs font-medium text-[var(--color-muted-foreground)]">
               <ShieldAlert className="h-3.5 w-3.5" />
               Studio de règles
             </div>
-            <div className="space-y-2">
-              <h2 className="flex items-center gap-2 text-3xl font-semibold tracking-tight text-slate-900">
+            <div className="space-y-1.5">
+              <h2 className="flex items-center gap-2 text-2xl font-semibold tracking-tight text-slate-900">
                 Moteur de règles cliniques
               </h2>
               <p className="max-w-3xl text-sm leading-6 text-slate-600">
@@ -898,12 +898,12 @@ export default function AdminClinicalRules() {
               </p>
             </div>
             <div className="flex flex-wrap gap-2 text-xs font-medium text-[var(--color-muted-foreground)]">
-              <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-1">{filteredRules.length} règles visibles</span>
-              <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-1">{rules.length} au total</span>
+              <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-0.5">{filteredRules.length} règles visibles</span>
+              <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-0.5">{rules.length} au total</span>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button type="button" variant="outline" onClick={() => openEditor(null)} className="shadow-sm">
+            <Button type="button" variant="outline" onClick={() => openEditor(null)} className="h-9 shadow-sm">
               <Plus className="h-4 w-4" /> Nouvelle règle
             </Button>
           </div>
@@ -911,15 +911,15 @@ export default function AdminClinicalRules() {
       </div>
 
       {error && (
-        <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-destructive)]/10 px-4 py-3 text-sm text-[var(--color-destructive-foreground)]">
+        <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-destructive)]/10 px-3 py-2 text-sm text-[var(--color-destructive-foreground)]">
           {error}
         </div>
       )}
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(360px,420px)_minmax(0,1fr)] xl:items-start">
-        <div className="space-y-4 xl:sticky xl:top-24 xl:max-h-[calc(100vh-8rem)] xl:overflow-y-auto xl:pr-1">
-          <Card className="border-[var(--color-border)] p-4 shadow-sm bg-white">
-              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div className="grid gap-4 xl:grid-cols-[minmax(340px,380px)_minmax(0,1fr)] xl:items-start 2xl:grid-cols-[380px_minmax(0,1fr)]">
+        <div className="space-y-3">
+          <Card className="border-[var(--color-border)] bg-white p-3 shadow-sm">
+            <div className="flex flex-col gap-2.5 md:flex-row md:items-center md:justify-between">
               <div className="relative flex-1 min-w-0">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-muted-foreground)]" />
                 <Input
@@ -929,7 +929,7 @@ export default function AdminClinicalRules() {
                   className="pl-10 h-9"
                 />
               </div>
-              <div className="flex gap-2 items-center w-full md:w-auto">
+              <div className="flex flex-wrap gap-2 items-center w-full md:w-auto">
                 <select
                   value={categoryFilter}
                   onChange={e => { setCategoryFilter(e.target.value); setPage(1) }}
@@ -966,19 +966,19 @@ export default function AdminClinicalRules() {
             </div>
           </Card>
 
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {pageRules.length === 0 && (
-              <Card className="border-[var(--color-border)] p-10 text-center text-sm text-[var(--color-muted-foreground)] shadow-sm bg-white">
+              <Card className="border-[var(--color-border)] bg-white p-6 text-center text-sm text-[var(--color-muted-foreground)] shadow-sm">
                 Aucun résultat trouvé. Ajustez le filtre ou créez une nouvelle règle.
               </Card>
             )}
 
             {pageRules.map(rule => (
-              <Card key={rule.id} className="border-[var(--color-border)] p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md bg-white">
-                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+              <Card key={rule.id} className="border-[var(--color-border)] bg-white p-3.5 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md">
+                <div className="flex flex-col gap-2.5 lg:flex-row lg:items-start lg:justify-between">
                   <div className="min-w-0 space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-lg font-semibold text-[var(--color-foreground)]">{rule.name}</span>
+                      <span className="text-base font-semibold text-[var(--color-foreground)]">{rule.name}</span>
                       <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${SEVERITY_BADGE[rule.severity]}`}>
                         {rule.severity}
                       </span>
@@ -995,14 +995,14 @@ export default function AdminClinicalRules() {
                     </div>
                     {rule.description && <p className="text-sm text-[var(--color-muted-foreground)]">{rule.description}</p>}
                     <div className="grid gap-2 sm:grid-cols-2">
-                      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-2 text-xs text-[var(--color-muted-foreground)]">
+                      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-2.5 py-2 text-xs text-[var(--color-muted-foreground)]">
                         <span className="font-semibold">Conditions:</span> {buildConditionSummary(rule.conditions)}
                       </div>
-                      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-2 text-xs text-[var(--color-muted-foreground)]">
+                      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-2.5 py-2 text-xs text-[var(--color-muted-foreground)]">
                         <span className="font-semibold">Outputs:</span> {buildOutputSummary(rule.outputs)}
                       </div>
                     </div>
-                    <div className="flex flex-wrap gap-2 text-xs text-slate-500">
+                    <div className="flex flex-wrap gap-2 text-[11px] text-slate-500">
                       <span>Créée le {formatDate(rule.created_at)}</span>
                       <span>{rule.enabled ? 'Activée' : 'Désactivée'}</span>
                     </div>
@@ -1025,7 +1025,7 @@ export default function AdminClinicalRules() {
           </div>
 
           {pageCount > 1 && (
-            <div className="flex items-center justify-between rounded-2xl border border-[var(--color-border)] bg-white px-4 py-3 text-sm text-[var(--color-muted-foreground)] shadow-sm">
+            <div className="flex items-center justify-between rounded-2xl border border-[var(--color-border)] bg-white px-3 py-2.5 text-sm text-[var(--color-muted-foreground)] shadow-sm">
               <span>{`${(page - 1) * pageSize + 1} - ${Math.min(page * pageSize, filteredRules.length)} sur ${filteredRules.length}`}</span>
               <div className="flex items-center gap-2">
                 <Button
@@ -1048,11 +1048,11 @@ export default function AdminClinicalRules() {
         </div>
 
         {showEditor && (
-          <Card className="space-y-4 border-[var(--color-border)] p-5 shadow-sm xl:sticky xl:top-24 xl:max-h-[calc(100vh-8rem)] xl:overflow-y-auto">
-            <div className="flex flex-col gap-4 border-b border-[var(--color-border)] pb-4">
+          <Card className="space-y-3 border-[var(--color-border)] bg-white p-4 shadow-sm">
+            <div className="flex flex-col gap-3 border-b border-[var(--color-border)] pb-3">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-950">{editingId ? 'Modifier la règle' : 'Nouvelle règle'}</h3>
+                  <h3 className="text-base font-semibold text-slate-950">{editingId ? 'Modifier la règle' : 'Nouvelle règle'}</h3>
                   <p className="text-sm text-slate-500">Construisez les conditions, relisez la logique et testez un patient sans quitter le panneau.</p>
                 </div>
                 <button type="button" onClick={resetForm} title="Fermer le formulaire" className="text-slate-400 hover:text-slate-600">
@@ -1062,15 +1062,15 @@ export default function AdminClinicalRules() {
 
               <div className="flex flex-wrap gap-2">
                 {[
-                    { id: 'builder', label: 'Éditeur' },
-                    { id: 'explainability', label: 'Explicabilité' },
-                    { id: 'simulation', label: 'Simulation' },
-                  ].map(tab => (
+                  { id: 'builder', label: 'Éditeur' },
+                  { id: 'explainability', label: 'Explicabilité' },
+                  { id: 'simulation', label: 'Simulation' },
+                ].map(tab => (
                   <button
                     key={tab.id}
                     type="button"
                     onClick={() => setEditorTab(tab.id as EditorTab)}
-                    className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${editorTab === tab.id ? 'border-teal-300 bg-teal-50 text-teal-700' : 'border-[var(--color-border)] bg-white text-[var(--color-muted-foreground)] hover:border-slate-300 hover:text-slate-900'}`}
+                    className={`rounded-full border px-3 py-1 text-[11px] font-semibold transition ${editorTab === tab.id ? 'border-teal-300 bg-teal-50 text-teal-700' : 'border-[var(--color-border)] bg-white text-[var(--color-muted-foreground)] hover:border-slate-300 hover:text-slate-900'}`}
                   >
                     {tab.label}
                   </button>
@@ -1079,8 +1079,8 @@ export default function AdminClinicalRules() {
             </div>
 
             {editorTab === 'builder' && (
-            <form onSubmit={saveRule} className="space-y-4">
-              <div className="grid gap-4 lg:grid-cols-2">
+            <form onSubmit={saveRule} className="space-y-3">
+              <div className="grid gap-3 lg:grid-cols-2">
                 <div>
                   <Label htmlFor="rule-name">Nom de la règle</Label>
                   <Input
@@ -1147,16 +1147,16 @@ export default function AdminClinicalRules() {
                   id="rule-description"
                   value={form.description}
                   onChange={e => setForm(form => ({ ...form, description: e.target.value }))}
-                  rows={3}
+                  rows={2}
                   placeholder="Décrivez le comportement clinique de la règle"
-                  className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
+                  className="min-h-[84px] w-full rounded-lg border border-[var(--color-border)] bg-white px-3 py-2 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
                 />
               </div>
 
-              <section className="space-y-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-4">
+              <section className="space-y-2.5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-3">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <h4 className="text-base font-semibold text-slate-900">Conditions dynamiques</h4>
+                    <h4 className="text-sm font-semibold text-slate-900">Conditions dynamiques</h4>
                     <p className="text-sm text-slate-600">Chaque ligne peut être combinée avec ET ou OU.</p>
                   </div>
                   <div className="flex items-center gap-2">
@@ -1173,10 +1173,10 @@ export default function AdminClinicalRules() {
                   </div>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   {form.conditions.map((condition, index) => (
-                    <div key={condition.id} className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-2 items-start">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full">
+                    <div key={condition.id} className="grid grid-cols-1 gap-2 items-start lg:grid-cols-[1fr_auto]">
+                      <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
                         <div className="min-w-0">
                           <Label>Type</Label>
                           <select
@@ -1264,10 +1264,10 @@ export default function AdminClinicalRules() {
                 </Button>
               </section>
 
-              <section className="space-y-3 rounded-2xl border border-[var(--color-border)] bg-white p-4">
+              <section className="space-y-3 rounded-2xl border border-[var(--color-border)] bg-white p-3.5">
                 <div className="flex items-center justify-between gap-3">
                   <div>
-                    <h4 className="text-base font-semibold text-slate-900">Résultats et recommandations</h4>
+                    <h4 className="text-sm font-semibold text-slate-900">Résultats et recommandations</h4>
                     <p className="text-sm text-slate-600">Configurez les scores, alertes, contre-indications et recommandations cliniques.</p>
                   </div>
                   <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-1 text-xs font-semibold text-[var(--color-muted-foreground)]">
@@ -1275,7 +1275,7 @@ export default function AdminClinicalRules() {
                   </div>
                 </div>
 
-                <div className="grid gap-4 lg:grid-cols-2">
+                <div className="grid gap-3 lg:grid-cols-2">
                   <div>
                     <Label>Urgence globale</Label>
                     <select
@@ -1289,9 +1289,9 @@ export default function AdminClinicalRules() {
                   </div>
                   <div>
                     <Label>Score de risque</Label>
-                    <div className="space-y-3">
+                    <div className="space-y-2.5">
                       {form.riskScores.map(score => (
-                        <div key={score.id} className="grid gap-3 sm:grid-cols-[1fr_96px_auto]">
+                        <div key={score.id} className="grid gap-2.5 sm:grid-cols-[1fr_96px_auto]">
                           <Input
                             value={score.name}
                             onChange={e => updateRiskScore(score.id, { name: e.target.value })}
@@ -1314,8 +1314,8 @@ export default function AdminClinicalRules() {
                   </div>
                 </div>
 
-                <div className="space-y-4">
-                  <div className="grid gap-3">
+                <div className="space-y-3.5">
+                  <div className="grid gap-2.5">
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <p className="text-sm font-semibold text-slate-900">Alertes</p>
@@ -1326,7 +1326,7 @@ export default function AdminClinicalRules() {
                       </Button>
                     </div>
                     {form.alerts.map(alert => (
-                      <div key={alert.id} className="grid gap-3 lg:grid-cols-[140px_120px_1fr_auto]">
+                      <div key={alert.id} className="grid gap-2.5 lg:grid-cols-[140px_120px_1fr_auto]">
                         <Input
                           value={alert.type}
                           onChange={e => updateAlert(alert.id, { type: e.target.value })}
@@ -1352,7 +1352,7 @@ export default function AdminClinicalRules() {
                     ))}
                   </div>
 
-                  <div className="grid gap-3">
+                  <div className="grid gap-2.5">
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <p className="text-sm font-semibold text-slate-900">Contre-indications</p>
@@ -1363,7 +1363,7 @@ export default function AdminClinicalRules() {
                       </Button>
                     </div>
                     {form.contraindications.map(ci => (
-                      <div key={ci.id} className="grid gap-3 lg:grid-cols-[1fr_1fr_140px_auto]">
+                      <div key={ci.id} className="grid gap-2.5 lg:grid-cols-[1fr_1fr_140px_auto]">
                         <Input
                           value={ci.medication}
                           onChange={e => updateContraindication(ci.id, { medication: e.target.value })}
@@ -1389,7 +1389,7 @@ export default function AdminClinicalRules() {
                     ))}
                   </div>
 
-                  <div className="grid gap-3">
+                  <div className="grid gap-2.5">
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <p className="text-sm font-semibold text-slate-900">Recommandations médicales</p>
@@ -1400,7 +1400,7 @@ export default function AdminClinicalRules() {
                       </Button>
                     </div>
                     {form.recommendations.map((rec, index) => (
-                      <div key={`rec_${index}`} className="grid gap-3 lg:grid-cols-[1fr_auto]">
+                      <div key={`rec_${index}`} className="grid gap-2.5 lg:grid-cols-[1fr_auto]">
                         <Input
                           value={rec}
                           onChange={e => updateRecommendation(index, e.target.value)}
@@ -1413,7 +1413,7 @@ export default function AdminClinicalRules() {
                     ))}
                   </div>
 
-                  <div className="grid gap-3">
+                  <div className="grid gap-2.5">
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <p className="text-sm font-semibold text-slate-900">Avertissements thérapeutiques</p>
@@ -1424,7 +1424,7 @@ export default function AdminClinicalRules() {
                       </Button>
                     </div>
                     {form.warnings.map((text, index) => (
-                      <div key={`warn_${index}`} className="grid gap-3 lg:grid-cols-[1fr_auto]">
+                      <div key={`warn_${index}`} className="grid gap-2.5 lg:grid-cols-[1fr_auto]">
                         <Input
                           value={text}
                           onChange={e => updateWarning(index, e.target.value)}
@@ -1439,7 +1439,7 @@ export default function AdminClinicalRules() {
                 </div>
               </section>
 
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
                 <div className="text-sm text-slate-500">
                   {editingId ? 'Modification d’une règle existante.' : 'Nouvelle règle sauvegardée de façon dynamique.'}
                 </div>
@@ -1454,18 +1454,18 @@ export default function AdminClinicalRules() {
             )}
 
             {editorTab === 'explainability' && (
-              <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
+              <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_320px]">
                 <Card className="border-[var(--color-border)] p-4 shadow-sm">
-                  <div className="space-y-4">
+                  <div className="space-y-3.5">
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Lecture clinique</p>
-                      <h4 className="mt-1 text-lg font-semibold text-slate-950">{form.name || 'Règle sans nom'}</h4>
+                      <h4 className="mt-1 text-base font-semibold text-slate-950">{form.name || 'Règle sans nom'}</h4>
                       <p className="mt-2 text-sm text-slate-600">
                         {form.description || 'Ajoutez une description clinique pour expliquer l’intention de la règle.'}
                       </p>
                     </div>
 
-                    <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="grid gap-2.5 sm:grid-cols-2">
                       <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-3">
                         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Conditions</p>
                         <p className="mt-2 text-sm text-slate-700">{summarizeDraftConditions(form)}</p>
@@ -1489,12 +1489,12 @@ export default function AdminClinicalRules() {
                 </Card>
 
                 <Card className="border-[var(--color-border)] p-4 shadow-sm">
-                  <div className="space-y-4">
+                  <div className="space-y-3.5">
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Structure canonique</p>
                       <p className="mt-1 text-sm text-slate-600">Aperçu de la règle normalisée qui sera envoyée au moteur.</p>
                     </div>
-                    <pre className="max-h-[38rem] overflow-auto rounded-2xl border border-[var(--color-border)] bg-slate-950 p-4 text-xs leading-6 text-slate-100">
+                    <pre className="overflow-x-auto rounded-2xl border border-[var(--color-border)] bg-slate-950 p-4 text-xs leading-6 text-slate-100">
 {JSON.stringify(buildPayload(), null, 2)}
                     </pre>
                   </div>
@@ -1503,15 +1503,15 @@ export default function AdminClinicalRules() {
             )}
 
             {editorTab === 'simulation' && (
-              <div className="grid gap-4 xl:grid-cols-[340px_minmax(0,1fr)]">
+              <div className="grid gap-3 xl:grid-cols-[320px_minmax(0,1fr)]">
                 <Card className="border-[var(--color-border)] p-4 shadow-sm">
-                  <div className="space-y-4">
+                  <div className="space-y-3.5">
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Patient de test</p>
                       <p className="mt-1 text-sm text-slate-600">Réglez quelques paramètres cliniques, puis lancez l’évaluation sur le moteur actuel.</p>
                     </div>
 
-                    <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="grid gap-2.5 sm:grid-cols-2">
                       <div>
                         <Label>Âge</Label>
                         <Input value={simulationForm.age} onChange={e => setSimulationForm(form => ({ ...form, age: e.target.value }))} />
@@ -1592,7 +1592,7 @@ export default function AdminClinicalRules() {
                   </div>
                 </Card>
 
-                <div className="space-y-4">
+                <div className="space-y-3.5">
                   {simulationError && (
                     <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-destructive)]/10 px-4 py-3 text-sm text-[var(--color-destructive-foreground)]">
                       {simulationError}
@@ -1603,7 +1603,7 @@ export default function AdminClinicalRules() {
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Résultat</p>
-                        <h4 className="mt-1 text-lg font-semibold text-slate-950">Aperçu clinique</h4>
+                        <h4 className="mt-1 text-base font-semibold text-slate-950">Aperçu clinique</h4>
                       </div>
                       {simulationResult?.urgency_level && (
                         <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-1 text-xs font-semibold text-[var(--color-muted-foreground)]">
@@ -1613,8 +1613,8 @@ export default function AdminClinicalRules() {
                     </div>
 
                     {simulationResult ? (
-                      <div className="mt-4 space-y-4">
-                        <div className="grid gap-3 sm:grid-cols-3">
+                      <div className="mt-4 space-y-3.5">
+                        <div className="grid gap-2.5 sm:grid-cols-3">
                           <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-3">
                             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Score total</p>
                             <p className="mt-2 text-2xl font-semibold text-slate-950">{Number(simulationResult.total_risk_score || 0).toFixed(1)}</p>
@@ -1666,6 +1666,22 @@ export default function AdminClinicalRules() {
                   </Card>
                 </div>
               </div>
+            )}
+            {!showEditor && (
+              <Card className="border-[var(--color-border)] bg-white p-4 shadow-sm">
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Éditeur</p>
+                  <h3 className="text-base font-semibold text-slate-950">Aucune règle ouverte</h3>
+                  <p className="text-sm leading-6 text-slate-600">
+                    Ouvrez une règle existante ou créez-en une nouvelle pour afficher l’éditeur complet.
+                  </p>
+                  <div className="flex flex-wrap gap-2 pt-1 text-xs text-slate-500">
+                    <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-0.5">Édition</span>
+                    <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-0.5">Explicabilité</span>
+                    <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-0.5">Simulation</span>
+                  </div>
+                </div>
+              </Card>
             )}
           </Card>
         )}
