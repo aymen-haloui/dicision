@@ -1002,7 +1002,6 @@ export default function AdminClinicalRules() {
                         <span className="font-semibold">Outputs:</span> {buildOutputSummary(rule.outputs)}
                       </div>
                     </div>
-                    </div>
                     <div className="flex flex-wrap gap-2 text-xs text-slate-500">
                       <span>Créée le {formatDate(rule.created_at)}</span>
                       <span>{rule.enabled ? 'Activée' : 'Désactivée'}</span>
