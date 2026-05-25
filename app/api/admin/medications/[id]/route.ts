@@ -5,6 +5,27 @@ import postgres from 'postgres'
 
 const sql = postgres(process.env.DATABASE_URL!)
 
+function parseJsonField<T>(value: unknown, fallback: T): T {
+  if (value == null) return fallback
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value) as T
+    } catch {
+      return fallback
+    }
+  }
+  return value as T
+}
+
+function normalizeMedicationRow(row: any) {
+  return {
+    ...row,
+    contraindications: parseJsonField(row.contraindications, []),
+    toxicity_thresholds: parseJsonField(row.toxicity_thresholds, {}),
+    pharmacological_data: parseJsonField(row.pharmacological_data, {}),
+  }
+}
+
 // GET — fetch a single medication by id
 export async function GET(
   request: NextRequest,
@@ -30,7 +51,7 @@ export async function GET(
       return NextResponse.json({ error: 'Medicament introuvable' }, { status: 404 })
     }
 
-    return NextResponse.json(result[0])
+    return NextResponse.json(normalizeMedicationRow(result[0]))
   } catch (error: any) {
     return NextResponse.json({ error: 'Echec du chargement du medicament' }, { status: 500 })
   }
@@ -65,10 +86,10 @@ export async function PUT(
         warnings = ${warnings ?? null},
         max_daily_dose_adult = ${maxDailyDoseAdult ?? null},
         max_daily_dose_child = ${maxDailyDoseChild ?? null},
-        contraindications = ${JSON.stringify(contraindications ?? [])},
-        toxicity_thresholds = ${JSON.stringify(toxicityThresholds ?? {})},
+        contraindications = ${sql.json(contraindications ?? [])},
+        toxicity_thresholds = ${sql.json(toxicityThresholds ?? {})},
         overdose_management = ${overdoseManagement ?? null},
-        pharmacological_data = ${JSON.stringify(pharmacologicalData ?? {})}
+        pharmacological_data = ${sql.json(pharmacologicalData ?? {})}
       WHERE id = ${id}
       RETURNING *
     `
@@ -76,7 +97,7 @@ export async function PUT(
     if (result.length === 0) {
       return NextResponse.json({ error: 'Medicament introuvable' }, { status: 404 })
     }
-    return NextResponse.json(result[0])
+    return NextResponse.json(normalizeMedicationRow(result[0]))
   } catch (error: any) {
     return NextResponse.json({ error: 'Echec de la mise a jour du medicament' }, { status: 500 })
   }

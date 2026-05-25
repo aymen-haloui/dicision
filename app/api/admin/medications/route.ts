@@ -5,6 +5,27 @@ import postgres from 'postgres'
 
 const sql = postgres(process.env.DATABASE_URL!)
 
+function parseJsonField<T>(value: unknown, fallback: T): T {
+  if (value == null) return fallback
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value) as T
+    } catch {
+      return fallback
+    }
+  }
+  return value as T
+}
+
+function normalizeMedicationRow(row: any) {
+  return {
+    ...row,
+    contraindications: parseJsonField(row.contraindications, []),
+    toxicity_thresholds: parseJsonField(row.toxicity_thresholds, {}),
+    pharmacological_data: parseJsonField(row.pharmacological_data, {}),
+  }
+}
+
 // GET all medications (with full pharmacological data)
 export async function GET(request: NextRequest) {
   try {
@@ -21,7 +42,7 @@ export async function GET(request: NextRequest) {
       FROM medications
       ORDER BY name ASC
     `
-    return NextResponse.json(medications)
+    return NextResponse.json(medications.map(normalizeMedicationRow))
   } catch (error: any) {
     return NextResponse.json({ error: 'Echec du chargement des medicaments' }, { status: 500 })
   }
@@ -55,12 +76,12 @@ export async function POST(request: NextRequest) {
         ${name}, ${genericName ?? null}, ${category ?? null}, ${dosageForm ?? null},
         ${defaultDosage ?? null}, ${warnings ?? null},
         ${maxDailyDoseAdult ?? null}, ${maxDailyDoseChild ?? null},
-        ${JSON.stringify(contraindications ?? [])}, ${JSON.stringify(toxicityThresholds ?? {})},
-        ${overdoseManagement ?? null}, ${JSON.stringify(pharmacologicalData ?? {})}
+        ${sql.json(contraindications ?? [])}, ${sql.json(toxicityThresholds ?? {})},
+        ${overdoseManagement ?? null}, ${sql.json(pharmacologicalData ?? {})}
       )
       RETURNING *
     `
-    return NextResponse.json(result[0], { status: 201 })
+    return NextResponse.json(normalizeMedicationRow(result[0]), { status: 201 })
   } catch (error: any) {
     if (error.code === '23505') {
       return NextResponse.json({ error: 'Un medicament portant ce nom existe deja' }, { status: 409 })
