@@ -49,8 +49,8 @@ export default function AdminClinicalRulesPage() {
     <div className="min-h-screen bg-slate-50 p-8">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">Clinical Decision Rules Management</h1>
-          <p className="text-slate-600">Manage, test, and monitor clinical decision rules</p>
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">Gestion des règles décisionnelles cliniques</h1>
+          <p className="text-slate-600">Gérer, tester et surveiller les règles décisionnelles cliniques</p>
         </div>
 
         {message && (
@@ -64,26 +64,26 @@ export default function AdminClinicalRulesPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           {/* QUICK ACTIONS */}
           <Card>
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-              <CardDescription>Common operations</CardDescription>
-            </CardHeader>
+              <CardHeader>
+                <CardTitle>Actions rapides</CardTitle>
+                <CardDescription>Opérations courantes</CardDescription>
+              </CardHeader>
             <CardContent className="space-y-3">
               <Link href="/dashboard/admin/clinical-rules">
                 <Button className="w-full" variant="outline">
-                  View All Rules
+                  Voir toutes les règles
                 </Button>
               </Link>
               <Link href="/dashboard/admin/clinical-sandbox">
                 <Button className="w-full" variant="outline">
-                  Test Sandbox
+                  Bac d'essai
                 </Button>
               </Link>
               <Button onClick={handleSeed} disabled={seeding} className="w-full">
-                {seeding ? 'Seeding...' : '🌱 Seed Example Rules'}
+                {seeding ? "Initialisation en cours..." : '🌱 Charger des règles d\'exemple'}
               </Button>
               <Button onClick={handleTest} disabled={testing} className="w-full" variant="secondary">
-                {testing ? 'Testing...' : '🧪 Run Unit Tests'}
+                {testing ? 'Tests en cours...' : '🧪 Exécuter les tests unitaires'}
               </Button>
             </CardContent>
           </Card>
@@ -91,8 +91,8 @@ export default function AdminClinicalRulesPage() {
           {/* STATS */}
           <Card>
             <CardHeader>
-              <CardTitle>System Status</CardTitle>
-              <CardDescription>Engine information</CardDescription>
+              <CardTitle>État du système</CardTitle>
+              <CardDescription>Informations sur le moteur</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
@@ -100,15 +100,15 @@ export default function AdminClinicalRulesPage() {
                 <p className="text-lg font-semibold text-slate-900">1.0.0</p>
               </div>
               <div>
-                <p className="text-sm text-slate-600">Max Risk Score</p>
+                <p className="text-sm text-slate-600">Score de risque max</p>
                 <p className="text-lg font-semibold text-slate-900">100</p>
               </div>
               <div>
-                <p className="text-sm text-slate-600">Evaluation Timeout</p>
+                <p className="text-sm text-slate-600">Délai d'évaluation</p>
                 <p className="text-lg font-semibold text-slate-900">5000ms</p>
               </div>
               <div className="pt-4 border-t">
-                <p className="text-xs text-slate-500">Status: <span className="text-green-600 font-bold">Operational</span></p>
+                <p className="text-xs text-slate-500">Statut : <span className="text-green-600 font-bold">Opérationnel</span></p>
               </div>
             </CardContent>
           </Card>
@@ -118,7 +118,7 @@ export default function AdminClinicalRulesPage() {
         {testResult && (
           <Card className="mb-6">
             <CardHeader>
-              <CardTitle className="text-lg">Unit Test Results</CardTitle>
+              <CardTitle className="text-lg">Résultats des tests unitaires</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2 text-sm font-mono text-slate-700">
@@ -136,7 +136,7 @@ export default function AdminClinicalRulesPage() {
         {seedResult && (
           <Card className="mb-6">
             <CardHeader>
-              <CardTitle className="text-lg">Seeding Result</CardTitle>
+              <CardTitle className="text-lg">Résultat de l'initialisation</CardTitle>
             </CardHeader>
             <CardContent>
               <pre className="bg-slate-100 p-4 rounded text-sm overflow-auto">
@@ -149,25 +149,25 @@ export default function AdminClinicalRulesPage() {
         {/* FEATURE OVERVIEW */}
         <Card>
           <CardHeader>
-            <CardTitle>Feature Overview</CardTitle>
-            <CardDescription>What's available in this system</CardDescription>
+            <CardTitle>Aperçu des fonctionnalités</CardTitle>
+            <CardDescription>Fonctionnalités disponibles dans ce système</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <h4 className="font-semibold text-slate-900 mb-2">Core Features</h4>
+              <h4 className="font-semibold text-slate-900 mb-2">Fonctionnalités principales</h4>
               <ul className="space-y-2 text-sm text-slate-700">
-                <li>✅ Centralized medical rule engine</li>
-                <li>✅ Configurable rule priorities (0-100)</li>
-                <li>✅ Risk score aggregation by category</li>
-                <li>✅ Automatic urgency escalation</li>
-                <li>✅ Audit trail for all rule triggers</li>
-                <li>✅ Comprehensive rule validation</li>
-                <li>✅ Sandbox for hypothesis testing</li>
+                <li>✅ Moteur de règles médicales centralisé</li>
+                <li>✅ Priorités de règles configurables (0-100)</li>
+                <li>✅ Agrégation du score de risque par catégorie</li>
+                <li>✅ Escalade automatique de l'urgence</li>
+                <li>✅ Traçabilité (audit) de tous les déclenchements de règles</li>
+                <li>✅ Validation complète des règles</li>
+                <li>✅ Bac d'essai pour tests d'hypothèses</li>
               </ul>
             </div>
 
             <div className="pt-4 border-t">
-              <h4 className="font-semibold text-slate-900 mb-2">Available APIs</h4>
+              <h4 className="font-semibold text-slate-900 mb-2">APIs disponibles</h4>
               <ul className="space-y-1 text-sm text-slate-600 font-mono">
                 <li>POST /api/admin/clinical-rules - Create rule</li>
                 <li>GET /api/admin/clinical-rules - List all rules</li>

@@ -55,7 +55,7 @@ export default function ProfileForm({ initialUser }: { initialUser?: User }) {
         body: formData,
       })
       
-      if (!res.ok) throw new Error('Upload failed')
+      if (!res.ok) throw new Error("Échec de l'envoi")
       
       toast({ title: 'Photo mise à jour', description: 'Votre image de profil a été changée.' })
       setImageFile(null)
@@ -82,7 +82,7 @@ export default function ProfileForm({ initialUser }: { initialUser?: User }) {
           specialization,
         }),
       })
-      if (!res.ok) throw new Error('Save failed')
+      if (!res.ok) throw new Error("Échec de l'enregistrement")
       
       toast({ title: 'Profil mis à jour', description: 'Vos informations ont été enregistrées.' })
       setSuccessMessage('Profil mis à jour')

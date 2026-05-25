@@ -88,8 +88,8 @@ export default function ClinicalSandboxPage() {
     <div className="min-h-screen bg-slate-50 p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">Clinical Decision Sandbox</h1>
-          <p className="text-slate-600">Test clinical rules against patient scenarios</p>
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">Bac d'essai décisionnel clinique</h1>
+          <p className="text-slate-600">Tester les règles cliniques sur des scénarios patients</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -97,16 +97,16 @@ export default function ClinicalSandboxPage() {
           <div className="lg:col-span-1">
             <Card className="sticky top-8">
               <CardHeader>
-                <CardTitle className="text-lg">Patient Data</CardTitle>
+                <CardTitle className="text-lg">Données du patient</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Age</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Âge</label>
                   <input
                     type="number"
                     value={patient.patient.age ?? ''}
                     title="Age du patient"
-                    placeholder="Age"
+                    placeholder="Âge"
                     onChange={(e) =>
                       setPatient({
                         ...patient,
@@ -173,11 +173,11 @@ export default function ClinicalSandboxPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">Medications</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">Médicaments</label>
                   <div className="space-y-2 text-sm">
                     {patient.medications.map((med, i) => (
                       <div key={i} className="flex items-center">
-                        <input type="checkbox" defaultChecked title={`Select medication ${med.name}`} className="mr-2" />
+                        <input type="checkbox" defaultChecked title={`Sélectionner le médicament ${med.name}`} className="mr-2" />
                         <span className="text-slate-700">{med.name}</span>
                       </div>
                     ))}
@@ -185,7 +185,7 @@ export default function ClinicalSandboxPage() {
                 </div>
 
                 <Button onClick={simulate} disabled={loading} className="w-full">
-                  {loading ? 'Evaluating...' : 'Evaluate Rules'}
+                  {loading ? "Évaluation en cours..." : "Évaluer les règles"}
                 </Button>
               </CardContent>
             </Card>
@@ -200,7 +200,7 @@ export default function ClinicalSandboxPage() {
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <div>
-                        <CardTitle>Evaluation Result</CardTitle>
+                        <CardTitle>Résultat de l'évaluation</CardTitle>
                         <p className="text-sm text-slate-600 mt-1">{result.summary}</p>
                       </div>
                       <div className="text-right">
@@ -208,7 +208,7 @@ export default function ClinicalSandboxPage() {
                           {result.urgency_level}
                         </div>
                         <p className="text-3xl font-bold text-slate-900 mt-2">{result.total_risk_score.toFixed(1)}</p>
-                        <p className="text-xs text-slate-600">Risk Score</p>
+                        <p className="text-xs text-slate-600">Score de risque</p>
                       </div>
                     </div>
                   </CardHeader>
@@ -217,7 +217,7 @@ export default function ClinicalSandboxPage() {
                 {/* RISK SCORES BREAKDOWN */}
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-base">Risk Score Breakdown</CardTitle>
+                    <CardTitle className="text-base">Détail du score de risque</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
