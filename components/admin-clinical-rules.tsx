@@ -423,99 +423,6 @@ function buildOutputSummary(outputs: any): string {
   return parts.join(' · ') || 'Aucun output defini'
 }
 
-type EditorTab = 'builder' | 'explainability' | 'simulation'
-
-type SimulationContextForm = {
-  age: string
-  weight: string
-  gender: string
-  potassium: string
-  eGFR: string
-  spo2: string
-  medications: string
-  conditions: string
-  symptoms: string
-  allergies: string
-}
-
-function makeEmptySimulationContextForm(): SimulationContextForm {
-  return {
-    age: '72',
-    weight: '85',
-    gender: 'M',
-    potassium: '6.8',
-    eGFR: '25',
-    spo2: '88',
-    medications: 'Warfarin\nIbuprofen\nMetformin',
-    conditions: 'diabetes\nhypertension',
-    symptoms: 'dizziness\nshortness_of_breath',
-    allergies: '',
-  }
-}
-
-function splitLines(value: string) {
-  return value
-    .split('\n')
-    .map(line => line.trim())
-    .filter(Boolean)
-}
-
-function buildSimulationContext(form: SimulationContextForm) {
-  return {
-    patient: {
-      id: 'editor-preview',
-      name: 'Preview Patient',
-      age: parseNumber(form.age),
-      weight: parseNumber(form.weight),
-      gender: form.gender,
-    },
-    labs: {
-      potassium: { name: 'potassium', value: parseNumber(form.potassium), unit: 'mEq/L', timestamp: new Date() },
-      eGFR: { name: 'eGFR', value: parseNumber(form.eGFR), unit: 'mL/min', timestamp: new Date() },
-    },
-    vitals: {
-      heart_rate: 110,
-      spo2: parseNumber(form.spo2),
-      heartRate: 110,
-      blood_pressure_systolic: 160,
-      blood_pressure_diastolic: 95,
-      bloodPressure: { systolic: 160, diastolic: 95 },
-      temperature: 37.2,
-    },
-    medications: splitLines(form.medications).map((name, index) => ({
-      id: `med-${index + 1}`,
-      name,
-      category: 'UNKNOWN',
-      dose: '',
-      dosage: '',
-      frequency: '',
-      route: 'oral',
-    })),
-    symptoms: splitLines(form.symptoms),
-    allergies: splitLines(form.allergies),
-    conditions: splitLines(form.conditions),
-    timestamp: new Date(),
-  }
-}
-
-function summarizeDraftConditions(form: ClinicalRuleForm) {
-  if (!form.conditions.length) return 'Aucune condition définie'
-  return form.conditions
-    .map(condition => `${condition.conditionType} ${condition.field || getDefaultField(condition.conditionType)} ${condition.operator} ${condition.value || '…'}`)
-    .join(form.conditionJoin === 'any' ? ' OU ' : ' ET ')
-}
-
-function summarizeDraftOutputs(form: ClinicalRuleForm) {
-  const parts: string[] = []
-  parts.push(`Urgence ${form.urgency}`)
-  parts.push(`${form.riskScores.filter(item => item.name.trim()).length} score(s)`)
-  parts.push(`${form.alerts.filter(item => item.message.trim()).length} alerte(s)`)
-  parts.push(`${form.contraindications.filter(item => item.medication.trim() || item.reason.trim()).length} contre-indication(s)`)
-  parts.push(`${form.recommendations.filter(Boolean).length} recommandation(s)`)
-  parts.push(`${form.warnings.filter(Boolean).length} avertissement(s)`)
-  return parts.join(' · ')
-}
-
 export default function AdminClinicalRules() {
   const [rules, setRules] = useState<ClinicalRule[]>([])
   const [loading, setLoading] = useState(true)
@@ -529,11 +436,6 @@ export default function AdminClinicalRules() {
   const [form, setForm] = useState<ClinicalRuleForm>(makeEmptyRuleForm())
   const [editingId, setEditingId] = useState<string | null>(null)
   const [showEditor, setShowEditor] = useState(false)
-  const [editorTab, setEditorTab] = useState<EditorTab>('builder')
-  const [simulationForm, setSimulationForm] = useState<SimulationContextForm>(makeEmptySimulationContextForm())
-  const [simulationResult, setSimulationResult] = useState<any>(null)
-  const [simulationLoading, setSimulationLoading] = useState(false)
-  const [simulationError, setSimulationError] = useState('')
 
   useEffect(() => {
     loadRules()
@@ -557,7 +459,6 @@ export default function AdminClinicalRules() {
     setForm(makeEmptyRuleForm())
     setEditingId(null)
     setShowEditor(false)
-    setEditorTab('builder')
     setError('')
   }
 
@@ -601,32 +502,7 @@ export default function AdminClinicalRules() {
     })
     setEditingId(rule.id)
     setShowEditor(true)
-    setEditorTab('builder')
     setError('')
-  }
-
-  async function runSimulation() {
-    setSimulationLoading(true)
-    setSimulationError('')
-    try {
-      const response = await fetch('/api/admin/clinical-rules/simulate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ patient: buildSimulationContext(simulationForm) }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data?.error || 'Simulation impossible')
-      }
-
-      setSimulationResult(data)
-    } catch (err: any) {
-      setSimulationError(err.message || 'Simulation impossible')
-    } finally {
-      setSimulationLoading(false)
-    }
   }
 
   function updateCondition(id: string, data: Partial<RuleCondition>) {
@@ -1060,81 +936,35 @@ export default function AdminClinicalRules() {
                 </button>
               </div>
 
-              <div className="flex flex-wrap gap-2">
-                {[
-                  { id: 'builder', label: 'Éditeur' },
-                  { id: 'explainability', label: 'Explicabilité' },
-                  { id: 'simulation', label: 'Simulation' },
-                ].map(tab => (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => setEditorTab(tab.id as EditorTab)}
-                    className={`rounded-full border px-3 py-1 text-[11px] font-semibold transition ${editorTab === tab.id ? 'border-teal-300 bg-teal-50 text-teal-700' : 'border-[var(--color-border)] bg-white text-[var(--color-muted-foreground)] hover:border-slate-300 hover:text-slate-900'}`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
             </div>
 
-            {editorTab === 'builder' && (
             <form onSubmit={saveRule} className="space-y-3">
               <div className="grid gap-3 lg:grid-cols-2">
                 <div>
                   <Label htmlFor="rule-name">Nom de la règle</Label>
-                  <Input
-                    id="rule-name"
-                    value={form.name}
-                    onChange={e => setForm(form => ({ ...form, name: e.target.value }))}
-                    required
-                  />
+                  <Input id="rule-name" value={form.name} onChange={e => setForm(form => ({ ...form, name: e.target.value }))} required />
                 </div>
                 <div>
                   <Label htmlFor="rule-category">Catégorie</Label>
-                  <select
-                    id="rule-category"
-                    value={form.category}
-                    onChange={e => setForm(form => ({ ...form, category: e.target.value }))}
-                    title="Catégorie de la règle"
-                    className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
-                  >
+                  <select id="rule-category" value={form.category} onChange={e => setForm(form => ({ ...form, category: e.target.value }))} title="Catégorie de la règle" className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">
                     {CATEGORY_OPTIONS.map(option => <option key={option} value={option}>{option}</option>)}
                   </select>
                 </div>
                 <div>
                   <Label htmlFor="rule-severity">Sévérité</Label>
-                  <select
-                    id="rule-severity"
-                    value={form.severity}
-                    onChange={e => setForm(form => ({ ...form, severity: e.target.value as SeverityLevel }))}
-                    title="Sévérité de la règle"
-                    className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
-                  >
+                  <select id="rule-severity" value={form.severity} onChange={e => setForm(form => ({ ...form, severity: e.target.value as SeverityLevel }))} title="Sévérité de la règle" className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">
                     {SEVERITY_OPTIONS.map(option => <option key={option} value={option}>{option}</option>)}
                   </select>
                 </div>
                 <div>
                   <Label htmlFor="rule-trigger">Type de déclencheur</Label>
-                  <select
-                    id="rule-trigger"
-                    value={form.triggerType}
-                    onChange={e => setForm(form => ({ ...form, triggerType: e.target.value }))}
-                    title="Type de déclencheur"
-                    className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
-                  >
+                  <select id="rule-trigger" value={form.triggerType} onChange={e => setForm(form => ({ ...form, triggerType: e.target.value }))} title="Type de déclencheur" className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">
                     {TRIGGER_TYPES.map(option => <option key={option} value={option}>{option}</option>)}
                   </select>
                 </div>
                 <div>
                   <Label htmlFor="rule-status">Statut</Label>
-                  <select
-                    id="rule-status"
-                    value={form.enabled ? 'enabled' : 'disabled'}
-                    onChange={e => setForm(form => ({ ...form, enabled: e.target.value === 'enabled' }))}
-                    title="Statut de la règle"
-                    className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
-                  >
+                  <select id="rule-status" value={form.enabled ? 'enabled' : 'disabled'} onChange={e => setForm(form => ({ ...form, enabled: e.target.value === 'enabled' }))} title="Statut de la règle" className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">
                     <option value="enabled">Activée</option>
                     <option value="disabled">Désactivée</option>
                   </select>
@@ -1143,14 +973,7 @@ export default function AdminClinicalRules() {
 
               <div>
                 <Label htmlFor="rule-description">Description</Label>
-                <textarea
-                  id="rule-description"
-                  value={form.description}
-                  onChange={e => setForm(form => ({ ...form, description: e.target.value }))}
-                  rows={2}
-                  placeholder="Décrivez le comportement clinique de la règle"
-                  className="min-h-[84px] w-full rounded-lg border border-[var(--color-border)] bg-white px-3 py-2 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
-                />
+                <textarea id="rule-description" value={form.description} onChange={e => setForm(form => ({ ...form, description: e.target.value }))} rows={2} placeholder="Décrivez le comportement clinique de la règle" className="min-h-[84px] w-full rounded-lg border border-[var(--color-border)] bg-white px-3 py-2 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0" />
               </div>
 
               <section className="space-y-2.5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-3">
@@ -1161,12 +984,7 @@ export default function AdminClinicalRules() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs uppercase tracking-[0.18em] text-slate-500">Combinaison</span>
-                    <select
-                      value={form.conditionJoin}
-                      onChange={e => setForm(form => ({ ...form, conditionJoin: e.target.value as 'all' | 'any' }))}
-                      title="Mode de combinaison des conditions"
-                      className="rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
-                    >
+                    <select value={form.conditionJoin} onChange={e => setForm(form => ({ ...form, conditionJoin: e.target.value as 'all' | 'any' }))} title="Mode de combinaison des conditions" className="rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">
                       <option value="all">ET</option>
                       <option value="any">OU</option>
                     </select>
@@ -1179,77 +997,29 @@ export default function AdminClinicalRules() {
                       <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
                         <div className="min-w-0">
                           <Label>Type</Label>
-                          <select
-                            value={condition.conditionType}
-                            onChange={e => {
-                              const nextType = e.target.value as ConditionType
-                              updateCondition(condition.id, {
-                                conditionType: nextType,
-                                field: getDefaultField(nextType),
-                                operator: getOperatorOptions(getFieldOption(nextType, getDefaultField(nextType))?.dataType)[0],
-                              })
-                            }}
-                            title="Type de condition"
-                            className="w-full h-9 rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
-                          >
+                          <select value={condition.conditionType} onChange={e => { const nextType = e.target.value as ConditionType; updateCondition(condition.id, { conditionType: nextType, field: getDefaultField(nextType), operator: getOperatorOptions(getFieldOption(nextType, getDefaultField(nextType))?.dataType)[0] }) }} title="Type de condition" className="w-full h-9 rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">
                             {CONDITION_TYPES.map(option => <option key={option} value={option}>{option}</option>)}
                           </select>
                         </div>
-
                         <div className="min-w-0">
                           <Label>Champ ciblé</Label>
-                          <select
-                            value={condition.field || getDefaultField(condition.conditionType)}
-                            onChange={e => {
-                              const nextField = e.target.value
-                              const nextFieldOption = getFieldOption(condition.conditionType, nextField)
-                              updateCondition(condition.id, {
-                                field: nextField,
-                                operator: getOperatorOptions(nextFieldOption?.dataType)[0],
-                              })
-                            }}
-                            title="Champ clinique"
-                            className="w-full h-9 rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
-                          >
+                          <select value={condition.field || getDefaultField(condition.conditionType)} onChange={e => { const nextField = e.target.value; const nextFieldOption = getFieldOption(condition.conditionType, nextField); updateCondition(condition.id, { field: nextField, operator: getOperatorOptions(nextFieldOption?.dataType)[0] }) }} title="Champ clinique" className="w-full h-9 rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">
                             {getFieldGroups(condition.conditionType).map(group => (
                               <optgroup key={group.label} label={group.label}>
-                                {group.options.map(option => (
-                                  <option key={option.value} value={option.value}>{option.label}</option>
-                                ))}
+                                {group.options.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
                               </optgroup>
                             ))}
                           </select>
                         </div>
-
                         <div className="min-w-0">
                           <Label>Opérateur</Label>
-                          {(() => {
-                            const fieldOption = getFieldOption(condition.conditionType, condition.field || getDefaultField(condition.conditionType))
-                            const operatorOptions = getOperatorOptions(fieldOption?.dataType)
-                            return (
-                          <select
-                            value={condition.operator}
-                            onChange={e => updateCondition(condition.id, { operator: e.target.value as Operator })}
-                            title="Opérateur de comparaison"
-                            className="w-full h-9 rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
-                          >
-                            {operatorOptions.map(option => <option key={option} value={option}>{option}</option>)}
-                          </select>
-                            )
-                          })()}
+                          {(() => { const fieldOption = getFieldOption(condition.conditionType, condition.field || getDefaultField(condition.conditionType)); const operatorOptions = getOperatorOptions(fieldOption?.dataType); return (<select value={condition.operator} onChange={e => updateCondition(condition.id, { operator: e.target.value as Operator })} title="Opérateur de comparaison" className="w-full h-9 rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">{operatorOptions.map(option => <option key={option} value={option}>{option}</option>)}</select>) })()}
                         </div>
-
                         <div className="min-w-0">
                           <Label>Valeur</Label>
-                          <Input
-                            value={condition.value}
-                            onChange={e => updateCondition(condition.id, { value: e.target.value })}
-                            placeholder="ex. Metformin"
-                            className="h-9"
-                          />
+                          <Input value={condition.value} onChange={e => updateCondition(condition.id, { value: e.target.value })} placeholder="ex. Metformin" className="h-9" />
                         </div>
                       </div>
-
                       <div className="flex items-start lg:items-start gap-2 mt-2 lg:mt-0">
                         <Button type="button" variant="outline" size="sm" onClick={() => removeCondition(condition.id)} className="h-9 w-9 p-0 flex items-center justify-center">
                           <Trash2 className="h-4 w-4" />
@@ -1278,12 +1048,7 @@ export default function AdminClinicalRules() {
                 <div className="grid gap-3 lg:grid-cols-2">
                   <div>
                     <Label>Urgence globale</Label>
-                    <select
-                      value={form.urgency}
-                      onChange={e => setForm(form => ({ ...form, urgency: e.target.value as SeverityLevel }))}
-                      title="Urgence globale"
-                      className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
-                    >
+                    <select value={form.urgency} onChange={e => setForm(form => ({ ...form, urgency: e.target.value as SeverityLevel }))} title="Urgence globale" className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">
                       {SEVERITY_OPTIONS.map(option => <option key={option} value={option}>{option}</option>)}
                     </select>
                   </div>
@@ -1292,16 +1057,8 @@ export default function AdminClinicalRules() {
                     <div className="space-y-2.5">
                       {form.riskScores.map(score => (
                         <div key={score.id} className="grid gap-2.5 sm:grid-cols-[1fr_96px_auto]">
-                          <Input
-                            value={score.name}
-                            onChange={e => updateRiskScore(score.id, { name: e.target.value })}
-                            placeholder="renal_risk"
-                          />
-                          <Input
-                            value={score.value}
-                            onChange={e => updateRiskScore(score.id, { value: e.target.value })}
-                            placeholder="20"
-                          />
+                          <Input value={score.name} onChange={e => updateRiskScore(score.id, { name: e.target.value })} placeholder="renal_risk" />
+                          <Input value={score.value} onChange={e => updateRiskScore(score.id, { value: e.target.value })} placeholder="20" />
                           <Button type="button" variant="outline" size="sm" onClick={() => removeRiskScore(score.id)}>
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -1327,24 +1084,11 @@ export default function AdminClinicalRules() {
                     </div>
                     {form.alerts.map(alert => (
                       <div key={alert.id} className="grid gap-2.5 lg:grid-cols-[140px_120px_1fr_auto]">
-                        <Input
-                          value={alert.type}
-                          onChange={e => updateAlert(alert.id, { type: e.target.value })}
-                          placeholder="type"
-                        />
-                        <select
-                          value={alert.severity}
-                          onChange={e => updateAlert(alert.id, { severity: e.target.value as SeverityLevel })}
-                          title="Sévérité de l'alerte"
-                          className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
-                        >
+                        <Input value={alert.type} onChange={e => updateAlert(alert.id, { type: e.target.value })} placeholder="type" />
+                        <select value={alert.severity} onChange={e => updateAlert(alert.id, { severity: e.target.value as SeverityLevel })} title="Sévérité de l'alerte" className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">
                           {SEVERITY_OPTIONS.map(option => <option key={option} value={option}>{option}</option>)}
                         </select>
-                        <Input
-                          value={alert.message}
-                          onChange={e => updateAlert(alert.id, { message: e.target.value })}
-                          placeholder="Message d'alerte"
-                        />
+                        <Input value={alert.message} onChange={e => updateAlert(alert.id, { message: e.target.value })} placeholder="Message d'alerte" />
                         <Button type="button" variant="outline" size="sm" onClick={() => removeAlert(alert.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -1364,22 +1108,9 @@ export default function AdminClinicalRules() {
                     </div>
                     {form.contraindications.map(ci => (
                       <div key={ci.id} className="grid gap-2.5 lg:grid-cols-[1fr_1fr_140px_auto]">
-                        <Input
-                          value={ci.medication}
-                          onChange={e => updateContraindication(ci.id, { medication: e.target.value })}
-                          placeholder="Médicament"
-                        />
-                        <Input
-                          value={ci.reason}
-                          onChange={e => updateContraindication(ci.id, { reason: e.target.value })}
-                          placeholder="Raison"
-                        />
-                        <select
-                          value={ci.severity}
-                          onChange={e => updateContraindication(ci.id, { severity: e.target.value as SeverityLevel })}
-                          title="Sévérité de la contre-indication"
-                          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
-                        >
+                        <Input value={ci.medication} onChange={e => updateContraindication(ci.id, { medication: e.target.value })} placeholder="Médicament" />
+                        <Input value={ci.reason} onChange={e => updateContraindication(ci.id, { reason: e.target.value })} placeholder="Raison" />
+                        <select value={ci.severity} onChange={e => updateContraindication(ci.id, { severity: e.target.value as SeverityLevel })} title="Sévérité de la contre-indication" className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20">
                           {SEVERITY_OPTIONS.map(option => <option key={option} value={option}>{option}</option>)}
                         </select>
                         <Button type="button" variant="outline" size="sm" onClick={() => removeContraindication(ci.id)}>
@@ -1401,11 +1132,7 @@ export default function AdminClinicalRules() {
                     </div>
                     {form.recommendations.map((rec, index) => (
                       <div key={`rec_${index}`} className="grid gap-2.5 lg:grid-cols-[1fr_auto]">
-                        <Input
-                          value={rec}
-                          onChange={e => updateRecommendation(index, e.target.value)}
-                          placeholder="Recommandation clinique"
-                        />
+                        <Input value={rec} onChange={e => updateRecommendation(index, e.target.value)} placeholder="Recommandation clinique" />
                         <Button type="button" variant="outline" size="sm" onClick={() => removeRecommendation(index)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -1425,11 +1152,7 @@ export default function AdminClinicalRules() {
                     </div>
                     {form.warnings.map((text, index) => (
                       <div key={`warn_${index}`} className="grid gap-2.5 lg:grid-cols-[1fr_auto]">
-                        <Input
-                          value={text}
-                          onChange={e => updateWarning(index, e.target.value)}
-                          placeholder="Avertissement thérapeutique"
-                        />
+                        <Input value={text} onChange={e => updateWarning(index, e.target.value)} placeholder="Avertissement thérapeutique" />
                         <Button type="button" variant="outline" size="sm" onClick={() => removeWarning(index)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -1444,245 +1167,11 @@ export default function AdminClinicalRules() {
                   {editingId ? 'Modification d’une règle existante.' : 'Nouvelle règle sauvegardée de façon dynamique.'}
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <Button type="submit" disabled={saving}>
-                    {saving ? 'Enregistrement...' : editingId ? 'Mettre à jour la règle' : 'Créer la règle'}
-                  </Button>
+                  <Button type="submit" disabled={saving}>{saving ? 'Enregistrement...' : editingId ? 'Mettre à jour la règle' : 'Créer la règle'}</Button>
                   <Button type="button" variant="outline" onClick={resetForm}>Annuler</Button>
                 </div>
               </div>
             </form>
-            )}
-
-            {editorTab === 'explainability' && (
-              <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_320px]">
-                <Card className="border-[var(--color-border)] p-4 shadow-sm">
-                  <div className="space-y-3.5">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Lecture clinique</p>
-                      <h4 className="mt-1 text-base font-semibold text-slate-950">{form.name || 'Règle sans nom'}</h4>
-                      <p className="mt-2 text-sm text-slate-600">
-                        {form.description || 'Ajoutez une description clinique pour expliquer l’intention de la règle.'}
-                      </p>
-                    </div>
-
-                    <div className="grid gap-2.5 sm:grid-cols-2">
-                      <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-3">
-                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Conditions</p>
-                        <p className="mt-2 text-sm text-slate-700">{summarizeDraftConditions(form)}</p>
-                      </div>
-                      <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-3">
-                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Sorties</p>
-                        <p className="mt-2 text-sm text-slate-700">{summarizeDraftOutputs(form)}</p>
-                      </div>
-                    </div>
-
-                    <div className="rounded-2xl border border-teal-200 bg-teal-50 p-4">
-                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-teal-700">Lecture rapide</p>
-                      <div className="mt-3 grid gap-2 text-sm text-teal-950 sm:grid-cols-2">
-                        <div>Combinaison: {form.conditionJoin === 'any' ? 'OU logique' : 'ET logique'}</div>
-                        <div>{form.conditions.length} condition(s)</div>
-                        <div>{form.alerts.filter(item => item.message.trim()).length} alerte(s)</div>
-                        <div>{form.warnings.filter(Boolean).length} avertissement(s)</div>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-
-                <Card className="border-[var(--color-border)] p-4 shadow-sm">
-                  <div className="space-y-3.5">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Structure canonique</p>
-                      <p className="mt-1 text-sm text-slate-600">Aperçu de la règle normalisée qui sera envoyée au moteur.</p>
-                    </div>
-                    <pre className="overflow-x-auto rounded-2xl border border-[var(--color-border)] bg-slate-950 p-4 text-xs leading-6 text-slate-100">
-{JSON.stringify(buildPayload(), null, 2)}
-                    </pre>
-                  </div>
-                </Card>
-              </div>
-            )}
-
-            {editorTab === 'simulation' && (
-              <div className="grid gap-3 xl:grid-cols-[320px_minmax(0,1fr)]">
-                <Card className="border-[var(--color-border)] p-4 shadow-sm">
-                  <div className="space-y-3.5">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Patient de test</p>
-                      <p className="mt-1 text-sm text-slate-600">Réglez quelques paramètres cliniques, puis lancez l’évaluation sur le moteur actuel.</p>
-                    </div>
-
-                    <div className="grid gap-2.5 sm:grid-cols-2">
-                      <div>
-                        <Label>Âge</Label>
-                        <Input value={simulationForm.age} onChange={e => setSimulationForm(form => ({ ...form, age: e.target.value }))} />
-                      </div>
-                      <div>
-                        <Label>Poids</Label>
-                        <Input value={simulationForm.weight} onChange={e => setSimulationForm(form => ({ ...form, weight: e.target.value }))} />
-                      </div>
-                      <div>
-                        <Label>Genre</Label>
-                        <Input value={simulationForm.gender} onChange={e => setSimulationForm(form => ({ ...form, gender: e.target.value }))} />
-                      </div>
-                      <div>
-                        <Label>SpO2</Label>
-                        <Input value={simulationForm.spo2} onChange={e => setSimulationForm(form => ({ ...form, spo2: e.target.value }))} />
-                      </div>
-                      <div>
-                        <Label>Potassium</Label>
-                        <Input value={simulationForm.potassium} onChange={e => setSimulationForm(form => ({ ...form, potassium: e.target.value }))} />
-                      </div>
-                      <div>
-                        <Label>eGFR</Label>
-                        <Input value={simulationForm.eGFR} onChange={e => setSimulationForm(form => ({ ...form, eGFR: e.target.value }))} />
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label>Médicaments</Label>
-                      <textarea
-                        value={simulationForm.medications}
-                        onChange={e => setSimulationForm(form => ({ ...form, medications: e.target.value }))}
-                        rows={4}
-                        title="Médicaments de simulation"
-                        placeholder="Warfarin\nIbuprofen\nMetformin"
-                        className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
-                      />
-                    </div>
-
-                    <div>
-                      <Label>Conditions</Label>
-                      <textarea
-                        value={simulationForm.conditions}
-                        onChange={e => setSimulationForm(form => ({ ...form, conditions: e.target.value }))}
-                        rows={3}
-                        title="Conditions de simulation"
-                        placeholder="diabetes\nhypertension"
-                        className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
-                      />
-                    </div>
-
-                    <div>
-                      <Label>Symptômes</Label>
-                      <textarea
-                        value={simulationForm.symptoms}
-                        onChange={e => setSimulationForm(form => ({ ...form, symptoms: e.target.value }))}
-                        rows={3}
-                        title="Symptômes de simulation"
-                        placeholder="dizziness\nshortness_of_breath"
-                        className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
-                      />
-                    </div>
-
-                    <div>
-                      <Label>Allergies</Label>
-                      <textarea
-                        value={simulationForm.allergies}
-                        onChange={e => setSimulationForm(form => ({ ...form, allergies: e.target.value }))}
-                        rows={2}
-                        title="Allergies de simulation"
-                        placeholder="penicillin"
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
-                      />
-                    </div>
-
-                    <Button type="button" onClick={runSimulation} disabled={simulationLoading} className="w-full">
-                      {simulationLoading ? 'Évaluation...' : 'Lancer la simulation'}
-                    </Button>
-                  </div>
-                </Card>
-
-                <div className="space-y-3.5">
-                  {simulationError && (
-                    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-destructive)]/10 px-4 py-3 text-sm text-[var(--color-destructive-foreground)]">
-                      {simulationError}
-                    </div>
-                  )}
-
-                  <Card className="border-slate-200/80 p-4 shadow-sm">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Résultat</p>
-                        <h4 className="mt-1 text-base font-semibold text-slate-950">Aperçu clinique</h4>
-                      </div>
-                      {simulationResult?.urgency_level && (
-                        <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-1 text-xs font-semibold text-[var(--color-muted-foreground)]">
-                          {simulationResult.urgency_level}
-                        </span>
-                      )}
-                    </div>
-
-                    {simulationResult ? (
-                      <div className="mt-4 space-y-3.5">
-                        <div className="grid gap-2.5 sm:grid-cols-3">
-                          <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-3">
-                            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Score total</p>
-                            <p className="mt-2 text-2xl font-semibold text-slate-950">{Number(simulationResult.total_risk_score || 0).toFixed(1)}</p>
-                          </div>
-                          <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-3">
-                            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Règles déclenchées</p>
-                            <p className="mt-2 text-2xl font-semibold text-slate-950">{simulationResult.triggered_rules?.length || 0}</p>
-                          </div>
-                          <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-3">
-                            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Résumé</p>
-                            <p className="mt-2 text-sm text-slate-700">{simulationResult.summary || 'Aucun résumé disponible'}</p>
-                          </div>
-                        </div>
-
-                        <div className="rounded-2xl border border-[var(--color-border)] bg-white p-3">
-                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Répartition du risque</p>
-                          <div className="mt-3 space-y-2 text-sm text-slate-700">
-                            {simulationResult.risk_scores ? Object.entries(simulationResult.risk_scores).map(([key, value]) => (
-                              <div key={key} className="flex items-center justify-between gap-3 rounded-lg bg-slate-50 px-3 py-2">
-                                <span className="capitalize">{key}</span>
-                                <span className="font-semibold text-slate-950">{Number(value).toFixed(1)}</span>
-                              </div>
-                            )) : <p className="text-slate-500">Aucun score disponible</p>}
-                          </div>
-                        </div>
-
-                        {simulationResult.triggered_rules?.length > 0 && (
-                          <div className="space-y-3">
-                            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Règles déclenchées</p>
-                            {simulationResult.triggered_rules.map((rule: any, index: number) => (
-                              <div key={`${rule.rule_name || 'rule'}-${index}`} className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-4">
-                                <div className="flex items-start justify-between gap-4">
-                                  <div>
-                                    <h5 className="font-semibold text-slate-950">{rule.rule_name}</h5>
-                                    <p className="mt-1 text-sm text-slate-600">{rule.explanation}</p>
-                                  </div>
-                                  <span className="rounded-full border border-[var(--color-border)] bg-white px-2 py-1 text-xs font-semibold text-[var(--color-muted-foreground)]">
-                                    {rule.priority}
-                                  </span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <p className="mt-4 text-sm text-slate-500">Aucun test n’a encore été lancé.</p>
-                    )}
-                  </Card>
-                </div>
-              </div>
-            )}
-            {!showEditor && (
-              <Card className="border-[var(--color-border)] bg-white p-4 shadow-sm">
-                <div className="space-y-2">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Éditeur</p>
-                  <h3 className="text-base font-semibold text-slate-950">Aucune règle ouverte</h3>
-                  <p className="text-sm leading-6 text-slate-600">
-                    Ouvrez une règle existante ou créez-en une nouvelle pour afficher l’éditeur complet.
-                  </p>
-                  <div className="flex flex-wrap gap-2 pt-1 text-xs text-slate-500">
-                    <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-0.5">Édition</span>
-                    <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-0.5">Explicabilité</span>
-                    <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-0.5">Simulation</span>
-                  </div>
-                </div>
-              </Card>
-            )}
           </Card>
         )}
       </div>
