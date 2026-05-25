@@ -1049,19 +1049,19 @@ export default function AdminClinicalRules() {
                 </div>
                 <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
                   {RULE_FAMILY_ORDER.map(family => {
-                    const meta = FAMILY_ICONS[family]
-                    const Icon = meta.icon
+                    const Icon = FAMILY_ICONS[family] || ShieldAlert
+                    const familyUi = FAMILY_UI[family] || FAMILY_UI.PATIENT_RISK
                     const active = form.ruleFamily === family
                     return (
                       <button
                         key={family}
                         type="button"
                         onClick={() => applyRuleFamily(family)}
-                        className={`flex h-full flex-col gap-2 rounded-2xl border p-3 text-left transition ${active ? `${meta.border} ${meta.bg} shadow-sm` : 'border-[var(--color-border)] bg-white hover:border-slate-300'}`}
+                        className={`flex h-full flex-col gap-2 rounded-2xl border p-3 text-left transition ${active ? `${familyUi.border} ${familyUi.bg} shadow-sm` : 'border-[var(--color-border)] bg-white hover:border-slate-300'}`}
                       >
                         <div className="flex items-center gap-2">
-                          <span className={`rounded-xl border p-2 ${active ? meta.border : 'border-[var(--color-border)] bg-[var(--color-muted)]/10'}`}>
-                            <Icon className={`h-4 w-4 ${active ? meta.accent : 'text-slate-500'}`} />
+                          <span className={`rounded-xl border p-2 ${active ? familyUi.border : 'border-[var(--color-border)] bg-[var(--color-muted)]/10'}`}>
+                            <Icon className={`h-4 w-4 ${active ? familyUi.accent : 'text-slate-500'}`} />
                           </span>
                           <div className="min-w-0">
                             <p className="text-sm font-semibold text-slate-900">{RULE_FAMILY_LABELS[family]}</p>
