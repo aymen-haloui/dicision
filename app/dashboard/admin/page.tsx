@@ -600,8 +600,8 @@ export default function AdminRulesPage() {
           {/* add form */}
           {showAddMed && (
             <div className="w-full">
-              <Card className={`w-full rounded-2xl border border-slate-200 p-6 ${accentPanelCls}`}>
-              <div className="flex items-center justify-between mb-5">
+              <Card className={`w-full rounded-xl border border-slate-200 p-4 ${accentPanelCls}`}>
+               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-bold text-slate-900 flex items-center gap-2">
                   <Plus className={`h-4 w-4 ${accentTextCls}`} /> Nouveau medicament
                 </h3>
@@ -609,7 +609,7 @@ export default function AdminRulesPage() {
                   <X className="h-4 w-4" />
                 </button>
               </div>
-              <form onSubmit={handleAddMedication} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <form onSubmit={handleAddMedication} className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="md:col-span-2">
                   <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Profil pharmacologique</p>
                 </div>
@@ -726,7 +726,7 @@ export default function AdminRulesPage() {
                   <label className={labelCls}>Prise en charge du surdosage</label>
                   <textarea className={inputCls} value={newMed.overdoseManagement} onChange={e => setNewMed(p => ({ ...p, overdoseManagement: e.target.value }))} rows={2} placeholder="Protocole de prise en charge du surdosage..." />
                 </div>
-                <div className="md:col-span-2 flex gap-3 pt-1">
+                <div className="md:col-span-2 flex gap-2 pt-1">
                   <Button type="submit" disabled={saving} className={accentButtonCls}>
                     {saving ? 'Enregistrement...' : editingMedId ? 'Mettre a jour le medicament' : 'Enregistrer le medicament'}
                   </Button>
@@ -905,8 +905,8 @@ export default function AdminRulesPage() {
           {/* add form */}
           {showAddInt && (
             <div className="w-full">
-              <Card className={`w-full rounded-2xl border border-slate-200 p-6 ${accentPanelCls}`}>
-                <div className="flex items-center justify-between gap-4 border-b border-slate-200 pb-4">
+              <Card className={`w-full rounded-xl border border-slate-200 p-4 ${accentPanelCls}`}>
+                <div className="flex items-center justify-between gap-3 border-b border-slate-200 pb-3">
                   <div>
                     <div className="flex items-center gap-2">
                       <Zap className={`h-4 w-4 ${accentTextCls}`} />
@@ -919,8 +919,8 @@ export default function AdminRulesPage() {
                   </button>
                 </div>
 
-                <form onSubmit={handleAddInteraction} className="mt-4 space-y-4">
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <form onSubmit={handleAddInteraction} className="mt-3 space-y-3">
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                     <div className="md:col-span-2">
                       <label className={labelCls}>Medicament 1 *</label>
                       <select aria-label="Medicament 1" value={newInt.medicationId1} onChange={e => setNewInt(p => ({ ...p, medicationId1: e.target.value }))} required className={inputCls}>
@@ -968,7 +968,7 @@ export default function AdminRulesPage() {
                     {newInt.severity || 'moderate'}
                   </div>
 
-                  <div className="flex flex-wrap gap-3 pt-1">
+                  <div className="flex flex-wrap gap-2 pt-1">
                     <Button type="submit" disabled={saving} className={accentButtonCls}>
                       {saving ? 'Enregistrement...' : editingIntId ? 'Mettre a jour la regle' : 'Enregistrer la regle'}
                     </Button>
