@@ -9,7 +9,7 @@ export async function seedClinicalRules() {
       await sql`
         INSERT INTO clinical_rules (
           name, description, category, severity, priority, enabled, trigger_type,
-          conditions, outputs, created_by, version, tags
+          conditions, outputs, created_by, version, tags, updated_at
         ) VALUES (
           ${rule.name},
           ${rule.description || null},
@@ -22,7 +22,8 @@ export async function seedClinicalRules() {
           ${JSON.stringify(rule.outputs)},
           ${rule.created_by || 'system'},
           ${rule.version || 1},
-          ${JSON.stringify(rule.tags || [])}
+          ${JSON.stringify(rule.tags || [])},
+          NOW()
         )
         ON CONFLICT (name) DO UPDATE SET
           description = EXCLUDED.description,
@@ -34,7 +35,8 @@ export async function seedClinicalRules() {
           conditions = EXCLUDED.conditions,
           outputs = EXCLUDED.outputs,
           version = EXCLUDED.version + 1,
-          tags = EXCLUDED.tags
+            tags = EXCLUDED.tags,
+            updated_at = NOW()
       `
       console.log(`✅ Seeded: ${rule.name}`)
     } catch (error: any) {

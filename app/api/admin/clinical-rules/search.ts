@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     if (search) { params.push(`%${search}%`); params.push(`%${search}%`); conditions.push(`(name ILIKE $${params.length-1} OR description ILIKE $${params.length})`) }
 
     const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : ''
-    const sqlText = `SELECT id, name, description, category, severity, priority, enabled, trigger_type, created_at, updated_at, tags FROM clinical_rules ${where} ORDER BY priority DESC, created_at DESC`
+    const sqlText = `SELECT * FROM clinical_rules ${where} ORDER BY priority DESC, created_at DESC`
     const results = await sql.unsafe(sqlText, params)
     return NextResponse.json(results)
   } catch (error: any) {

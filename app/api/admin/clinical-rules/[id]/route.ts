@@ -22,7 +22,7 @@ export async function GET(
     if (typeof userId !== 'string') return userId
 
     const result = await sql`
-      SELECT id, name, description, category, severity, priority, enabled, trigger_type, conditions, outputs, created_at, updated_at, created_by, version, tags
+      SELECT *
       FROM clinical_rules
       WHERE id = ${id}
     `
@@ -79,9 +79,10 @@ export async function PUT(
         conditions = ${JSON.stringify(conditions)},
         outputs = ${JSON.stringify(outputs)},
         version = ${nextVersion},
-        tags = ${JSON.stringify(tags ?? [])}
+        tags = ${JSON.stringify(tags ?? [])},
+        updated_at = NOW()
       WHERE id = ${id}
-      RETURNING id, name, description, category, severity, priority, enabled, trigger_type, conditions, outputs, created_at, updated_at, created_by, version, tags
+      RETURNING *
     `
 
     if (result.length === 0) {

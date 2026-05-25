@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     if (typeof userId !== 'string') return userId
 
     const rules = await sql`
-      SELECT id, name, description, category, severity, priority, enabled, trigger_type, conditions, outputs, created_at, updated_at, created_by, version, tags
+      SELECT *
       FROM clinical_rules
       ORDER BY priority DESC, created_at DESC
     `
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
 
     const result = await sql`
       INSERT INTO clinical_rules (
-        name, description, category, severity, priority, enabled, trigger_type, conditions, outputs, created_by, version, tags
+        name, description, category, severity, priority, enabled, trigger_type, conditions, outputs, created_by, version, tags, updated_at
       ) VALUES (
         ${name},
         ${description ?? null},
@@ -62,9 +62,10 @@ export async function POST(request: NextRequest) {
         ${JSON.stringify(outputs)},
         ${userId},
         1,
-        ${JSON.stringify(tags ?? [])}
+        ${JSON.stringify(tags ?? [])},
+        NOW()
       )
-      RETURNING id, name, description, category, severity, priority, enabled, trigger_type, conditions, outputs, created_at, updated_at, created_by, version, tags
+      RETURNING *
     `
 
     return NextResponse.json(result[0], { status: 201 })

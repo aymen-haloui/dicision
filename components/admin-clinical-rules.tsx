@@ -781,7 +781,7 @@ export default function AdminClinicalRules() {
         </div>
       )}
 
-      <div className="grid gap-4 xl:grid-cols-[1fr_320px]">
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(420px,560px)]">
         <div className="space-y-4">
           <Card className="p-4">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
