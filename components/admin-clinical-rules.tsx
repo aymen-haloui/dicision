@@ -974,7 +974,7 @@ export default function AdminClinicalRules() {
             )}
 
             {pageRules.map(rule => (
-              <Card key={rule.id} className="border-[var(--color-border)] p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-[color-slate-300] hover:shadow-md bg-white">
+              <Card key={rule.id} className="border-[var(--color-border)] p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md bg-white">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                   <div className="min-w-0 space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
