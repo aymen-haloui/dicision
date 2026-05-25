@@ -137,104 +137,104 @@ const FIELD_CATALOG: Record<ConditionType, FieldGroup[]> = {
   AGE: [{ label: 'Patient age', options: [{ value: 'patient.age', label: 'Patient age', dataType: 'number' }] }],
   CONDITION: [
     {
-      label: 'Patient profile',
+      label: 'Profil patient',
       options: [
-        { value: 'patient.id', label: 'Patient ID', dataType: 'string' },
-        { value: 'patient.name', label: 'Patient name', dataType: 'string' },
-        { value: 'patient.gender', label: 'Gender', dataType: 'string' },
-        { value: 'patient.weight', label: 'Weight', dataType: 'number' },
-        { value: 'patient.weight_kg', label: 'Weight (kg)', dataType: 'number' },
-        { value: 'patient.height', label: 'Height', dataType: 'number' },
-        { value: 'patient.immunostatus', label: 'Immunostatus', dataType: 'string' },
-        { value: 'patient.pregnancy_status', label: 'Pregnancy status', dataType: 'string' },
-        { value: 'patient.smoking_status', label: 'Smoking status', dataType: 'string' },
-        { value: 'patient.alcohol_use', label: 'Alcohol use', dataType: 'string' },
-        { value: 'patient.renal_creatinine_clearance', label: 'Creatinine clearance', dataType: 'number' },
-        { value: 'patient.hepatic_status', label: 'Hepatic status', dataType: 'string' },
-        { value: 'patient.breastfeeding_status', label: 'Breastfeeding status', dataType: 'boolean' },
-        { value: 'patient.sudden_medication_stop', label: 'Sudden medication stop', dataType: 'boolean' },
-        { value: 'patient.immunodepression', label: 'Immunodepression', dataType: 'string' },
+        { value: 'patient.id', label: 'ID patient', dataType: 'string' },
+        { value: 'patient.name', label: 'Nom du patient', dataType: 'string' },
+        { value: 'patient.gender', label: 'Sexe', dataType: 'string' },
+        { value: 'patient.weight', label: 'Poids', dataType: 'number' },
+        { value: 'patient.weight_kg', label: 'Poids (kg)', dataType: 'number' },
+        { value: 'patient.height', label: 'Taille', dataType: 'number' },
+        { value: 'patient.immunostatus', label: 'Statut immunitaire', dataType: 'string' },
+        { value: 'patient.pregnancy_status', label: 'Statut de grossesse', dataType: 'string' },
+        { value: 'patient.smoking_status', label: 'Tabagisme', dataType: 'string' },
+        { value: 'patient.alcohol_use', label: 'Consommation d\'alcool', dataType: 'string' },
+        { value: 'patient.renal_creatinine_clearance', label: 'Clairance de créatinine', dataType: 'number' },
+        { value: 'patient.hepatic_status', label: 'Statut hépatique', dataType: 'string' },
+        { value: 'patient.breastfeeding_status', label: 'Allaitement', dataType: 'boolean' },
+        { value: 'patient.sudden_medication_stop', label: 'Arrêt brusque de médicament', dataType: 'boolean' },
+        { value: 'patient.immunodepression', label: 'Immunodépression', dataType: 'string' },
       ],
     },
     {
-      label: 'Clinical context',
+      label: 'Contexte clinique',
       options: [
-        { value: 'case_type', label: 'Case type', dataType: 'string' },
-        { value: 'presenting_complaint', label: 'Presenting complaint', dataType: 'string' },
-        { value: 'duration_of_illness', label: 'Duration of illness', dataType: 'string' },
-        { value: 'timestamp', label: 'Timestamp', dataType: 'date' },
+        { value: 'case_type', label: 'Type de cas', dataType: 'string' },
+        { value: 'presenting_complaint', label: 'Motif de consultation', dataType: 'string' },
+        { value: 'duration_of_illness', label: 'Durée de la maladie', dataType: 'string' },
+        { value: 'timestamp', label: 'Horodatage', dataType: 'date' },
       ],
     },
     {
-      label: 'Conditions and flags',
+      label: 'Conditions et indicateurs',
       options: [
         { value: 'conditions', label: 'Conditions', dataType: 'array' },
         { value: 'allergies', label: 'Allergies', dataType: 'array' },
-        { value: 'symptoms', label: 'Symptoms', dataType: 'array' },
-        { value: 'emergency_flags', label: 'Emergency flags', dataType: 'array' },
-        { value: 'interactions_found', label: 'Interactions found', dataType: 'array' },
+        { value: 'symptoms', label: 'Symptômes', dataType: 'array' },
+        { value: 'emergency_flags', label: 'Signaux d\'urgence', dataType: 'array' },
+        { value: 'interactions_found', label: 'Interactions trouvées', dataType: 'array' },
       ],
     },
   ],
   LAB_RESULT: [
     {
-      label: 'Common labs',
+      label: 'Bilans courants',
       options: [
         { value: 'labs.potassium.value', label: 'Potassium', dataType: 'number' },
         { value: 'labs.sodium.value', label: 'Sodium', dataType: 'number' },
-        { value: 'labs.glycemia.value', label: 'Glycemia', dataType: 'number' },
+        { value: 'labs.glycemia.value', label: 'Glycémie', dataType: 'number' },
         { value: 'labs.lactates.value', label: 'Lactates', dataType: 'number' },
         { value: 'labs.asat.value', label: 'ASAT', dataType: 'number' },
         { value: 'labs.alat.value', label: 'ALAT', dataType: 'number' },
-        { value: 'labs.creatinine.value', label: 'Creatinine', dataType: 'number' },
+        { value: 'labs.creatinine.value', label: 'Créatinine', dataType: 'number' },
         { value: 'labs.eGFR.value', label: 'eGFR', dataType: 'number' },
       ],
     },
   ],
   VITAL_SIGN: [
     {
-      label: 'Vitals',
+      label: 'Signes vitaux',
       options: [
-        { value: 'vitals.heart_rate', label: 'Heart rate', dataType: 'number' },
-        { value: 'vitals.heartRate', label: 'Heart rate (camel)', dataType: 'number' },
-        { value: 'vitals.blood_pressure_systolic', label: 'Blood pressure systolic', dataType: 'number' },
-        { value: 'vitals.blood_pressure_diastolic', label: 'Blood pressure diastolic', dataType: 'number' },
-        { value: 'vitals.bloodPressure.systolic', label: 'BP systolic (object)', dataType: 'number' },
-        { value: 'vitals.bloodPressure.diastolic', label: 'BP diastolic (object)', dataType: 'number' },
-        { value: 'vitals.respiratory_rate', label: 'Respiratory rate', dataType: 'number' },
-        { value: 'vitals.temperature', label: 'Temperature', dataType: 'number' },
+        { value: 'vitals.heart_rate', label: 'Fréquence cardiaque', dataType: 'number' },
+        { value: 'vitals.heartRate', label: 'Fréquence cardiaque (alt)', dataType: 'number' },
+        { value: 'vitals.blood_pressure_systolic', label: 'TAS (systolique)', dataType: 'number' },
+        { value: 'vitals.blood_pressure_diastolic', label: 'TAD (diastolique)', dataType: 'number' },
+        { value: 'vitals.bloodPressure.systolic', label: 'TAS (objet)', dataType: 'number' },
+        { value: 'vitals.bloodPressure.diastolic', label: 'TAD (objet)', dataType: 'number' },
+        { value: 'vitals.respiratory_rate', label: 'Fréquence respiratoire', dataType: 'number' },
+        { value: 'vitals.temperature', label: 'Température', dataType: 'number' },
         { value: 'vitals.spo2', label: 'SpO2', dataType: 'number' },
-        { value: 'vitals.glucose', label: 'Glucose', dataType: 'number' },
+        { value: 'vitals.glucose', label: 'Glycémie', dataType: 'number' },
       ],
     },
   ],
   MEDICATION: [
     {
-      label: 'Medication info',
+      label: 'Informations médicament',
       options: [
-        { value: 'medications.name', label: 'Medication name', dataType: 'array' },
-        { value: 'medications.category', label: 'Medication category', dataType: 'array' },
+        { value: 'medications.name', label: 'Nom du médicament', dataType: 'array' },
+        { value: 'medications.category', label: 'Catégorie', dataType: 'array' },
         { value: 'medications.dosage', label: 'Dosage', dataType: 'array' },
-        { value: 'medications.frequency', label: 'Frequency', dataType: 'array' },
-        { value: 'medications.duration', label: 'Duration', dataType: 'array' },
-        { value: 'medications.route', label: 'Route', dataType: 'array' },
-        { value: 'medications.generic_name', label: 'Generic name', dataType: 'array' },
-        { value: 'medications.warnings', label: 'Warnings', dataType: 'array' },
-        { value: 'medications.overdose_management', label: 'Overdose management', dataType: 'array' },
-        { value: 'medications.max_daily_dose_adult', label: 'Adult max daily dose', dataType: 'array' },
-        { value: 'medications.max_daily_dose_child', label: 'Child max daily dose', dataType: 'array' },
-        { value: 'medications.contraindications.target', label: 'Contraindication target', dataType: 'array' },
-        { value: 'medications.contraindications.reason', label: 'Contraindication reason', dataType: 'array' },
-        { value: 'medications.contraindications.severity', label: 'Contraindication severity', dataType: 'array' },
-        { value: 'medications.toxicity_thresholds.adult_toxic_dose', label: 'Adult toxic dose', dataType: 'array' },
-        { value: 'medications.toxicity_thresholds.child_toxic_dose_per_kg', label: 'Child toxic dose/kg', dataType: 'array' },
-        { value: 'medications.toxicity_thresholds.child_severe_dose_per_kg', label: 'Child severe dose/kg', dataType: 'array' },
+        { value: 'medications.frequency', label: 'Fréquence', dataType: 'array' },
+        { value: 'medications.duration', label: 'Durée', dataType: 'array' },
+        { value: 'medications.route', label: 'Voie d\'administration', dataType: 'array' },
+        { value: 'medications.generic_name', label: 'Nom générique', dataType: 'array' },
+        { value: 'medications.warnings', label: 'Avertissements', dataType: 'array' },
+        { value: 'medications.overdose_management', label: 'Prise en charge surdosage', dataType: 'array' },
+        { value: 'medications.max_daily_dose_adult', label: 'Dose max journalière adulte', dataType: 'array' },
+        { value: 'medications.max_daily_dose_child', label: 'Dose max journalière enfant', dataType: 'array' },
+        { value: 'medications.contraindications.target', label: 'Cible contre-indication', dataType: 'array' },
+        { value: 'medications.contraindications.reason', label: 'Raison contre-indication', dataType: 'array' },
+        { value: 'medications.contraindications.severity', label: 'Gravité contre-indication', dataType: 'array' },
+        { value: 'medications.toxicity_thresholds.adult_toxic_dose', label: 'Dose toxique adulte', dataType: 'array' },
+        { value: 'medications.toxicity_thresholds.child_toxic_dose_per_kg', label: 'Dose toxique enfant (mg/kg)', dataType: 'array' },
+        { value: 'medications.toxicity_thresholds.child_severe_dose_per_kg', label: 'Dose sévère enfant (mg/kg)', dataType: 'array' },
       ],
     },
   ],
-  SYMPTOM: [{ label: 'Symptoms', options: [{ value: 'symptoms', label: 'Symptoms', dataType: 'array' }, { value: 'presenting_complaint', label: 'Presenting complaint', dataType: 'string' }] }],
-  ALLERGY: [{ label: 'Allergies', options: [{ value: 'allergies', label: 'Allergies', dataType: 'array' }, { value: 'patient.allergies', label: 'Patient allergies', dataType: 'array' }] }],
-  EMERGENCY_FLAG: [{ label: 'Emergency flags', options: [{ value: 'emergency_flags', label: 'Emergency flags', dataType: 'array' }] }],
+  SYMPTOM: [{ label: 'Symptômes', options: [{ value: 'symptoms', label: 'Symptômes', dataType: 'array' }, { value: 'presenting_complaint', label: 'Motif de consultation', dataType: 'string' }] }],
+  ALLERGY: [{ label: 'Allergies', options: [{ value: 'allergies', label: 'Allergies', dataType: 'array' }, { value: 'patient.allergies', label: 'Allergies du patient', dataType: 'array' }] }],
+  EMERGENCY_FLAG: [{ label: 'Signaux d\'urgence', options: [{ value: 'emergency_flags', label: 'Signaux d\'urgence', dataType: 'array' }] }],
 }
 
 function getFieldGroups(conditionType: ConditionType): FieldGroup[] {
@@ -882,25 +882,24 @@ export default function AdminClinicalRules() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-[0_20px_60px_-40px_rgba(15,23,42,0.35)] backdrop-blur">
+      <div className="rounded-2xl border border-[var(--color-border)] bg-white p-4 shadow-sm">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
           <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-teal-700">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-1 text-xs font-medium text-[var(--color-muted-foreground)]">
               <ShieldAlert className="h-3.5 w-3.5" />
-              Clinical rules studio
+              Studio de règles
             </div>
             <div className="space-y-2">
-              <h2 className="flex items-center gap-2 text-3xl font-semibold tracking-tight text-slate-950">
+              <h2 className="flex items-center gap-2 text-3xl font-semibold tracking-tight text-slate-900">
                 Moteur de règles cliniques
               </h2>
               <p className="max-w-3xl text-sm leading-6 text-slate-600">
                 Créez, modifiez et activez des règles cliniques dynamiques sans JSON brut. L’éditeur garde la logique métier intacte tout en présentant les conditions, les sorties et l’explicabilité dans un espace de travail lisible.
               </p>
             </div>
-            <div className="flex flex-wrap gap-2 text-xs font-medium text-slate-600">
-              <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1">{filteredRules.length} règles visibles</span>
-              <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1">{rules.length} au total</span>
-              <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1">Moteur canonique</span>
+            <div className="flex flex-wrap gap-2 text-xs font-medium text-[var(--color-muted-foreground)]">
+              <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-1">{filteredRules.length} règles visibles</span>
+              <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-1">{rules.length} au total</span>
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -919,23 +918,23 @@ export default function AdminClinicalRules() {
 
       <div className="grid gap-6 xl:grid-cols-[minmax(360px,420px)_minmax(0,1fr)] xl:items-start">
         <div className="space-y-4 xl:sticky xl:top-24 xl:max-h-[calc(100vh-8rem)] xl:overflow-y-auto xl:pr-1">
-          <Card className="border-slate-200/80 p-4 shadow-sm">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <Card className="border-[var(--color-border)] p-4 shadow-sm bg-white">
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div className="relative flex-1 min-w-0">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-muted-foreground)]" />
                 <Input
                   value={search}
                   onChange={e => { setSearch(e.target.value); setPage(1) }}
                   placeholder="Recherche par nom, catégorie, type..."
-                  className="pl-10"
+                  className="pl-10 h-9"
                 />
               </div>
-              <div className="grid gap-2 sm:grid-cols-3">
+              <div className="flex gap-2 items-center w-full md:w-auto">
                 <select
                   value={categoryFilter}
                   onChange={e => { setCategoryFilter(e.target.value); setPage(1) }}
                   title="Filtre de catégorie"
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                  className="w-full md:w-48 h-9 rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
                 >
                   <option value="">Toutes catégories</option>
                   {CATEGORY_OPTIONS.map(option => (
@@ -946,7 +945,7 @@ export default function AdminClinicalRules() {
                   value={severityFilter}
                   onChange={e => { setSeverityFilter(e.target.value); setPage(1) }}
                   title="Filtre de gravité"
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                  className="w-full md:w-48 h-9 rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
                 >
                   <option value="">Toutes gravités</option>
                   {SEVERITY_OPTIONS.map(option => (
@@ -957,7 +956,7 @@ export default function AdminClinicalRules() {
                   value={statusFilter}
                   onChange={e => { setStatusFilter(e.target.value as any); setPage(1) }}
                   title="Filtre de statut"
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                  className="w-full md:w-40 h-9 rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
                 >
                   <option value="all">Tous statuts</option>
                   <option value="enabled">Activées</option>
@@ -969,39 +968,40 @@ export default function AdminClinicalRules() {
 
           <div className="space-y-3">
             {pageRules.length === 0 && (
-              <Card className="border-slate-200/80 p-10 text-center text-sm text-slate-500 shadow-sm">
+              <Card className="border-[var(--color-border)] p-10 text-center text-sm text-[var(--color-muted-foreground)] shadow-sm bg-white">
                 Aucun résultat trouvé. Ajustez le filtre ou créez une nouvelle règle.
               </Card>
             )}
 
             {pageRules.map(rule => (
-              <Card key={rule.id} className="border-slate-200/80 p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md">
+              <Card key={rule.id} className="border-[var(--color-border)] p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-[color-slate-300] hover:shadow-md bg-white">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                   <div className="min-w-0 space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-lg font-semibold text-slate-900">{rule.name}</span>
+                      <span className="text-lg font-semibold text-[var(--color-foreground)]">{rule.name}</span>
                       <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${SEVERITY_BADGE[rule.severity]}`}>
                         {rule.severity}
                       </span>
                       {rule.category && (
-                        <span className="rounded-full border border-slate-200 bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+                        <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/5 px-2 py-0.5 text-xs text-[var(--color-muted-foreground)]">
                           {rule.category}
                         </span>
                       )}
                       {rule.trigger_type && (
-                        <span className="rounded-full border border-slate-200 bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
+                        <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/5 px-2 py-0.5 text-xs text-[var(--color-muted-foreground)]">
                           {rule.trigger_type}
                         </span>
                       )}
                     </div>
-                    {rule.description && <p className="text-sm text-slate-600">{rule.description}</p>}
+                    {rule.description && <p className="text-sm text-[var(--color-muted-foreground)]">{rule.description}</p>}
                     <div className="grid gap-2 sm:grid-cols-2">
-                      <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-2 text-xs text-[var(--color-muted-foreground)]">
                         <span className="font-semibold">Conditions:</span> {buildConditionSummary(rule.conditions)}
                       </div>
-                      <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-2 text-xs text-[var(--color-muted-foreground)]">
                         <span className="font-semibold">Outputs:</span> {buildOutputSummary(rule.outputs)}
                       </div>
+                    </div>
                     </div>
                     <div className="flex flex-wrap gap-2 text-xs text-slate-500">
                       <span>Créée le {formatDate(rule.created_at)}</span>
@@ -1026,7 +1026,7 @@ export default function AdminClinicalRules() {
           </div>
 
           {pageCount > 1 && (
-            <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
+            <div className="flex items-center justify-between rounded-2xl border border-[var(--color-border)] bg-white px-4 py-3 text-sm text-[var(--color-muted-foreground)] shadow-sm">
               <span>{`${(page - 1) * pageSize + 1} - ${Math.min(page * pageSize, filteredRules.length)} sur ${filteredRules.length}`}</span>
               <div className="flex items-center gap-2">
                 <Button
@@ -1049,8 +1049,8 @@ export default function AdminClinicalRules() {
         </div>
 
         {showEditor && (
-          <Card className="space-y-4 border-slate-200/80 p-5 shadow-sm xl:sticky xl:top-24 xl:max-h-[calc(100vh-8rem)] xl:overflow-y-auto">
-            <div className="flex flex-col gap-4 border-b border-slate-200 pb-4">
+          <Card className="space-y-4 border-[var(--color-border)] p-5 shadow-sm xl:sticky xl:top-24 xl:max-h-[calc(100vh-8rem)] xl:overflow-y-auto">
+            <div className="flex flex-col gap-4 border-b border-[var(--color-border)] pb-4">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <h3 className="text-lg font-semibold text-slate-950">{editingId ? 'Modifier la règle' : 'Nouvelle règle'}</h3>
@@ -1063,15 +1063,15 @@ export default function AdminClinicalRules() {
 
               <div className="flex flex-wrap gap-2">
                 {[
-                  { id: 'builder', label: 'Builder' },
-                  { id: 'explainability', label: 'Explicabilité' },
-                  { id: 'simulation', label: 'Simulation' },
-                ].map(tab => (
+                    { id: 'builder', label: 'Éditeur' },
+                    { id: 'explainability', label: 'Explicabilité' },
+                    { id: 'simulation', label: 'Simulation' },
+                  ].map(tab => (
                   <button
                     key={tab.id}
                     type="button"
                     onClick={() => setEditorTab(tab.id as EditorTab)}
-                    className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${editorTab === tab.id ? 'border-teal-300 bg-teal-50 text-teal-700' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900'}`}
+                    className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${editorTab === tab.id ? 'border-teal-300 bg-teal-50 text-teal-700' : 'border-[var(--color-border)] bg-white text-[var(--color-muted-foreground)] hover:border-slate-300 hover:text-slate-900'}`}
                   >
                     {tab.label}
                   </button>
@@ -1098,7 +1098,7 @@ export default function AdminClinicalRules() {
                     value={form.category}
                     onChange={e => setForm(form => ({ ...form, category: e.target.value }))}
                     title="Catégorie de la règle"
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                    className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
                   >
                     {CATEGORY_OPTIONS.map(option => <option key={option} value={option}>{option}</option>)}
                   </select>
@@ -1110,7 +1110,7 @@ export default function AdminClinicalRules() {
                     value={form.severity}
                     onChange={e => setForm(form => ({ ...form, severity: e.target.value as SeverityLevel }))}
                     title="Sévérité de la règle"
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                    className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
                   >
                     {SEVERITY_OPTIONS.map(option => <option key={option} value={option}>{option}</option>)}
                   </select>
@@ -1122,7 +1122,7 @@ export default function AdminClinicalRules() {
                     value={form.triggerType}
                     onChange={e => setForm(form => ({ ...form, triggerType: e.target.value }))}
                     title="Type de déclencheur"
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                    className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
                   >
                     {TRIGGER_TYPES.map(option => <option key={option} value={option}>{option}</option>)}
                   </select>
@@ -1134,7 +1134,7 @@ export default function AdminClinicalRules() {
                     value={form.enabled ? 'enabled' : 'disabled'}
                     onChange={e => setForm(form => ({ ...form, enabled: e.target.value === 'enabled' }))}
                     title="Statut de la règle"
-                    className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                    className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
                   >
                     <option value="enabled">Activée</option>
                     <option value="disabled">Désactivée</option>
@@ -1150,11 +1150,11 @@ export default function AdminClinicalRules() {
                   onChange={e => setForm(form => ({ ...form, description: e.target.value }))}
                   rows={3}
                   placeholder="Décrivez le comportement clinique de la règle"
-                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                  className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
                 />
               </div>
 
-              <section className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <section className="space-y-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-4">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <h4 className="text-base font-semibold text-slate-900">Conditions dynamiques</h4>
@@ -1166,7 +1166,7 @@ export default function AdminClinicalRules() {
                       value={form.conditionJoin}
                       onChange={e => setForm(form => ({ ...form, conditionJoin: e.target.value as 'all' | 'any' }))}
                       title="Mode de combinaison des conditions"
-                      className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                      className="rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
                     >
                       <option value="all">ET</option>
                       <option value="any">OU</option>
@@ -1176,77 +1176,86 @@ export default function AdminClinicalRules() {
 
                 <div className="space-y-3">
                   {form.conditions.map((condition, index) => (
-                    <div key={condition.id} className="grid gap-3 md:grid-cols-[220px_180px_160px_1fr_auto] items-end">
-                      <div>
-                        <Label>Type</Label>
-                        <select
-                          value={condition.conditionType}
-                          onChange={e => {
-                            const nextType = e.target.value as ConditionType
-                            updateCondition(condition.id, {
-                              conditionType: nextType,
-                              field: getDefaultField(nextType),
-                              operator: getOperatorOptions(getFieldOption(nextType, getDefaultField(nextType))?.dataType)[0],
-                            })
-                          }}
-                          title="Type de condition"
-                          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
-                        >
-                          {CONDITION_TYPES.map(option => <option key={option} value={option}>{option}</option>)}
-                        </select>
+                    <div key={condition.id} className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-2 items-start">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full">
+                        <div className="min-w-0">
+                          <Label>Type</Label>
+                          <select
+                            value={condition.conditionType}
+                            onChange={e => {
+                              const nextType = e.target.value as ConditionType
+                              updateCondition(condition.id, {
+                                conditionType: nextType,
+                                field: getDefaultField(nextType),
+                                operator: getOperatorOptions(getFieldOption(nextType, getDefaultField(nextType))?.dataType)[0],
+                              })
+                            }}
+                            title="Type de condition"
+                            className="w-full h-9 rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
+                          >
+                            {CONDITION_TYPES.map(option => <option key={option} value={option}>{option}</option>)}
+                          </select>
+                        </div>
+
+                        <div className="min-w-0">
+                          <Label>Champ ciblé</Label>
+                          <select
+                            value={condition.field || getDefaultField(condition.conditionType)}
+                            onChange={e => {
+                              const nextField = e.target.value
+                              const nextFieldOption = getFieldOption(condition.conditionType, nextField)
+                              updateCondition(condition.id, {
+                                field: nextField,
+                                operator: getOperatorOptions(nextFieldOption?.dataType)[0],
+                              })
+                            }}
+                            title="Champ clinique"
+                            className="w-full h-9 rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
+                          >
+                            {getFieldGroups(condition.conditionType).map(group => (
+                              <optgroup key={group.label} label={group.label}>
+                                {group.options.map(option => (
+                                  <option key={option.value} value={option.value}>{option.label}</option>
+                                ))}
+                              </optgroup>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="min-w-0">
+                          <Label>Opérateur</Label>
+                          {(() => {
+                            const fieldOption = getFieldOption(condition.conditionType, condition.field || getDefaultField(condition.conditionType))
+                            const operatorOptions = getOperatorOptions(fieldOption?.dataType)
+                            return (
+                          <select
+                            value={condition.operator}
+                            onChange={e => updateCondition(condition.id, { operator: e.target.value as Operator })}
+                            title="Opérateur de comparaison"
+                            className="w-full h-9 rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
+                          >
+                            {operatorOptions.map(option => <option key={option} value={option}>{option}</option>)}
+                          </select>
+                            )
+                          })()}
+                        </div>
+
+                        <div className="min-w-0">
+                          <Label>Valeur</Label>
+                          <Input
+                            value={condition.value}
+                            onChange={e => updateCondition(condition.id, { value: e.target.value })}
+                            placeholder="ex. Metformin"
+                            className="h-9"
+                          />
+                        </div>
                       </div>
-                      <div>
-                        <Label>Champ ciblé</Label>
-                        <select
-                          value={condition.field || getDefaultField(condition.conditionType)}
-                          onChange={e => {
-                            const nextField = e.target.value
-                            const nextFieldOption = getFieldOption(condition.conditionType, nextField)
-                            updateCondition(condition.id, {
-                              field: nextField,
-                              operator: getOperatorOptions(nextFieldOption?.dataType)[0],
-                            })
-                          }}
-                          title="Champ clinique"
-                          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
-                        >
-                          {getFieldGroups(condition.conditionType).map(group => (
-                            <optgroup key={group.label} label={group.label}>
-                              {group.options.map(option => (
-                                <option key={option.value} value={option.value}>{option.label}</option>
-                              ))}
-                            </optgroup>
-                          ))}
-                        </select>
+
+                      <div className="flex items-start lg:items-start gap-2 mt-2 lg:mt-0">
+                        <Button type="button" variant="outline" size="sm" onClick={() => removeCondition(condition.id)} className="h-9 w-9 p-0 flex items-center justify-center">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
-                      <div>
-                        <Label>Opérateur</Label>
-                        {(() => {
-                          const fieldOption = getFieldOption(condition.conditionType, condition.field || getDefaultField(condition.conditionType))
-                          const operatorOptions = getOperatorOptions(fieldOption?.dataType)
-                          return (
-                        <select
-                          value={condition.operator}
-                          onChange={e => updateCondition(condition.id, { operator: e.target.value as Operator })}
-                          title="Opérateur de comparaison"
-                          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
-                        >
-                          {operatorOptions.map(option => <option key={option} value={option}>{option}</option>)}
-                        </select>
-                          )
-                        })()}
-                      </div>
-                      <div>
-                        <Label>Valeur</Label>
-                        <Input
-                          value={condition.value}
-                          onChange={e => updateCondition(condition.id, { value: e.target.value })}
-                          placeholder="ex. Metformin"
-                        />
-                      </div>
-                      <Button type="button" variant="outline" size="sm" onClick={() => removeCondition(condition.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
                     </div>
                   ))}
                 </div>
@@ -1256,13 +1265,13 @@ export default function AdminClinicalRules() {
                 </Button>
               </section>
 
-              <section className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4">
+              <section className="space-y-3 rounded-2xl border border-[var(--color-border)] bg-white p-4">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <h4 className="text-base font-semibold text-slate-900">Résultats et recommandations</h4>
                     <p className="text-sm text-slate-600">Configurez les scores, alertes, contre-indications et recommandations cliniques.</p>
                   </div>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-1 text-xs font-semibold text-[var(--color-muted-foreground)]">
                     <ArrowUpDown className="h-4 w-4" /> Priorité {form.urgency}
                   </div>
                 </div>
@@ -1274,7 +1283,7 @@ export default function AdminClinicalRules() {
                       value={form.urgency}
                       onChange={e => setForm(form => ({ ...form, urgency: e.target.value as SeverityLevel }))}
                       title="Urgence globale"
-                      className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                      className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
                     >
                       {SEVERITY_OPTIONS.map(option => <option key={option} value={option}>{option}</option>)}
                     </select>
@@ -1328,7 +1337,7 @@ export default function AdminClinicalRules() {
                           value={alert.severity}
                           onChange={e => updateAlert(alert.id, { severity: e.target.value as SeverityLevel })}
                           title="Sévérité de l'alerte"
-                          className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                          className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
                         >
                           {SEVERITY_OPTIONS.map(option => <option key={option} value={option}>{option}</option>)}
                         </select>
@@ -1447,7 +1456,7 @@ export default function AdminClinicalRules() {
 
             {editorTab === 'explainability' && (
               <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
-                <Card className="border-slate-200/80 p-4 shadow-sm">
+                <Card className="border-[var(--color-border)] p-4 shadow-sm">
                   <div className="space-y-4">
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Lecture clinique</p>
@@ -1458,11 +1467,11 @@ export default function AdminClinicalRules() {
                     </div>
 
                     <div className="grid gap-3 sm:grid-cols-2">
-                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                      <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-3">
                         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Conditions</p>
                         <p className="mt-2 text-sm text-slate-700">{summarizeDraftConditions(form)}</p>
                       </div>
-                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                      <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-3">
                         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Sorties</p>
                         <p className="mt-2 text-sm text-slate-700">{summarizeDraftOutputs(form)}</p>
                       </div>
@@ -1480,13 +1489,13 @@ export default function AdminClinicalRules() {
                   </div>
                 </Card>
 
-                <Card className="border-slate-200/80 p-4 shadow-sm">
+                <Card className="border-[var(--color-border)] p-4 shadow-sm">
                   <div className="space-y-4">
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Structure canonique</p>
                       <p className="mt-1 text-sm text-slate-600">Aperçu de la règle normalisée qui sera envoyée au moteur.</p>
                     </div>
-                    <pre className="max-h-[38rem] overflow-auto rounded-2xl border border-slate-200 bg-slate-950 p-4 text-xs leading-6 text-slate-100">
+                    <pre className="max-h-[38rem] overflow-auto rounded-2xl border border-[var(--color-border)] bg-slate-950 p-4 text-xs leading-6 text-slate-100">
 {JSON.stringify(buildPayload(), null, 2)}
                     </pre>
                   </div>
@@ -1496,7 +1505,7 @@ export default function AdminClinicalRules() {
 
             {editorTab === 'simulation' && (
               <div className="grid gap-4 xl:grid-cols-[340px_minmax(0,1fr)]">
-                <Card className="border-slate-200/80 p-4 shadow-sm">
+                <Card className="border-[var(--color-border)] p-4 shadow-sm">
                   <div className="space-y-4">
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Patient de test</p>
@@ -1538,7 +1547,7 @@ export default function AdminClinicalRules() {
                         rows={4}
                         title="Médicaments de simulation"
                         placeholder="Warfarin\nIbuprofen\nMetformin"
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                        className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
                       />
                     </div>
 
@@ -1550,7 +1559,7 @@ export default function AdminClinicalRules() {
                         rows={3}
                         title="Conditions de simulation"
                         placeholder="diabetes\nhypertension"
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                        className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
                       />
                     </div>
 
@@ -1562,7 +1571,7 @@ export default function AdminClinicalRules() {
                         rows={3}
                         title="Symptômes de simulation"
                         placeholder="dizziness\nshortness_of_breath"
-                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                        className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
                       />
                     </div>
 
@@ -1598,7 +1607,7 @@ export default function AdminClinicalRules() {
                         <h4 className="mt-1 text-lg font-semibold text-slate-950">Aperçu clinique</h4>
                       </div>
                       {simulationResult?.urgency_level && (
-                        <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">
+                        <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-1 text-xs font-semibold text-[var(--color-muted-foreground)]">
                           {simulationResult.urgency_level}
                         </span>
                       )}
@@ -1607,21 +1616,21 @@ export default function AdminClinicalRules() {
                     {simulationResult ? (
                       <div className="mt-4 space-y-4">
                         <div className="grid gap-3 sm:grid-cols-3">
-                          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                          <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-3">
                             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Score total</p>
                             <p className="mt-2 text-2xl font-semibold text-slate-950">{Number(simulationResult.total_risk_score || 0).toFixed(1)}</p>
                           </div>
-                          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                          <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-3">
                             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Règles déclenchées</p>
                             <p className="mt-2 text-2xl font-semibold text-slate-950">{simulationResult.triggered_rules?.length || 0}</p>
                           </div>
-                          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                          <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-3">
                             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Résumé</p>
                             <p className="mt-2 text-sm text-slate-700">{simulationResult.summary || 'Aucun résumé disponible'}</p>
                           </div>
                         </div>
 
-                        <div className="rounded-2xl border border-slate-200 bg-white p-3">
+                        <div className="rounded-2xl border border-[var(--color-border)] bg-white p-3">
                           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Répartition du risque</p>
                           <div className="mt-3 space-y-2 text-sm text-slate-700">
                             {simulationResult.risk_scores ? Object.entries(simulationResult.risk_scores).map(([key, value]) => (
@@ -1637,13 +1646,13 @@ export default function AdminClinicalRules() {
                           <div className="space-y-3">
                             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Règles déclenchées</p>
                             {simulationResult.triggered_rules.map((rule: any, index: number) => (
-                              <div key={`${rule.rule_name || 'rule'}-${index}`} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                              <div key={`${rule.rule_name || 'rule'}-${index}`} className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-4">
                                 <div className="flex items-start justify-between gap-4">
                                   <div>
                                     <h5 className="font-semibold text-slate-950">{rule.rule_name}</h5>
                                     <p className="mt-1 text-sm text-slate-600">{rule.explanation}</p>
                                   </div>
-                                  <span className="rounded-full border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-600">
+                                  <span className="rounded-full border border-[var(--color-border)] bg-white px-2 py-1 text-xs font-semibold text-[var(--color-muted-foreground)]">
                                     {rule.priority}
                                   </span>
                                 </div>
