@@ -596,7 +596,8 @@ export default function AdminRulesPage() {
 
           {/* add form */}
           {showAddMed && (
-            <Card className={`p-6 ${accentPanelCls}`}>
+            <div className="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-slate-950/35 px-4 py-6 backdrop-blur-sm sm:px-6 lg:px-8">
+              <Card className={`mx-auto w-full max-w-6xl rounded-3xl border border-slate-200 p-6 shadow-2xl ${accentPanelCls}`}>
               <div className="flex items-center justify-between mb-5">
                 <h3 className="font-bold text-slate-900 flex items-center gap-2">
                   <Plus className={`h-4 w-4 ${accentTextCls}`} /> Nouveau medicament
@@ -729,7 +730,8 @@ export default function AdminRulesPage() {
                   <Button type="button" variant="outline" onClick={resetMedicationForm}>Annuler</Button>
                 </div>
               </form>
-            </Card>
+              </Card>
+            </div>
           )}
 
           {/* medication cards */}
@@ -899,7 +901,8 @@ export default function AdminRulesPage() {
 
           {/* add form */}
           {showAddInt && (
-            <Card className={`p-6 ${accentPanelCls}`}>
+            <div className="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-slate-950/35 px-4 py-6 backdrop-blur-sm sm:px-6 lg:px-8">
+              <Card className={`mx-auto w-full max-w-4xl rounded-3xl border border-slate-200 p-6 shadow-2xl ${accentPanelCls}`}>
               <div className="flex items-center justify-between mb-5">
                 <h3 className="font-bold text-slate-900 flex items-center gap-2">
                   <Zap className={`h-4 w-4 ${accentTextCls}`} /> {editingIntId ? 'Modifier la regle d\'interaction' : 'Nouvelle regle d\'interaction'}
@@ -951,7 +954,8 @@ export default function AdminRulesPage() {
                   <Button type="button" variant="outline" onClick={resetInteractionForm}>Annuler</Button>
                 </div>
               </form>
-            </Card>
+              </Card>
+            </div>
           )}
 
           {/* interaction list */}

@@ -55,8 +55,8 @@ export default function DashboardNav({ user }: { user: User }) {
 
   return (
     <nav className="sticky top-0 z-50">
-      <div className="border-b border-slate-200/50 bg-white/75 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 lg:px-8">
+      <div className="border-b border-slate-200/50 bg-white/80 backdrop-blur-xl shadow-[0_1px_0_rgba(15,23,42,0.03)]">
+        <div className="mx-auto flex h-16 w-full max-w-[1600px] items-center justify-between px-4 lg:px-6 xl:px-8">
           
           {/* LEFT: Logo + Brand */}
           <Link href="/dashboard" className="shrink-0 group">

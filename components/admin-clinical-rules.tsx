@@ -423,6 +423,99 @@ function buildOutputSummary(outputs: any): string {
   return parts.join(' · ') || 'Aucun output defini'
 }
 
+type EditorTab = 'builder' | 'explainability' | 'simulation'
+
+type SimulationContextForm = {
+  age: string
+  weight: string
+  gender: string
+  potassium: string
+  eGFR: string
+  spo2: string
+  medications: string
+  conditions: string
+  symptoms: string
+  allergies: string
+}
+
+function makeEmptySimulationContextForm(): SimulationContextForm {
+  return {
+    age: '72',
+    weight: '85',
+    gender: 'M',
+    potassium: '6.8',
+    eGFR: '25',
+    spo2: '88',
+    medications: 'Warfarin\nIbuprofen\nMetformin',
+    conditions: 'diabetes\nhypertension',
+    symptoms: 'dizziness\nshortness_of_breath',
+    allergies: '',
+  }
+}
+
+function splitLines(value: string) {
+  return value
+    .split('\n')
+    .map(line => line.trim())
+    .filter(Boolean)
+}
+
+function buildSimulationContext(form: SimulationContextForm) {
+  return {
+    patient: {
+      id: 'editor-preview',
+      name: 'Preview Patient',
+      age: parseNumber(form.age),
+      weight: parseNumber(form.weight),
+      gender: form.gender,
+    },
+    labs: {
+      potassium: { name: 'potassium', value: parseNumber(form.potassium), unit: 'mEq/L', timestamp: new Date() },
+      eGFR: { name: 'eGFR', value: parseNumber(form.eGFR), unit: 'mL/min', timestamp: new Date() },
+    },
+    vitals: {
+      heart_rate: 110,
+      spo2: parseNumber(form.spo2),
+      heartRate: 110,
+      blood_pressure_systolic: 160,
+      blood_pressure_diastolic: 95,
+      bloodPressure: { systolic: 160, diastolic: 95 },
+      temperature: 37.2,
+    },
+    medications: splitLines(form.medications).map((name, index) => ({
+      id: `med-${index + 1}`,
+      name,
+      category: 'UNKNOWN',
+      dose: '',
+      dosage: '',
+      frequency: '',
+      route: 'oral',
+    })),
+    symptoms: splitLines(form.symptoms),
+    allergies: splitLines(form.allergies),
+    conditions: splitLines(form.conditions),
+    timestamp: new Date(),
+  }
+}
+
+function summarizeDraftConditions(form: ClinicalRuleForm) {
+  if (!form.conditions.length) return 'Aucune condition définie'
+  return form.conditions
+    .map(condition => `${condition.conditionType} ${condition.field || getDefaultField(condition.conditionType)} ${condition.operator} ${condition.value || '…'}`)
+    .join(form.conditionJoin === 'any' ? ' OU ' : ' ET ')
+}
+
+function summarizeDraftOutputs(form: ClinicalRuleForm) {
+  const parts: string[] = []
+  parts.push(`Urgence ${form.urgency}`)
+  parts.push(`${form.riskScores.filter(item => item.name.trim()).length} score(s)`)
+  parts.push(`${form.alerts.filter(item => item.message.trim()).length} alerte(s)`)
+  parts.push(`${form.contraindications.filter(item => item.medication.trim() || item.reason.trim()).length} contre-indication(s)`)
+  parts.push(`${form.recommendations.filter(Boolean).length} recommandation(s)`)
+  parts.push(`${form.warnings.filter(Boolean).length} avertissement(s)`)
+  return parts.join(' · ')
+}
+
 export default function AdminClinicalRules() {
   const [rules, setRules] = useState<ClinicalRule[]>([])
   const [loading, setLoading] = useState(true)
@@ -436,6 +529,11 @@ export default function AdminClinicalRules() {
   const [form, setForm] = useState<ClinicalRuleForm>(makeEmptyRuleForm())
   const [editingId, setEditingId] = useState<string | null>(null)
   const [showEditor, setShowEditor] = useState(false)
+  const [editorTab, setEditorTab] = useState<EditorTab>('builder')
+  const [simulationForm, setSimulationForm] = useState<SimulationContextForm>(makeEmptySimulationContextForm())
+  const [simulationResult, setSimulationResult] = useState<any>(null)
+  const [simulationLoading, setSimulationLoading] = useState(false)
+  const [simulationError, setSimulationError] = useState('')
 
   useEffect(() => {
     loadRules()
@@ -459,6 +557,7 @@ export default function AdminClinicalRules() {
     setForm(makeEmptyRuleForm())
     setEditingId(null)
     setShowEditor(false)
+    setEditorTab('builder')
     setError('')
   }
 
@@ -502,7 +601,32 @@ export default function AdminClinicalRules() {
     })
     setEditingId(rule.id)
     setShowEditor(true)
+    setEditorTab('builder')
     setError('')
+  }
+
+  async function runSimulation() {
+    setSimulationLoading(true)
+    setSimulationError('')
+    try {
+      const response = await fetch('/api/admin/clinical-rules/simulate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ patient: buildSimulationContext(simulationForm) }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data?.error || 'Simulation impossible')
+      }
+
+      setSimulationResult(data)
+    } catch (err: any) {
+      setSimulationError(err.message || 'Simulation impossible')
+    } finally {
+      setSimulationLoading(false)
+    }
   }
 
   function updateCondition(id: string, data: Partial<RuleCondition>) {
@@ -757,21 +881,33 @@ export default function AdminClinicalRules() {
   }, [pageCount, page])
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold text-slate-900 flex items-center gap-2">
-            <ShieldAlert className="h-6 w-6 text-teal-600" />
-            Moteur de règles cliniques
-          </h2>
-          <p className="text-sm text-slate-500 max-w-2xl">
-            Créez, modifiez et activez des règles cliniques dynamiques sans JSON brut. Cette interface pilote le moteur centralisé de décision.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button type="button" variant="outline" onClick={() => openEditor(null)}>
-            <Plus className="h-4 w-4" /> Nouvelle règle
-          </Button>
+    <div className="space-y-6">
+      <div className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-[0_20px_60px_-40px_rgba(15,23,42,0.35)] backdrop-blur">
+        <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+          <div className="space-y-3">
+            <div className="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-teal-700">
+              <ShieldAlert className="h-3.5 w-3.5" />
+              Clinical rules studio
+            </div>
+            <div className="space-y-2">
+              <h2 className="flex items-center gap-2 text-3xl font-semibold tracking-tight text-slate-950">
+                Moteur de règles cliniques
+              </h2>
+              <p className="max-w-3xl text-sm leading-6 text-slate-600">
+                Créez, modifiez et activez des règles cliniques dynamiques sans JSON brut. L’éditeur garde la logique métier intacte tout en présentant les conditions, les sorties et l’explicabilité dans un espace de travail lisible.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2 text-xs font-medium text-slate-600">
+              <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1">{filteredRules.length} règles visibles</span>
+              <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1">{rules.length} au total</span>
+              <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1">Moteur canonique</span>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" variant="outline" onClick={() => openEditor(null)} className="shadow-sm">
+              <Plus className="h-4 w-4" /> Nouvelle règle
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -781,9 +917,9 @@ export default function AdminClinicalRules() {
         </div>
       )}
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(420px,560px)]">
-        <div className="space-y-4">
-          <Card className="p-4">
+      <div className="grid gap-6 xl:grid-cols-[minmax(360px,420px)_minmax(0,1fr)] xl:items-start">
+        <div className="space-y-4 xl:sticky xl:top-24 xl:max-h-[calc(100vh-8rem)] xl:overflow-y-auto xl:pr-1">
+          <Card className="border-slate-200/80 p-4 shadow-sm">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -833,13 +969,13 @@ export default function AdminClinicalRules() {
 
           <div className="space-y-3">
             {pageRules.length === 0 && (
-              <Card className="p-10 text-center text-sm text-slate-500">
+              <Card className="border-slate-200/80 p-10 text-center text-sm text-slate-500 shadow-sm">
                 Aucun résultat trouvé. Ajustez le filtre ou créez une nouvelle règle.
               </Card>
             )}
 
             {pageRules.map(rule => (
-              <Card key={rule.id} className="p-4">
+              <Card key={rule.id} className="border-slate-200/80 p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                   <div className="min-w-0 space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
@@ -890,7 +1026,7 @@ export default function AdminClinicalRules() {
           </div>
 
           {pageCount > 1 && (
-            <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
+            <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
               <span>{`${(page - 1) * pageSize + 1} - ${Math.min(page * pageSize, filteredRules.length)} sur ${filteredRules.length}`}</span>
               <div className="flex items-center gap-2">
                 <Button
@@ -913,17 +1049,37 @@ export default function AdminClinicalRules() {
         </div>
 
         {showEditor && (
-          <Card className="space-y-4 p-4">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <h3 className="text-lg font-semibold text-slate-900">{editingId ? 'Modifier la règle' : 'Nouvelle règle'}</h3>
-                <p className="text-sm text-slate-500">Construisez les conditions et les résultats sans toucher au JSON.</p>
+          <Card className="space-y-4 border-slate-200/80 p-5 shadow-sm xl:sticky xl:top-24 xl:max-h-[calc(100vh-8rem)] xl:overflow-y-auto">
+            <div className="flex flex-col gap-4 border-b border-slate-200 pb-4">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-950">{editingId ? 'Modifier la règle' : 'Nouvelle règle'}</h3>
+                  <p className="text-sm text-slate-500">Construisez les conditions, relisez la logique et testez un patient sans quitter le panneau.</p>
+                </div>
+                <button type="button" onClick={resetForm} title="Fermer le formulaire" className="text-slate-400 hover:text-slate-600">
+                  <X className="h-5 w-5" />
+                </button>
               </div>
-              <button type="button" onClick={resetForm} title="Fermer le formulaire" className="text-slate-400 hover:text-slate-600">
-                <X className="h-5 w-5" />
-              </button>
+
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { id: 'builder', label: 'Builder' },
+                  { id: 'explainability', label: 'Explicabilité' },
+                  { id: 'simulation', label: 'Simulation' },
+                ].map(tab => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setEditorTab(tab.id as EditorTab)}
+                    className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition ${editorTab === tab.id ? 'border-teal-300 bg-teal-50 text-teal-700' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:text-slate-900'}`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
+            {editorTab === 'builder' && (
             <form onSubmit={saveRule} className="space-y-4">
               <div className="grid gap-4 lg:grid-cols-2">
                 <div>
@@ -1287,6 +1443,222 @@ export default function AdminClinicalRules() {
                 </div>
               </div>
             </form>
+            )}
+
+            {editorTab === 'explainability' && (
+              <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
+                <Card className="border-slate-200/80 p-4 shadow-sm">
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Lecture clinique</p>
+                      <h4 className="mt-1 text-lg font-semibold text-slate-950">{form.name || 'Règle sans nom'}</h4>
+                      <p className="mt-2 text-sm text-slate-600">
+                        {form.description || 'Ajoutez une description clinique pour expliquer l’intention de la règle.'}
+                      </p>
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Conditions</p>
+                        <p className="mt-2 text-sm text-slate-700">{summarizeDraftConditions(form)}</p>
+                      </div>
+                      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Sorties</p>
+                        <p className="mt-2 text-sm text-slate-700">{summarizeDraftOutputs(form)}</p>
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-teal-200 bg-teal-50 p-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-teal-700">Lecture rapide</p>
+                      <div className="mt-3 grid gap-2 text-sm text-teal-950 sm:grid-cols-2">
+                        <div>Combinaison: {form.conditionJoin === 'any' ? 'OU logique' : 'ET logique'}</div>
+                        <div>{form.conditions.length} condition(s)</div>
+                        <div>{form.alerts.filter(item => item.message.trim()).length} alerte(s)</div>
+                        <div>{form.warnings.filter(Boolean).length} avertissement(s)</div>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="border-slate-200/80 p-4 shadow-sm">
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Structure canonique</p>
+                      <p className="mt-1 text-sm text-slate-600">Aperçu de la règle normalisée qui sera envoyée au moteur.</p>
+                    </div>
+                    <pre className="max-h-[38rem] overflow-auto rounded-2xl border border-slate-200 bg-slate-950 p-4 text-xs leading-6 text-slate-100">
+{JSON.stringify(buildPayload(), null, 2)}
+                    </pre>
+                  </div>
+                </Card>
+              </div>
+            )}
+
+            {editorTab === 'simulation' && (
+              <div className="grid gap-4 xl:grid-cols-[340px_minmax(0,1fr)]">
+                <Card className="border-slate-200/80 p-4 shadow-sm">
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Patient de test</p>
+                      <p className="mt-1 text-sm text-slate-600">Réglez quelques paramètres cliniques, puis lancez l’évaluation sur le moteur actuel.</p>
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div>
+                        <Label>Âge</Label>
+                        <Input value={simulationForm.age} onChange={e => setSimulationForm(form => ({ ...form, age: e.target.value }))} />
+                      </div>
+                      <div>
+                        <Label>Poids</Label>
+                        <Input value={simulationForm.weight} onChange={e => setSimulationForm(form => ({ ...form, weight: e.target.value }))} />
+                      </div>
+                      <div>
+                        <Label>Genre</Label>
+                        <Input value={simulationForm.gender} onChange={e => setSimulationForm(form => ({ ...form, gender: e.target.value }))} />
+                      </div>
+                      <div>
+                        <Label>SpO2</Label>
+                        <Input value={simulationForm.spo2} onChange={e => setSimulationForm(form => ({ ...form, spo2: e.target.value }))} />
+                      </div>
+                      <div>
+                        <Label>Potassium</Label>
+                        <Input value={simulationForm.potassium} onChange={e => setSimulationForm(form => ({ ...form, potassium: e.target.value }))} />
+                      </div>
+                      <div>
+                        <Label>eGFR</Label>
+                        <Input value={simulationForm.eGFR} onChange={e => setSimulationForm(form => ({ ...form, eGFR: e.target.value }))} />
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label>Médicaments</Label>
+                      <textarea
+                        value={simulationForm.medications}
+                        onChange={e => setSimulationForm(form => ({ ...form, medications: e.target.value }))}
+                        rows={4}
+                        title="Médicaments de simulation"
+                        placeholder="Warfarin\nIbuprofen\nMetformin"
+                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Conditions</Label>
+                      <textarea
+                        value={simulationForm.conditions}
+                        onChange={e => setSimulationForm(form => ({ ...form, conditions: e.target.value }))}
+                        rows={3}
+                        title="Conditions de simulation"
+                        placeholder="diabetes\nhypertension"
+                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Symptômes</Label>
+                      <textarea
+                        value={simulationForm.symptoms}
+                        onChange={e => setSimulationForm(form => ({ ...form, symptoms: e.target.value }))}
+                        rows={3}
+                        title="Symptômes de simulation"
+                        placeholder="dizziness\nshortness_of_breath"
+                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Allergies</Label>
+                      <textarea
+                        value={simulationForm.allergies}
+                        onChange={e => setSimulationForm(form => ({ ...form, allergies: e.target.value }))}
+                        rows={2}
+                        title="Allergies de simulation"
+                        placeholder="penicillin"
+                        className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                      />
+                    </div>
+
+                    <Button type="button" onClick={runSimulation} disabled={simulationLoading} className="w-full">
+                      {simulationLoading ? 'Évaluation...' : 'Lancer la simulation'}
+                    </Button>
+                  </div>
+                </Card>
+
+                <div className="space-y-4">
+                  {simulationError && (
+                    <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                      {simulationError}
+                    </div>
+                  )}
+
+                  <Card className="border-slate-200/80 p-4 shadow-sm">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">Résultat</p>
+                        <h4 className="mt-1 text-lg font-semibold text-slate-950">Aperçu clinique</h4>
+                      </div>
+                      {simulationResult?.urgency_level && (
+                        <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">
+                          {simulationResult.urgency_level}
+                        </span>
+                      )}
+                    </div>
+
+                    {simulationResult ? (
+                      <div className="mt-4 space-y-4">
+                        <div className="grid gap-3 sm:grid-cols-3">
+                          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Score total</p>
+                            <p className="mt-2 text-2xl font-semibold text-slate-950">{Number(simulationResult.total_risk_score || 0).toFixed(1)}</p>
+                          </div>
+                          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Règles déclenchées</p>
+                            <p className="mt-2 text-2xl font-semibold text-slate-950">{simulationResult.triggered_rules?.length || 0}</p>
+                          </div>
+                          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Résumé</p>
+                            <p className="mt-2 text-sm text-slate-700">{simulationResult.summary || 'Aucun résumé disponible'}</p>
+                          </div>
+                        </div>
+
+                        <div className="rounded-2xl border border-slate-200 bg-white p-3">
+                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Répartition du risque</p>
+                          <div className="mt-3 space-y-2 text-sm text-slate-700">
+                            {simulationResult.risk_scores ? Object.entries(simulationResult.risk_scores).map(([key, value]) => (
+                              <div key={key} className="flex items-center justify-between gap-3 rounded-lg bg-slate-50 px-3 py-2">
+                                <span className="capitalize">{key}</span>
+                                <span className="font-semibold text-slate-950">{Number(value).toFixed(1)}</span>
+                              </div>
+                            )) : <p className="text-slate-500">Aucun score disponible</p>}
+                          </div>
+                        </div>
+
+                        {simulationResult.triggered_rules?.length > 0 && (
+                          <div className="space-y-3">
+                            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Règles déclenchées</p>
+                            {simulationResult.triggered_rules.map((rule: any, index: number) => (
+                              <div key={`${rule.rule_name || 'rule'}-${index}`} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                                <div className="flex items-start justify-between gap-4">
+                                  <div>
+                                    <h5 className="font-semibold text-slate-950">{rule.rule_name}</h5>
+                                    <p className="mt-1 text-sm text-slate-600">{rule.explanation}</p>
+                                  </div>
+                                  <span className="rounded-full border border-slate-200 bg-white px-2 py-1 text-xs font-semibold text-slate-600">
+                                    {rule.priority}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="mt-4 text-sm text-slate-500">Aucun test n’a encore été lancé.</p>
+                    )}
+                  </Card>
+                </div>
+              </div>
+            )}
           </Card>
         )}
       </div>

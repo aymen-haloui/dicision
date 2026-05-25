@@ -32,9 +32,9 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-[linear-gradient(180deg,#f8fafc_0%,#ffffff_24%,#ffffff_100%)]">
       <DashboardNav user={user} />
-      <main className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
+      <main className="mx-auto w-full max-w-[1600px] px-4 py-8 lg:px-6 xl:px-8">
         {children}
       </main>
     </div>
