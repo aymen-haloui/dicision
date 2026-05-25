@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { validateRule } from '@/lib/clinical-engine/validator'
 import sql from '@/lib/postgres'
+import { inferRuleFamily } from '@/lib/clinical-engine/rule-family'
 
 async function ensureAuth() {
   const session = await getServerSession(authOptions)
@@ -49,10 +50,11 @@ export async function PUT(
     if (typeof userId !== 'string') return userId
 
     const body = await request.json()
-    const { name, description, category, severity, priority, enabled, trigger_type, conditions, outputs, tags } = body
+    const { name, description, rule_family, explanation_template, category, severity, priority, enabled, trigger_type, conditions, outputs, ui_schema, output_schema, tags } = body
+    const normalizedFamily = rule_family || inferRuleFamily({ category, severity, trigger_type })
 
     // Validate structure
-    const validation = validateRule({ name, description, category, severity, priority, enabled, trigger_type, conditions, outputs })
+    const validation = validateRule({ name, description, rule_family: normalizedFamily, explanation_template, category, severity, priority, enabled, trigger_type, conditions, outputs })
     if (!validation.is_valid) {
       return NextResponse.json(
         { error: 'Validation failed', details: validation.errors },
@@ -71,11 +73,15 @@ export async function PUT(
       UPDATE clinical_rules SET
         name = ${name},
         description = ${description ?? null},
+        rule_family = ${normalizedFamily},
         category = ${category ?? 'GENERAL'},
         severity = ${severity ?? 'MODERATE'},
         priority = ${priority ?? 0},
         enabled = ${enabled ?? true},
         trigger_type = ${trigger_type ?? null},
+        explanation_template = ${explanation_template ?? `Règle ${name} déclenchée pour ${normalizedFamily}`},
+        ui_schema = ${JSON.stringify(ui_schema ?? {})},
+        output_schema = ${JSON.stringify(output_schema ?? {})},
         conditions = ${JSON.stringify(conditions)},
         outputs = ${JSON.stringify(outputs)},
         version = ${nextVersion},

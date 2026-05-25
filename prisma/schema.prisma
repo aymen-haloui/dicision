@@ -7,6 +7,17 @@ datasource db {
   provider = "postgresql"
 }
 
+enum RuleFamily {
+  PATIENT_RISK
+  DRUG_INTERACTION
+  CONTRAINDICATION
+  TOXICOLOGY
+  OVERDOSE
+  EMERGENCY
+  THERAPEUTIC_WARNING
+  DOSING_ADJUSTMENT
+}
+
 model case_medications {
   id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   case_id       String      @db.Uuid
@@ -56,26 +67,33 @@ model interactions {
 }
 
 model clinical_rules {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name         String   @db.VarChar(255)
-  description  String?  @db.Text
-  category     String   @db.VarChar(100)
-  severity     String   @db.VarChar(50)
-  priority     Int      @default(0) @db.SmallInt
-  enabled      Boolean  @default(true)
-  trigger_type String?  @db.VarChar(100)
-  conditions   Json     @default("{}") // RuleGroup structure
-  outputs      Json     @default("{}") // RuleOutputs structure
-  created_at   DateTime @default(now()) @db.Timestamptz(6)
-  updated_at   DateTime @updatedAt @db.Timestamptz(6)
-  created_by   String?  @db.VarChar(255)
-  version      Int      @default(1)
-  tags         String[] @default([])
+  id                  String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                String      @db.VarChar(255)
+  description         String?     @db.Text
+  rule_family         RuleFamily  @default(PATIENT_RISK)
+  category            String      @db.VarChar(100)
+  severity            String      @db.VarChar(50)
+  priority            Int         @default(0) @db.SmallInt
+  enabled             Boolean     @default(true)
+  trigger_type        String?     @db.VarChar(100)
+  explanation_template String      @default("")
+  ui_schema           Json?       @default("{}")
+  output_schema       Json?       @default("{}")
+  conditions          Json        @default("{}") // RuleGroup structure
+  outputs             Json        @default("{}") // RuleOutputs structure
+  created_at          DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime    @updatedAt @db.Timestamptz(6)
+  created_by          String?     @db.VarChar(255)
+  version             Int         @default(1)
+  tags                String[]    @default([])
 }
 
 model rules_audit {
   id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   case_id             String?  @db.Uuid
+  patient_id          String?  @db.Uuid
+  rule_family         RuleFamily?
+  clinical_explanation String?
   rule_id             String?  @db.Uuid
   rule_name           String?  @db.VarChar(255)
   matched_conditions  Json?

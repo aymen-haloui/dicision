@@ -5,7 +5,9 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Trash2, Plus, ShieldAlert, Search, CheckCircle2, X, ArrowUpDown } from 'lucide-react'
+import { Trash2, Plus, ShieldAlert, Search, CheckCircle2, X, ArrowUpDown, Users, Pill, FlaskConical, Siren, AlertTriangle, Scale, ClipboardList, Info } from 'lucide-react'
+import { getAllowedConditionTypesForFamily, RULE_FAMILY_DESCRIPTIONS, RULE_FAMILY_LABELS, RULE_FAMILY_ORDER, inferRuleFamily } from '@/lib/clinical-engine/rule-family'
+import type { RuleFamily } from '@/types/clinical-engine'
 
 type ConditionType =
   | 'CONDITION'
@@ -50,12 +52,14 @@ type ContraindicationEntry = {
 }
 
 type ClinicalRuleForm = {
+  ruleFamily: RuleFamily
   name: string
   description: string
   category: string
   severity: SeverityLevel
   enabled: boolean
   triggerType: string
+  explanationTemplate: string
   conditionJoin: 'all' | 'any'
   conditions: RuleCondition[]
   riskScores: RiskScoreEntry[]
@@ -83,10 +87,12 @@ interface ClinicalRule {
   id: string
   name: string
   description: string | null
+  rule_family: RuleFamily | null
   category: string | null
   severity: SeverityLevel
   enabled: boolean
   trigger_type: string | null
+  explanation_template: string | null
   conditions: any
   outputs: any
   created_at: string
@@ -117,6 +123,17 @@ const CATEGORY_OPTIONS = [
   'CONTRAINDICATION',
 ]
 
+const FAMILY_ICONS: Record<RuleFamily, any> = {
+  PATIENT_RISK: Users,
+  DRUG_INTERACTION: Pill,
+  CONTRAINDICATION: ClipboardList,
+  TOXICOLOGY: FlaskConical,
+  OVERDOSE: AlertTriangle,
+  EMERGENCY: Siren,
+  THERAPEUTIC_WARNING: Info,
+  DOSING_ADJUSTMENT: Scale,
+}
+
 const TRIGGER_TYPES = [
   'LAB_THRESHOLD',
   'MEDICATION_INTERACTION',
@@ -133,7 +150,7 @@ const SEVERITY_BADGE: Record<SeverityLevel, string> = {
   LOW: 'bg-[var(--color-muted)] text-[var(--color-muted-foreground)] border-[var(--color-border)]',
 }
 
-const FIELD_CATALOG: Record<ConditionType, FieldGroup[]> = {
+const FIELD_CATALOG: Record<string, FieldGroup[]> = {
   AGE: [{ label: 'Patient age', options: [{ value: 'patient.age', label: 'Patient age', dataType: 'number' }] }],
   CONDITION: [
     {
@@ -235,6 +252,17 @@ const FIELD_CATALOG: Record<ConditionType, FieldGroup[]> = {
   SYMPTOM: [{ label: 'Symptômes', options: [{ value: 'symptoms', label: 'Symptômes', dataType: 'array' }, { value: 'presenting_complaint', label: 'Motif de consultation', dataType: 'string' }] }],
   ALLERGY: [{ label: 'Allergies', options: [{ value: 'allergies', label: 'Allergies', dataType: 'array' }, { value: 'patient.allergies', label: 'Allergies du patient', dataType: 'array' }] }],
   EMERGENCY_FLAG: [{ label: 'Signaux d\'urgence', options: [{ value: 'emergency_flags', label: 'Signaux d\'urgence', dataType: 'array' }] }],
+}
+
+const FAMILY_UI: Record<RuleFamily, { bg: string; accent: string; border: string }> = {
+  PATIENT_RISK: { bg: 'bg-blue-50', accent: 'text-blue-600', border: 'border-blue-200' },
+  DRUG_INTERACTION: { bg: 'bg-yellow-50', accent: 'text-yellow-700', border: 'border-yellow-200' },
+  CONTRAINDICATION: { bg: 'bg-red-50', accent: 'text-red-700', border: 'border-red-200' },
+  TOXICOLOGY: { bg: 'bg-pink-50', accent: 'text-pink-700', border: 'border-pink-200' },
+  OVERDOSE: { bg: 'bg-amber-50', accent: 'text-amber-700', border: 'border-amber-200' },
+  EMERGENCY: { bg: 'bg-red-50', accent: 'text-red-700', border: 'border-red-200' },
+  THERAPEUTIC_WARNING: { bg: 'bg-green-50', accent: 'text-green-700', border: 'border-green-200' },
+  DOSING_ADJUSTMENT: { bg: 'bg-indigo-50', accent: 'text-indigo-700', border: 'border-indigo-200' },
 }
 
 function getFieldGroups(conditionType: ConditionType): FieldGroup[] {
@@ -348,8 +376,35 @@ function makeId() {
   return `id_${Math.random().toString(36).slice(2, 10)}`
 }
 
-function makeEmptyRuleForm(): ClinicalRuleForm {
+function makeDefaultConditionForFamily(family: RuleFamily): RuleCondition {
+  switch (family) {
+    case 'EMERGENCY':
+      return { id: makeId(), conditionType: 'VITAL_SIGN', field: 'vitals.spo2', operator: '<', value: '85' }
+    case 'OVERDOSE':
+      return { id: makeId(), conditionType: 'MEDICATION', field: 'medications.max_daily_dose_adult', operator: '>', value: '1' }
+    case 'CONTRAINDICATION':
+      return { id: makeId(), conditionType: 'MEDICATION', field: 'medications.name', operator: 'includes', value: 'Metformin' }
+    case 'TOXICOLOGY':
+      return { id: makeId(), conditionType: 'LAB_RESULT', field: 'labs.creatinine.value', operator: '>', value: '2' }
+    case 'DOSING_ADJUSTMENT':
+      return { id: makeId(), conditionType: 'LAB_RESULT', field: 'labs.eGFR.value', operator: '<', value: '30' }
+    case 'THERAPEUTIC_WARNING':
+      return { id: makeId(), conditionType: 'CONDITION', field: 'patient.smoking_status', operator: '=', value: 'smoker' }
+    case 'DRUG_INTERACTION':
+      return { id: makeId(), conditionType: 'MEDICATION', field: 'medications.name', operator: 'includes', value: 'Warfarin' }
+    case 'PATIENT_RISK':
+    default:
+      return { id: makeId(), conditionType: 'CONDITION', field: 'patient.smoking_status', operator: '=', value: 'smoker' }
+  }
+}
+
+function makeDefaultExplanationTemplate(family: RuleFamily, name = 'Cette règle') {
+  return `${name} déclenchée pour la famille ${RULE_FAMILY_LABELS[family]}. Expliquer les facteurs cliniques, le niveau de risque et la conduite à tenir.`
+}
+
+function makeEmptyRuleForm(family: RuleFamily = 'DRUG_INTERACTION'): ClinicalRuleForm {
   return {
+    ruleFamily: family,
     name: '',
     description: '',
     category: 'INTERACTION',
@@ -357,9 +412,8 @@ function makeEmptyRuleForm(): ClinicalRuleForm {
     enabled: true,
     triggerType: 'COMPOSITE',
     conditionJoin: 'all',
-    conditions: [
-      { id: makeId(), conditionType: 'LAB_RESULT', field: 'creatinine', operator: '>', value: '2' },
-    ],
+    explanationTemplate: makeDefaultExplanationTemplate(family),
+    conditions: [makeDefaultConditionForFamily(family)],
     riskScores: [{ id: makeId(), name: 'renal_risk', value: '20' }],
     urgency: 'HIGH',
     alerts: [{ id: makeId(), type: 'clinical', severity: 'CRITICAL', message: 'Verifier la fonction renale' }],
@@ -367,6 +421,14 @@ function makeEmptyRuleForm(): ClinicalRuleForm {
     recommendations: ['Arreter Metformin'],
     warnings: ['Surveiller creatinine et fonction renale'],
   }
+}
+
+function getFieldGroupsForFamily(family: RuleFamily, conditionType: ConditionType): FieldGroup[] {
+  const allowed = getAllowedConditionTypesForFamily(family)
+  if (!allowed.includes(conditionType)) {
+    return FIELD_CATALOG[allowed[0]] || FIELD_CATALOG.CONDITION
+  }
+  return FIELD_CATALOG[conditionType] || FIELD_CATALOG.CONDITION
 }
 
 function parseNumber(value: string) {
@@ -430,6 +492,7 @@ export default function AdminClinicalRules() {
   const [error, setError] = useState('')
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('')
+  const [familyFilter, setFamilyFilter] = useState('')
   const [severityFilter, setSeverityFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'enabled' | 'disabled'>('all')
   const [page, setPage] = useState(1)
@@ -471,14 +534,17 @@ export default function AdminClinicalRules() {
 
     const conditions = normalizeRuleConditions(rule.conditions)
     const outputs = rule.outputs ?? {}
+    const ruleFamily = inferRuleFamily(rule)
 
     setForm({
+      ruleFamily,
       name: rule.name ?? '',
       description: rule.description ?? '',
       category: rule.category ?? 'INTERACTION',
       severity: rule.severity ?? 'HIGH',
       enabled: rule.enabled ?? true,
       triggerType: rule.trigger_type ?? 'COMPOSITE',
+      explanationTemplate: rule.explanation_template ?? makeDefaultExplanationTemplate(ruleFamily, rule.name),
       conditionJoin: conditions.logic === 'OR' ? 'any' : 'all',
       conditions: conditions.conditions.length > 0
         ? conditions.conditions.map((item: any) => ({
@@ -613,14 +679,34 @@ export default function AdminClinicalRules() {
     setForm(form => ({ ...form, warnings: form.warnings.filter((_, idx) => idx !== index) }))
   }
 
+  function applyRuleFamily(family: RuleFamily) {
+    setForm(form => ({
+      ...form,
+      ruleFamily: family,
+      triggerType:
+        family === 'EMERGENCY' ? 'EMERGENCY_FLAG'
+          : family === 'DRUG_INTERACTION' ? 'MEDICATION_INTERACTION'
+            : family === 'CONTRAINDICATION' ? 'CONDITION_MEDICATION'
+              : family === 'TOXICOLOGY' ? 'LAB_THRESHOLD'
+                : family === 'OVERDOSE' ? 'COMPOSITE'
+                  : family === 'DOSING_ADJUSTMENT' ? 'LAB_THRESHOLD'
+                    : family === 'THERAPEUTIC_WARNING' ? 'COMPOSITE'
+                      : 'COMPOSITE',
+      conditions: [makeDefaultConditionForFamily(family)],
+      explanationTemplate: makeDefaultExplanationTemplate(family, form.name || 'Cette règle'),
+    }))
+  }
+
   function buildPayload(): any {
     return {
       name: form.name,
       description: form.description || null,
+      rule_family: form.ruleFamily,
       category: form.category || null,
       severity: form.severity,
       enabled: form.enabled,
       trigger_type: form.triggerType || null,
+      explanation_template: form.explanationTemplate.trim() || makeDefaultExplanationTemplate(form.ruleFamily, form.name),
       conditions: {
         logic: form.conditionJoin === 'any' ? 'OR' : 'AND',
         conditions: form.conditions.map(item => ({
@@ -738,23 +824,21 @@ export default function AdminClinicalRules() {
         (rule.trigger_type || '').toLowerCase().includes(text)
 
       const matchesCategory = !categoryFilter || rule.category === categoryFilter
+      const matchesFamily = !familyFilter || inferRuleFamily(rule).toString() === familyFilter
       const matchesSeverity = !severityFilter || rule.severity === severityFilter
       const matchesStatus =
         statusFilter === 'all' ||
         (statusFilter === 'enabled' && rule.enabled) ||
         (statusFilter === 'disabled' && !rule.enabled)
 
-      return matchesText && matchesCategory && matchesSeverity && matchesStatus
+      return matchesText && matchesCategory && matchesFamily && matchesSeverity && matchesStatus
     })
-  }, [rules, search, categoryFilter, severityFilter, statusFilter])
+  }, [rules, search, categoryFilter, familyFilter, severityFilter, statusFilter])
 
   const pageSize = 8
   const pageCount = Math.max(1, Math.ceil(filteredRules.length / pageSize))
-  const pageRules = filteredRules.slice((page - 1) * pageSize, page * pageSize)
-
-  useEffect(() => {
-    if (page > pageCount) setPage(pageCount)
-  }, [pageCount, page])
+  const safePage = Math.min(page, pageCount)
+  const pageRules = filteredRules.slice((safePage - 1) * pageSize, safePage * pageSize)
 
   return (
     <div className="space-y-4">
@@ -818,6 +902,17 @@ export default function AdminClinicalRules() {
                   ))}
                 </select>
                 <select
+                  value={familyFilter}
+                  onChange={e => { setFamilyFilter(e.target.value); setPage(1) }}
+                  title="Filtre de famille"
+                  className="w-full md:w-56 h-9 rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
+                >
+                  <option value="">Toutes familles</option>
+                  {RULE_FAMILY_ORDER.map(option => (
+                    <option key={option} value={option}>{RULE_FAMILY_LABELS[option]}</option>
+                  ))}
+                </select>
+                <select
                   value={severityFilter}
                   onChange={e => { setSeverityFilter(e.target.value); setPage(1) }}
                   title="Filtre de gravité"
@@ -854,6 +949,9 @@ export default function AdminClinicalRules() {
                 <div className="flex flex-col gap-2.5 lg:flex-row lg:items-start lg:justify-between">
                   <div className="min-w-0 space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
+                      <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${FAMILY_UI[inferRuleFamily(rule)].bg} ${FAMILY_UI[inferRuleFamily(rule)].accent} ${FAMILY_UI[inferRuleFamily(rule)].border}`}>
+                        {RULE_FAMILY_LABELS[inferRuleFamily(rule)]}
+                      </span>
                       <span className="text-base font-semibold text-[var(--color-foreground)]">{rule.name}</span>
                       <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${SEVERITY_BADGE[rule.severity]}`}>
                         {rule.severity}
@@ -902,7 +1000,7 @@ export default function AdminClinicalRules() {
 
           {pageCount > 1 && (
             <div className="flex items-center justify-between rounded-2xl border border-[var(--color-border)] bg-white px-3 py-2.5 text-sm text-[var(--color-muted-foreground)] shadow-sm">
-              <span>{`${(page - 1) * pageSize + 1} - ${Math.min(page * pageSize, filteredRules.length)} sur ${filteredRules.length}`}</span>
+              <span>{`${(safePage - 1) * pageSize + 1} - ${Math.min(safePage * pageSize, filteredRules.length)} sur ${filteredRules.length}`}</span>
               <div className="flex items-center gap-2">
                 <Button
                   type="button"
@@ -939,6 +1037,44 @@ export default function AdminClinicalRules() {
             </div>
 
             <form onSubmit={saveRule} className="space-y-3">
+              <section className="space-y-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <h4 className="text-sm font-semibold text-slate-900">Étape 1 · Famille clinique</h4>
+                    <p className="text-sm text-slate-600">Chaque règle appartient à une seule famille de raisonnement médical.</p>
+                  </div>
+                  <div className="rounded-full border border-[var(--color-border)] bg-white px-3 py-1 text-xs text-slate-500">
+                    {RULE_FAMILY_LABELS[form.ruleFamily]}
+                  </div>
+                </div>
+                <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
+                  {RULE_FAMILY_ORDER.map(family => {
+                    const meta = FAMILY_ICONS[family]
+                    const Icon = meta.icon
+                    const active = form.ruleFamily === family
+                    return (
+                      <button
+                        key={family}
+                        type="button"
+                        onClick={() => applyRuleFamily(family)}
+                        className={`flex h-full flex-col gap-2 rounded-2xl border p-3 text-left transition ${active ? `${meta.border} ${meta.bg} shadow-sm` : 'border-[var(--color-border)] bg-white hover:border-slate-300'}`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className={`rounded-xl border p-2 ${active ? meta.border : 'border-[var(--color-border)] bg-[var(--color-muted)]/10'}`}>
+                            <Icon className={`h-4 w-4 ${active ? meta.accent : 'text-slate-500'}`} />
+                          </span>
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-slate-900">{RULE_FAMILY_LABELS[family]}</p>
+                            <p className="text-xs text-slate-500">{family}</p>
+                          </div>
+                        </div>
+                        <p className="text-xs leading-5 text-slate-600">{RULE_FAMILY_DESCRIPTIONS[family]}</p>
+                      </button>
+                    )
+                  })}
+                </div>
+              </section>
+
               <div className="grid gap-3 lg:grid-cols-2">
                 <div>
                   <Label htmlFor="rule-name">Nom de la règle</Label>
@@ -976,6 +1112,18 @@ export default function AdminClinicalRules() {
                 <textarea id="rule-description" value={form.description} onChange={e => setForm(form => ({ ...form, description: e.target.value }))} rows={2} placeholder="Décrivez le comportement clinique de la règle" className="min-h-[84px] w-full rounded-lg border border-[var(--color-border)] bg-white px-3 py-2 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0" />
               </div>
 
+              <div>
+                <Label htmlFor="rule-explanation-template">Pourquoi cette règle s’est déclenchée ?</Label>
+                <textarea
+                  id="rule-explanation-template"
+                  value={form.explanationTemplate}
+                  onChange={e => setForm(form => ({ ...form, explanationTemplate: e.target.value }))}
+                  rows={3}
+                  placeholder="Décrivez la logique clinique, les facteurs déclenchants et la conduite à tenir."
+                  className="min-h-[96px] w-full rounded-lg border border-[var(--color-border)] bg-white px-3 py-2 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
+                />
+              </div>
+
               <section className="space-y-2.5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-3">
                 <div className="flex items-center justify-between gap-3">
                   <div>
@@ -997,14 +1145,14 @@ export default function AdminClinicalRules() {
                       <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
                         <div className="min-w-0">
                           <Label>Type</Label>
-                          <select value={condition.conditionType} onChange={e => { const nextType = e.target.value as ConditionType; updateCondition(condition.id, { conditionType: nextType, field: getDefaultField(nextType), operator: getOperatorOptions(getFieldOption(nextType, getDefaultField(nextType))?.dataType)[0] }) }} title="Type de condition" className="w-full h-9 rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">
-                            {CONDITION_TYPES.map(option => <option key={option} value={option}>{option}</option>)}
+                          <select value={condition.conditionType} onChange={e => { const nextType = e.target.value as ConditionType; const nextGroups = getFieldGroupsForFamily(form.ruleFamily, nextType); const nextField = nextGroups.flatMap(group => group.options)[0]?.value || getDefaultField(nextType); updateCondition(condition.id, { conditionType: nextType, field: nextField, operator: getOperatorOptions(getFieldOption(nextType, nextField)?.dataType)[0] }) }} title="Type de condition" className="w-full h-9 rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">
+                            {getAllowedConditionTypesForFamily(form.ruleFamily).map(option => <option key={option} value={option}>{option}</option>)}
                           </select>
                         </div>
                         <div className="min-w-0">
                           <Label>Champ ciblé</Label>
                           <select value={condition.field || getDefaultField(condition.conditionType)} onChange={e => { const nextField = e.target.value; const nextFieldOption = getFieldOption(condition.conditionType, nextField); updateCondition(condition.id, { field: nextField, operator: getOperatorOptions(nextFieldOption?.dataType)[0] }) }} title="Champ clinique" className="w-full h-9 rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">
-                            {getFieldGroups(condition.conditionType).map(group => (
+                            {getFieldGroupsForFamily(form.ruleFamily, condition.conditionType).map(group => (
                               <optgroup key={group.label} label={group.label}>
                                 {group.options.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
                               </optgroup>
@@ -1158,6 +1306,33 @@ export default function AdminClinicalRules() {
                         </Button>
                       </div>
                     ))}
+                  </div>
+                </div>
+              </section>
+
+              <section className="space-y-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <h4 className="text-sm font-semibold text-slate-900">Pourquoi cette règle s’est déclenchée ?</h4>
+                    <p className="text-sm text-slate-600">Prévisualisation explicable des facteurs attendus par la famille sélectionnée.</p>
+                  </div>
+                  <div className="rounded-full border border-[var(--color-border)] bg-white px-3 py-1 text-xs text-slate-500">
+                    {RULE_FAMILY_LABELS[form.ruleFamily]}
+                  </div>
+                </div>
+                <div className="grid gap-3 lg:grid-cols-3">
+                  <div className="rounded-xl border border-[var(--color-border)] bg-white p-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Conditions matchées</p>
+                    <p className="mt-2 text-sm text-slate-700">{buildConditionSummary({ logic: form.conditionJoin === 'any' ? 'OR' : 'AND', conditions: form.conditions })}</p>
+                  </div>
+                  <div className="rounded-xl border border-[var(--color-border)] bg-white p-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Sorties générées</p>
+                    <p className="mt-2 text-sm text-slate-700">{buildOutputSummary(buildPayload().outputs)}</p>
+                  </div>
+                  <div className="rounded-xl border border-[var(--color-border)] bg-white p-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Facteurs de traçabilité</p>
+                    <p className="mt-2 text-sm text-slate-700">Famille: {RULE_FAMILY_LABELS[form.ruleFamily]} · Déclencheur: {form.triggerType}</p>
+                    <p className="mt-2 text-xs text-slate-500">{form.explanationTemplate || makeDefaultExplanationTemplate(form.ruleFamily, form.name || 'Cette règle')}</p>
                   </div>
                 </div>
               </section>

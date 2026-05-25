@@ -78,7 +78,7 @@ export default function ClinicalSandboxPage() {
   }
 
   const urgencyColors: Record<string, string> = {
-    LOW: 'bg-green-100 text-green-800 border-green-300',
+    LOW: 'bg-blue-100 text-blue-800 border-blue-300',
     MODERATE: 'bg-yellow-100 text-yellow-800 border-yellow-300',
     HIGH: 'bg-orange-100 text-orange-800 border-orange-300',
     CRITICAL: 'bg-red-100 text-red-800 border-red-300',
@@ -272,19 +272,124 @@ export default function ClinicalSandboxPage() {
                   </Card>
                 )}
 
-                {/* ALERTS */}
-                {result.alerts.length > 0 && (
-                  <Card>
+                {/* EMERGENCY ALERTS (family-specific) */}
+                {result.emergency_alerts && result.emergency_alerts.length > 0 && (
+                  <Card className="rounded-xl border border-red-100 shadow-sm">
                     <CardHeader>
-                      <CardTitle className="text-base">Alerts ({result.alerts.length})</CardTitle>
+                      <CardTitle className="text-base">Emergency Alerts ({result.emergency_alerts.length})</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      {result.alerts.map((alert, i) => (
+                      {result.emergency_alerts.map((alert, i) => (
                         <Alert key={i} className="border-red-300 bg-red-50">
                           <AlertDescription className="text-red-800 text-sm">
                             <span className="font-bold">{alert.type.toUpperCase()}:</span> {alert.message}
                           </AlertDescription>
                         </Alert>
+                      ))}
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* INTERACTION ALERTS */}
+                {result.interaction_alerts && result.interaction_alerts.length > 0 && (
+                  <Card className="rounded-xl border border-yellow-100 shadow-sm">
+                    <CardHeader>
+                      <CardTitle className="text-base">Interaction Alerts ({result.interaction_alerts.length})</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {result.interaction_alerts.map((a, i) => (
+                        <Alert key={i} className="border-yellow-300 bg-yellow-50">
+                          <AlertDescription className="text-yellow-800 text-sm">
+                            <span className="font-bold">{a.type.toUpperCase()}:</span> {a.message}
+                          </AlertDescription>
+                        </Alert>
+                      ))}
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* TOXICOLOGY ALERTS */}
+                {result.toxicology_alerts && result.toxicology_alerts.length > 0 && (
+                  <Card className="rounded-xl border border-pink-100 shadow-sm">
+                    <CardHeader>
+                      <CardTitle className="text-base">Toxicology Alerts ({result.toxicology_alerts.length})</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {result.toxicology_alerts.map((t, i) => (
+                        <Alert key={i} className="border-pink-300 bg-pink-50">
+                          <AlertDescription className="text-pink-800 text-sm">
+                            {t.message || JSON.stringify(t)}
+                          </AlertDescription>
+                        </Alert>
+                      ))}
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* OVERDOSE ALERTS */}
+                {result.overdose_alerts && result.overdose_alerts.length > 0 && (
+                  <Card className="rounded-xl border border-amber-100 shadow-sm">
+                    <CardHeader>
+                      <CardTitle className="text-base">Overdose Alerts ({result.overdose_alerts.length})</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {result.overdose_alerts.map((o, i) => (
+                        <Alert key={i} className="border-amber-300 bg-amber-50">
+                          <AlertDescription className="text-amber-800 text-sm">
+                            {o.message || JSON.stringify(o)}
+                          </AlertDescription>
+                        </Alert>
+                      ))}
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* THERAPEUTIC WARNINGS */}
+                {result.therapeutic_warnings && result.therapeutic_warnings.length > 0 && (
+                  <Card className="rounded-xl border border-green-100 shadow-sm">
+                    <CardHeader>
+                      <CardTitle className="text-base">Therapeutic Warnings ({result.therapeutic_warnings.length})</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="list-disc list-inside text-sm space-y-2">
+                        {result.therapeutic_warnings.map((w, i) => (
+                          <li key={i} className="text-slate-700">{w.warning} {w.context ? `— ${w.context}` : ''}</li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* DOSING ADJUSTMENTS */}
+                {result.dosing_adjustments && result.dosing_adjustments.length > 0 && (
+                  <Card className="rounded-xl border border-indigo-100 shadow-sm">
+                    <CardHeader>
+                      <CardTitle className="text-base">Dosing Adjustments ({result.dosing_adjustments.length})</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="list-disc list-inside text-sm space-y-2">
+                        {result.dosing_adjustments.map((d, i) => (
+                          <li key={i} className="text-slate-700">{d.note || JSON.stringify(d)}</li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* EXPLAINABILITY */}
+                {result.explainability && result.explainability.length > 0 && (
+                  <Card className="rounded-xl border border-slate-100 shadow-sm">
+                    <CardHeader>
+                      <CardTitle className="text-base">Pourquoi cette décision s'est déclenchée ?</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {result.explainability.map((e, idx) => (
+                        <div key={idx} className="mb-3">
+                          <div className="text-sm font-semibold text-slate-900">{e.rule_name} <span className="text-xs text-slate-500">({e.rule_family})</span></div>
+                          <div className="text-xs text-slate-700">Facteurs: {Array.isArray(e.patient_factors) ? e.patient_factors.join(', ') : ''}</div>
+                          <div className="text-xs text-slate-700">Médicaments déclenchants: {Array.isArray(e.triggered_medications) ? e.triggered_medications.join(', ') : ''}</div>
+                          <div className="text-sm text-slate-600 mt-1">{e.narrative}</div>
+                        </div>
                       ))}
                     </CardContent>
                   </Card>

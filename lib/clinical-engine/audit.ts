@@ -14,17 +14,21 @@ export async function recordRuleAudit(
   ruleId: string,
   ruleName: string,
   matchedConditions: any,
-  outputsApplied: any
+  outputsApplied: any,
+  options?: { patientId?: string | null; ruleFamily?: string | null; clinicalExplanation?: string | null }
 ) {
   try {
     await sql`
-      INSERT INTO rules_audit (case_id, rule_id, rule_name, matched_conditions, outputs_applied)
+      INSERT INTO rules_audit (case_id, patient_id, rule_id, rule_name, rule_family, matched_conditions, outputs_applied, clinical_explanation)
       VALUES (
         ${caseId},
+        ${options?.patientId ?? null},
         ${ruleId},
         ${ruleName},
+        ${options?.ruleFamily ?? null},
         ${JSON.stringify(matchedConditions)},
-        ${JSON.stringify(outputsApplied)}
+        ${JSON.stringify(outputsApplied)},
+        ${options?.clinicalExplanation ?? null}
       )
     `
   } catch (error) {

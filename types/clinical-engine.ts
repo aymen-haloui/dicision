@@ -11,6 +11,15 @@
 
 export type AlertSeverity = 'LOW' | 'MODERATE' | 'HIGH' | 'CRITICAL'
 export type UrgencyLevel = 'LOW' | 'MODERATE' | 'HIGH' | 'CRITICAL'
+export type RuleFamily =
+  | 'PATIENT_RISK'
+  | 'DRUG_INTERACTION'
+  | 'CONTRAINDICATION'
+  | 'TOXICOLOGY'
+  | 'OVERDOSE'
+  | 'EMERGENCY'
+  | 'THERAPEUTIC_WARNING'
+  | 'DOSING_ADJUSTMENT'
 
 export interface ClinicalAlert {
   type: string
@@ -28,6 +37,17 @@ export interface Contraindication {
 export interface TherapeuticWarning {
   warning: string
   context?: string
+}
+
+export interface ExplainabilityEntry {
+  rule_id: string
+  rule_name: string
+  rule_family?: RuleFamily
+  matched_conditions: string[]
+  triggered_medications?: string[]
+  patient_factors?: string[]
+  generated_outputs: string[]
+  narrative: string
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════════
@@ -83,6 +103,7 @@ export interface RuleOutputs {
   recommendations?: string[]
   therapeutic_warnings?: TherapeuticWarning[]
   urgency?: UrgencyLevel
+  dosing_adjustments?: any[]
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════════
@@ -93,6 +114,7 @@ export interface TriggeredRule {
   rule_id: string
   rule_name: string
   rule_category?: string
+  rule_family?: RuleFamily
   priority: number
   matched_conditions: {
     condition: RuleCondition | RuleGroup
@@ -112,15 +134,25 @@ export interface ClinicalEngineResult {
   // Primary clinical assessment
   total_risk_score: number
   urgency_level: UrgencyLevel
+  toxicology_risk: number
+  overdose_risk: number
   
   // Risk breakdown by category
   risk_scores: RiskScoreBreakdown
   
   // Clinical findings
   alerts: ClinicalAlert[]
+  interaction_alerts: ClinicalAlert[]
   contraindications: Contraindication[]
   recommendations: string[]
   therapeutic_warnings: TherapeuticWarning[]
+  // Layered outputs (medical reasoning)
+  baseline_risks?: any[]
+  emergency_alerts?: ClinicalAlert[]
+  toxicology_alerts?: any[]
+  overdose_alerts?: any[]
+  dosing_adjustments?: any[]
+  explainability: ExplainabilityEntry[]
   
   // Auditability
   triggered_rules: TriggeredRule[]
@@ -130,7 +162,14 @@ export interface ClinicalEngineResult {
   evaluated_by_engine_version: string
   
   // Additional context
+  // Backwards-compatible human summary string
   summary?: string
+  // Structured summary (preferred): urgency, overall risk, toxicity
+  layered_summary?: {
+    urgency_level: UrgencyLevel
+    overall_risk_level: 'LOW' | 'MODERATE' | 'HIGH' | 'CRITICAL'
+    toxicity_level?: 'NONE' | 'LOW' | 'MODERATE' | 'HIGH' | 'CRITICAL'
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════════
@@ -238,11 +277,13 @@ export interface ClinicalRuleDefinition {
   id: string
   name: string
   description?: string
+  rule_family?: RuleFamily
   category: string
   severity: AlertSeverity
   priority: number // 0-100, higher = more important
   enabled: boolean
   trigger_type?: string
+  explanation_template?: string
   
   // Conditions
   conditions: RuleGroup
