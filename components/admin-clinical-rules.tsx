@@ -849,7 +849,7 @@ export default function AdminClinicalRules() {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-2xl border border-[var(--color-border)] bg-white p-3.5 shadow-sm">
+      <div className="rounded-2xl border border-[var(--color-border)] bg-white p-4 shadow-sm">
         <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
           <div className="space-y-2.5">
             <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-1 text-xs font-medium text-[var(--color-muted-foreground)]">
@@ -857,10 +857,10 @@ export default function AdminClinicalRules() {
               Studio de règles
             </div>
             <div className="space-y-1.5">
-              <h2 className="flex items-center gap-2 text-2xl font-semibold tracking-tight text-slate-900">
+              <h2 className="flex items-center gap-2 text-3xl font-semibold tracking-tight text-slate-900">
                 Moteur de règles cliniques
               </h2>
-              <p className="max-w-3xl text-sm leading-6 text-slate-600">
+              <p className="max-w-4xl text-sm leading-6 text-slate-600">
                 Créez, modifiez et activez des règles cliniques dynamiques sans JSON brut. L’éditeur garde la logique métier intacte tout en présentant les conditions, les sorties et l’explicabilité dans un espace de travail lisible.
               </p>
             </div>
@@ -883,10 +883,10 @@ export default function AdminClinicalRules() {
         </div>
       )}
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(340px,380px)_minmax(0,1fr)] xl:items-start 2xl:grid-cols-[380px_minmax(0,1fr)]">
-        <div className="space-y-3">
-          <Card className="border-[var(--color-border)] bg-white p-3 shadow-sm">
-            <div className="flex flex-col gap-2.5 md:flex-row md:items-center md:justify-between">
+      <div className="grid gap-5 xl:grid-cols-[minmax(420px,480px)_minmax(0,1fr)] xl:items-start 2xl:grid-cols-[480px_minmax(0,1fr)]">
+        <div className="space-y-4">
+          <Card className="border-[var(--color-border)] bg-white p-5 shadow-sm">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div className="relative flex-1 min-w-0">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-muted-foreground)]" />
                 <Input
@@ -896,7 +896,7 @@ export default function AdminClinicalRules() {
                   className="pl-10 h-9"
                 />
               </div>
-              <div className="flex flex-wrap gap-2 items-center w-full md:w-auto">
+              <div className="flex flex-wrap gap-2.5 items-center w-full md:w-auto">
                 <select
                   value={categoryFilter}
                   onChange={e => { setCategoryFilter(e.target.value); setPage(1) }}
@@ -944,18 +944,18 @@ export default function AdminClinicalRules() {
             </div>
           </Card>
 
-          <div className="space-y-2.5">
+          <div className="space-y-3">
             {pageRules.length === 0 && (
-              <Card className="border-[var(--color-border)] bg-white p-6 text-center text-sm text-[var(--color-muted-foreground)] shadow-sm">
+              <Card className="border-[var(--color-border)] bg-white p-7 text-center text-sm text-[var(--color-muted-foreground)] shadow-sm">
                 Aucun résultat trouvé. Ajustez le filtre ou créez une nouvelle règle.
               </Card>
             )}
 
             {pageRules.map(rule => (
-              <Card key={rule.id} className="border-[var(--color-border)] bg-white p-3.5 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md">
-                <div className="flex flex-col gap-2.5 lg:flex-row lg:items-start lg:justify-between">
-                  <div className="min-w-0 space-y-2">
-                    <div className="flex flex-wrap items-center gap-2">
+              <Card key={rule.id} className="border-[var(--color-border)] bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="min-w-0 space-y-2.5">
+                    <div className="flex flex-wrap items-center gap-2.5">
                       <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${FAMILY_UI[inferRuleFamily(rule)].bg} ${FAMILY_UI[inferRuleFamily(rule)].accent} ${FAMILY_UI[inferRuleFamily(rule)].border}`}>
                         {RULE_FAMILY_LABELS[inferRuleFamily(rule)]}
                       </span>
@@ -975,11 +975,11 @@ export default function AdminClinicalRules() {
                       )}
                     </div>
                     {rule.description && <p className="text-sm text-[var(--color-muted-foreground)]">{rule.description}</p>}
-                    <div className="grid gap-2 sm:grid-cols-2">
-                      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-2.5 py-2 text-xs text-[var(--color-muted-foreground)]">
+                    <div className="grid gap-2.5 sm:grid-cols-2">
+                      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-2.5 text-xs text-[var(--color-muted-foreground)]">
                         <span className="font-semibold">Conditions:</span> {buildConditionSummary(rule.conditions)}
                       </div>
-                      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-2.5 py-2 text-xs text-[var(--color-muted-foreground)]">
+                      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-2.5 text-xs text-[var(--color-muted-foreground)]">
                         <span className="font-semibold">Outputs:</span> {buildOutputSummary(rule.outputs)}
                       </div>
                     </div>
@@ -1006,7 +1006,7 @@ export default function AdminClinicalRules() {
           </div>
 
           {pageCount > 1 && (
-            <div className="flex items-center justify-between rounded-2xl border border-[var(--color-border)] bg-white px-3 py-2.5 text-sm text-[var(--color-muted-foreground)] shadow-sm">
+            <div className="flex items-center justify-between rounded-2xl border border-[var(--color-border)] bg-white px-4 py-3 text-sm text-[var(--color-muted-foreground)] shadow-sm">
               <span>{`${(safePage - 1) * pageSize + 1} - ${Math.min(safePage * pageSize, filteredRules.length)} sur ${filteredRules.length}`}</span>
               <div className="flex items-center gap-2">
                 <Button
@@ -1029,8 +1029,8 @@ export default function AdminClinicalRules() {
         </div>
 
         {showEditor && (
-          <Card className="space-y-3 border-[var(--color-border)] bg-white p-4 shadow-sm">
-            <div className="flex flex-col gap-3 border-b border-[var(--color-border)] pb-3">
+              <Card className="space-y-4 border-[var(--color-border)] bg-white p-5 shadow-sm xl:p-6 xl:sticky xl:top-6">
+            <div className="flex flex-col gap-4 border-b border-[var(--color-border)] pb-4">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <h3 className="text-base font-semibold text-slate-950">{editingId ? 'Modifier la règle' : 'Nouvelle règle'}</h3>
@@ -1043,8 +1043,8 @@ export default function AdminClinicalRules() {
 
             </div>
 
-            <form onSubmit={saveRule} className="space-y-3">
-              <section className="space-y-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-3">
+            <form onSubmit={saveRule} className="space-y-4">
+              <section className="space-y-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-4">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <h4 className="text-sm font-semibold text-slate-900">Étape 1 · Famille clinique</h4>
@@ -1054,7 +1054,7 @@ export default function AdminClinicalRules() {
                     {RULE_FAMILY_LABELS[form.ruleFamily]}
                   </div>
                 </div>
-                <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
+                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                   {RULE_FAMILY_ORDER.map(family => {
                     const Icon = FAMILY_ICONS[family] || ShieldAlert
                     const familyUi = FAMILY_UI[family] || FAMILY_UI.PATIENT_RISK
@@ -1082,7 +1082,7 @@ export default function AdminClinicalRules() {
                 </div>
               </section>
 
-              <div className="grid gap-3 lg:grid-cols-2">
+              <div className="grid gap-4 lg:grid-cols-2">
                 <div>
                   <Label htmlFor="rule-name">Nom de la règle</Label>
                   <Input id="rule-name" value={form.name} onChange={e => setForm(form => ({ ...form, name: e.target.value }))} required />
@@ -1131,7 +1131,7 @@ export default function AdminClinicalRules() {
                 />
               </div>
 
-              <section className="space-y-2.5 rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-3">
+              <section className="space-y-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-4">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <h4 className="text-sm font-semibold text-slate-900">Conditions dynamiques</h4>
@@ -1146,7 +1146,7 @@ export default function AdminClinicalRules() {
                   </div>
                 </div>
 
-                <div className="space-y-2.5">
+                <div className="space-y-3">
                   {form.conditions.map((condition, index) => (
                     <div key={condition.id} className="grid grid-cols-1 gap-2 items-start lg:grid-cols-[1fr_auto]">
                       <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
@@ -1189,7 +1189,7 @@ export default function AdminClinicalRules() {
                 </Button>
               </section>
 
-              <section className="space-y-3 rounded-2xl border border-[var(--color-border)] bg-white p-3.5">
+              <section className="space-y-4 rounded-2xl border border-[var(--color-border)] bg-white p-5">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <h4 className="text-sm font-semibold text-slate-900">Résultats et recommandations</h4>
@@ -1200,7 +1200,7 @@ export default function AdminClinicalRules() {
                   </div>
                 </div>
 
-                <div className="grid gap-3 lg:grid-cols-2">
+                <div className="grid gap-4 lg:grid-cols-2">
                   <div>
                     <Label>Urgence globale</Label>
                     <select value={form.urgency} onChange={e => setForm(form => ({ ...form, urgency: e.target.value as SeverityLevel }))} title="Urgence globale" className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">
@@ -1226,8 +1226,8 @@ export default function AdminClinicalRules() {
                   </div>
                 </div>
 
-                <div className="space-y-3.5">
-                  <div className="grid gap-2.5">
+                <div className="space-y-4">
+                  <div className="grid gap-3">
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <p className="text-sm font-semibold text-slate-900">Alertes</p>
@@ -1251,7 +1251,7 @@ export default function AdminClinicalRules() {
                     ))}
                   </div>
 
-                  <div className="grid gap-2.5">
+                  <div className="grid gap-3">
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <p className="text-sm font-semibold text-slate-900">Contre-indications</p>
@@ -1275,7 +1275,7 @@ export default function AdminClinicalRules() {
                     ))}
                   </div>
 
-                  <div className="grid gap-2.5">
+                  <div className="grid gap-3">
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <p className="text-sm font-semibold text-slate-900">Recommandations médicales</p>
@@ -1295,7 +1295,7 @@ export default function AdminClinicalRules() {
                     ))}
                   </div>
 
-                  <div className="grid gap-2.5">
+                  <div className="grid gap-3">
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <p className="text-sm font-semibold text-slate-900">Avertissements thérapeutiques</p>
@@ -1317,7 +1317,7 @@ export default function AdminClinicalRules() {
                 </div>
               </section>
 
-              <section className="space-y-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-3">
+              <section className="space-y-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-4">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <h4 className="text-sm font-semibold text-slate-900">Pourquoi cette règle s’est déclenchée ?</h4>
@@ -1327,7 +1327,7 @@ export default function AdminClinicalRules() {
                     {RULE_FAMILY_LABELS[form.ruleFamily]}
                   </div>
                 </div>
-                <div className="grid gap-3 lg:grid-cols-3">
+                <div className="grid gap-4 lg:grid-cols-3">
                   <div className="rounded-xl border border-[var(--color-border)] bg-white p-3">
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Conditions matchées</p>
                     <p className="mt-2 text-sm text-slate-700">{buildConditionSummary({ logic: form.conditionJoin === 'any' ? 'OR' : 'AND', conditions: form.conditions })}</p>
