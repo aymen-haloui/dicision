@@ -1,0 +1,537 @@
+<!doctype html><html><head><meta charset="utf-8"><title>CDSS Architecture</title><style>
+body{font-family: Inter, Arial, Helvetica, sans-serif; margin:40px; color:#111}
+h1{font-size:28px}
+h2{font-size:22px}
+h3{font-size:18px}
+pre{background:#f6f8fa;padding:12px;border-radius:6px;overflow:auto}
+code{background:#f6f8fa;padding:2px 4px;border-radius:4px}
+@media print{body{margin:20mm}}</style></head><body><h1>Architecture du Moteur Clinique Intelligent (CDSS)</h1>
+
+<h2>Dossier d'architecture hospitalière</h2>
+
+<p><strong>Auteur :</strong> Architecte logiciel senior — Conception technique et orientée production  </p>
+<p><strong>Date :</strong> 2026-05-26</p>
+
+<p>---</p>
+
+<h2>Résumé exécutif</h2>
+
+<p>Ce document présente l'architecture complète d'un moteur clinique intelligent conçu pour un usage hospitalier réel, avec les contraintes qui caractérisent ce type de système : hétérogénéité des sources, dépendance forte au contexte clinique, nécessité de décisions explicables, et obligation d'une traçabilité médico‑légale irréprochable. L'intention n'est pas de décrire un prototype académique, mais bien une plateforme de raisonnement clinique apte à s'insérer dans des circuits de soins exigeants, où chaque règle doit pouvoir être justifiée, rejouée et auditée.</p>
+
+<p>L'architecture repose sur un découpage strict entre le profil patient, le cas clinique, le référentiel médicament, le moteur de règles, les pipelines d'évaluation et la couche d'explicabilité. Cette séparation n'est pas un choix de confort technique ; elle permet de préserver la cohérence du raisonnement clinique, de limiter les effets de bord, et de conserver une base stable malgré l'évolution continue des référentiels thérapeutiques et toxicologiques. Le document détaille également les mécanismes de scoring, les règles d'urgence, la toxicologie, le sandbox de simulation et la logique d'évolution future vers l'interopérabilité hospitalière et l'intelligence clinique augmentée.</p>
+
+<p>Dans sa forme actuelle, le système doit être compris comme une plateforme de production modulaire : les décisions sont déterministes, les règles sont versionnées, les sorties sont explicables, et les décisions de sécurité sont conservatrices. C'est précisément cette discipline architecturale qui rend le moteur crédible dans un environnement hospitalier.</p>
+
+
+<h2>Table des matières</h2>
+
+<ol>
+<li>Introduction générale</li>
+<li>Philosophie globale de l'architecture</li>
+<li>Structure complète des paramètres patients</li>
+<li>Cas clinique temps réel</li>
+<li>Architecture des médicaments</li>
+<li>Système d'interactions médicamenteuses</li>
+<li>Architecture du moteur de règles</li>
+<li>Familles de règles</li>
+<li>Pipelines cliniques</li>
+<li>Système d'explicabilité</li>
+<li>Sandbox clinique</li>
+<li>Audit et traçabilité</li>
+<li>Évolutivité future</li>
+<li>Conclusion</li>
+</ol>
+
+<p>Annexes</p>
+
+<p>---</p>
+
+<h2>1. Introduction générale</h2>
+
+<h3>Contexte et besoin</h3>
+
+<p>Dans un établissement de santé, la décision clinique ne peut pas être ramenée à un mécanisme de filtrage simple. Une prescription, une alerte, une recommandation de dosage ou un signal de toxicité doivent être interprétés à la lumière d'un ensemble de paramètres qui évoluent vite : état hémodynamique, fonction rénale, exposition médicamenteuse, antécédents, âge physiologique, statut reproductif, comorbidités et contexte de prise en charge. C'est précisément là que les systèmes statiques montrent leurs limites. Ils savent signaler une interaction connue ou une contre-indication générique, mais ils savent rarement arbitrer correctement entre un profil patient fragile, un contexte aigu et une logique de priorisation médicale.</p>
+
+<p>Un CDSS moderne doit donc faire davantage que stocker des règles. Il doit organiser le raisonnement, le contextualiser et le rendre intelligible. Cela implique une architecture capable d'absorber des entrées hétérogènes, de produire une lecture clinique cohérente, puis d'expliquer pourquoi une décision a été retenue, pourquoi une autre a été écartée, et à quel niveau de criticité elle doit être présentée à l'utilisateur.</p>
+
+<h3>Enjeux hospitaliers</h3>
+
+<p>La difficulté n'est pas seulement technique. Elle est aussi organisationnelle et médico‑légale. En milieu hospitalier, l'outil est attendu sur trois fronts simultanés : réduction du risque iatrogène, amélioration de la qualité du triage, et soutien à la standardisation des pratiques sans déresponsabiliser le clinicien. Le moteur doit donc rester un aide‑à‑la‑décision, jamais une boîte noire prescriptive. Chaque résultat doit rester contestable, vérifiable et réversible.</p>
+
+<h3>Gouvernance clinique et explicabilité</h3>
+
+<p>Le système est pensé autour d'un principe simple : une décision médicale n'a de valeur opérationnelle que si elle peut être expliquée après coup. La gouvernance clinique repose ainsi sur la combinaison de trois éléments indissociables : des règles versionnées, des inputs tracés, et une restitution lisible du chemin de décision. C'est cette chaîne qui permet au comité médical de valider un comportement, à l'équipe de soins de comprendre une alerte, et à l'organisation de conserver un historique défendable en cas d'analyse qualité ou d'audit.</p>
+
+<h3>Nécessité d'un moteur contextuel</h3>
+
+<p>Le moteur a été conçu pour être contextuel par construction. Il ne déclenche pas des règles en vase clos ; il reconstruit le terrain patient, lit le cas clinique courant, agrège les médicaments actifs et évalue le tout à travers des pipelines spécialisés. Cette contextualisation est essentielle car le même médicament, le même dosage ou le même symptôme peuvent changer de signification selon l'âge, la fonction rénale, la grossesse, la présence d'une infection, ou l'existence d'une interaction pharmacologique connue. Sans ce niveau de contexte, le système perd sa valeur clinique.</p>
+
+<h3>Limites des approches statiques</h3>
+
+<p>Les systèmes statiques échouent dans trois situations majeures : variations du profil patient non prises en compte, données dynamiques non intégrées, et interactions complexes multi‑médicaments. Un moteur configurable et modulable est donc nécessaire pour la sécurité clinique et l'adoption par les équipes soignantes.</p>
+
+
+<h2>2. Philosophie globale de l'architecture</h2>
+
+<h3>Principes directeurs</h3>
+
+<ul>
+<li>Modularité : séparation nette entre modèle patient, instance de cas, référentiel médicaments, base de règles, moteur d'exécution, couche d'explicabilité et composantes d'audit.</li>
+<li>Données patient comme pivot durable ; cas clinique comme contexte temporel et éphémère.</li>
+<li>Règles déclaratives : toute logique clinique est exprimée via des artefacts versionnés et testables, non hardcodés.</li>
+<li>Extensibilité : insertion de nouveaux modules (toxicologie, ML, connecteurs FHIR) sans modification profonde du noyau.</li>
+</ul>
+
+<h3>Flux conceptuel</h3>
+
+<p>Patient → Cas Clinique → Médicaments → Interactions → Évaluation (moteur règles &amp; scoring) → Résultats (findings, recommandations, urgence) → Audit &amp; Explicabilité</p>
+
+<h3>Séparation Patient / Cas Clinique</h3>
+
+<ul>
+<li>Cohérence temporelle : un patient génère de multiples cas (visites, urgences) ; permettre reconstitution.</li>
+<li>Réutilisabilité : profil patient centralisé (allergies, comorbidités) partagé entre services.</li>
+<li>Historique &amp; simulation : re‑exécution de règles sur cas historiques.</li>
+<li>Sécurité des écritures : isoler mises à jour temporaires des attributs persistants.</li>
+</ul>
+
+<h3>Contrats et API</h3>
+
+<p>Chaque couche expose un contrat (types, SLAs, timeouts). Ces contrats sont testés via mocks et tests d'intégration pour garantir isolabilité.</p>
+
+
+<h2>3. Structure complète des paramètres patients</h2>
+
+<p>Le profil patient constitue le socle du raisonnement clinique. Dans ce type de système, il n'est pas un simple enregistrement administratif ; il représente le terrain physiologique, pathologique et comportemental à partir duquel la décision sera interprétée. C'est cette couche qui fixe le niveau de prudence du moteur, qui influence la sensibilité des alertes et qui donne sa cohérence aux scores produits par les pipelines.</p>
+
+<p>En pratique, le profil patient sert de référentiel stable. Il contient les variables qui ne changent pas à chaque consultation ou qui ne changent que lentement : âge, morphologie, antécédents, allergies, traitements de fond, statut reproductif, habitudes de vie, exposition toxique, fonction rénale ou hépatique connue. Ces éléments ne sont pas décoratifs ; ils modifient la façon dont le moteur lit les cas cliniques et évalue les risques. Un même signal clinique n'a pas la même portée chez un adulte sain, chez un patient insuffisant rénal, chez une femme enceinte, ou chez un enfant de six ans.</p>
+
+<p>Le moteur exploite ces paramètres selon plusieurs modalités. Certains alimentent directement les conditions de règles, d'autres modulent les scores de risque, d'autres encore servent de facteurs de pondération dans les pipelines spécialisés. Cette logique explique pourquoi le modèle patient doit être riche, structuré et validé : un champ absent ou approximatif peut altérer la qualité d'une recommandation, et dans un contexte hospitalier, cette dérive n'est jamais anodine.</p>
+
+<h3>Modèle de données (synthèse)</h3>
+
+<ul>
+<li>Identité et métadonnées : id (UUID), nom, identifiant médical, sexe légal/biologique, date de naissance.</li>
+<li>Anthropométrie : poids_kg, taille_cm, IMC dérivé.</li>
+<li>Statut reproductif : grossesse (stade), allaitement.</li>
+<li>Mode de vie : tabagisme (pack‑years), consommation d'alcool (units/week), activité physique, sommeil, régime alimentaire, phytothérapie.</li>
+<li>Comorbidités : liste codée (ICD/SNOMED).</li>
+<li>Immunodépression : type, degré.</li>
+<li>Allergies : agent, type, sévérité, manifestation.</li>
+<li>Médicaments usuels : liste structurée avec dosage, fréquence, voie.</li>
+<li>Facteurs toxicologiques : expositions professionnelles, substances illicites, plantes médicinales.</li>
+<li>Biologie de base : créatinine, clairance (CrCl), AST/ALT, bilirubine, électrolytes.</li>
+<li>Données socio‑administratives : adhérence, support.</li>
+</ul>
+
+<p>Chaque paramètre porte métadonnées : timestamp, source (DME, patient, device), quality/confidence.</p>
+
+<h3>Influence clinique et exemples</h3>
+
+<p>Pour chaque famille de paramètres, l'impact sur le moteur est systématiquement décrit :</p>
+
+<ul>
+<li>Poids &amp; taille : doses pédiatriques et seuils mg/kg ; distribution des molécules lipophiles ; exemples de règles (antibiotiques dosés en mg/kg).</li>
+<li>Âge : adjustments pédiatriques/geriatrics ; retrait des seuils ; exemple : anticoagulants et risque hémorragique.</li>
+<li>Grossesse &amp; allaitement : catégo ries et contre‑indications formelles ; recommandations alternatives.</li>
+<li>Insuffisance rénale (CrCl) : ajustement de dose, contre‑indications (metformin en insuffisance rénale avancée), risk scores rénaux.</li>
+<li>Allergies : déclenchement de CI et alternatives.</li>
+<li>Phytothérapie : interactions (millepertuis – CYP3A4), recommandations d'arrêt.</li>
+</ul>
+
+<h3>Gestion des données manquantes ou incertaines</h3>
+
+<ul>
+<li>Marqueurs `unknown` / `estimated` et règles prudentes (fail‑safe).</li>
+<li>Confirmation utilisateur pour données critiques.</li>
+<li>Politique de repli : lorsqu'une donnée critique est absente, produire une recommandation conservatrice plutôt qu'aucune recommandation.</li>
+</ul>
+
+<h3>Stockage et validation</h3>
+
+<ul>
+<li>Base Postgres primaire, colonnes typées et `JSONB` pour `extended_profile`.</li>
+<li>Validation à l'ingestion via JSON Schema / Zod.</li>
+<li>Chiffrement de champs sensibles si requis.</li>
+</ul>
+
+
+<h2>4. Cas clinique temps réel</h2>
+
+<h3>Rôle du cas clinique</h3>
+
+<p>Le cas est un instantané dynamique associé à un événement clinique. Il contient symptômes, constantes, examens, et constitue le contexte d'évaluation immédiate.</p>
+
+<h3>Données dynamiques</h3>
+
+<ul>
+<li>Symptômes structurés et codés.</li>
+<li>Constantes vitales : SpO2, température, tension artérielle (syst/dias), fréquence cardiaque, fréquence respiratoire, score de Glasgow.</li>
+<li>Examens biologiques : valeurs + timestamps (créatinine, lactates, etc.).</li>
+<li>Signes d'urgence : détresse respiratoire, convulsions, saignement.</li>
+</ul>
+
+<p>Chaque donnée porte son origine et sa confiance : device &gt; praticien &gt; patient.</p>
+
+<h3>Impact sur le moteur</h3>
+
+<p>Données critiques modifiant immédiatement :</p>
+<ul>
+<li>Urgence (triage). </li>
+<li>Priorité d'exécution des pipelines.</li>
+<li>Recommandations et prescriptions immédiates.</li>
+</ul>
+
+<h3>Exemples cliniques</h3>
+
+<ul>
+<li>SpO2 &lt; 90% : escalade d'urgence, proposition d'oxygénothérapie.</li>
+<li>Température &gt; 39°C : suspicion infection grave, proposition d'hémocultures et antibiothérapie empirique selon contexte.</li>
+</ul>
+
+
+<h2>5. Architecture des médicaments</h2>
+
+<h3>Modèle de données</h3>
+
+<ul>
+<li>id, nom_commercial, substance_active (INN), code ATC, formes galéniques.</li>
+<li>posologie_std : adult/child, plage mg/kg, dose_max.</li>
+<li>métabolisme : CYP enzymes, fraction éliminée.</li>
+<li>seuils_toxicité : mg/kg et valeurs plasmatiques lorsque pertinentes.</li>
+<li>ajustements : règles par CrCl/âge/HEP.</li>
+<li>interactions_known : références par id.</li>
+<li>evidence &amp; provenance.</li>
+</ul>
+
+<h3>Toxicité et gestion des seuils</h3>
+
+<ul>
+<li>Seuils absolus et relatifs, exprimés via expressions (AST) permettant f(x) où x = poids, CrCl.</li>
+<li>Gestion d'alertes et backfill pour tests biologiques.</li>
+</ul>
+
+<h3>Ajustement populationnel</h3>
+
+<ul>
+<li>Enfant : mg/kg ou BSA ; règles d'arrondi et limites.</li>
+<li>Senior : barèmes de réduction et contre‑indications spécifiques.</li>
+<li>Insuffisance rénale / hépatique : tables d'ajustement applicables dynamiquement.</li>
+</ul>
+
+<h3>Versioning</h3>
+
+<ul>
+<li>Chaque médicament a un historigramme : changements de seuils, nouvelles CI, mises à jour d'evidence.</li>
+</ul>
+
+
+<h2>6. Système d'interactions médicamenteuses</h2>
+
+<h3>Types d'interactions</h3>
+
+<ul>
+<li>Pharmacocinétiques (PK) : induction/inhibition enzymatique.</li>
+<li>Pharmacodynamiques (PD) : effets additifs ou antagonistes.</li>
+<li>Toxicologiques : synergies délétères.</li>
+</ul>
+
+<h3>Modèle d'interaction</h3>
+
+<ul>
+<li>id, med_a, med_b, mécanisme, sévérité, clinical_impact, recommendation_template.</li>
+<li>Agrégation multi‑médicament (somme pondérée des contributions par classe d'effet).</li>
+</ul>
+
+<h3>Évaluation et exemples</h3>
+
+<ul>
+<li>Exemple 1 : Millepertuis induit CYP3A4 → risque échec tacrolimus.</li>
+<li>Exemple 2 : SSRIs + triptans → risque sérotoninergique ; règle produit warning + monitoring.</li>
+</ul>
+
+<h3>Maintenance du référentiel</h3>
+
+<ul>
+<li>Connecteurs aux bases standards (Micromedex, CredibleMeds) ; validation locale par comité.</li>
+</ul>
+
+
+<h2>7. Architecture du moteur de règles</h2>
+
+<h3>Principes</h3>
+
+<ul>
+<li>Règles déclaratives, testables, versionnées.</li>
+<li>Moteur déterministe, stateless, exécutable en parallèle.</li>
+<li>Règles contiennent conditions, outputs, priority, explain_template.</li>
+</ul>
+
+<h3>Format et exemple</h3>
+
+<p>Voir annexe pour un exemple complet JSON.</p>
+
+<h3>Exécution</h3>
+
+<ul>
+<li>Engine évalue des `facts` (patient + case + meds). </li>
+<li>Expressions supportent opérations numériques, textuelles, temporelles et fonctions utilitaires (ex: `contains_class`, `trendIncrease`).</li>
+</ul>
+
+<h3>Conflits et priorités</h3>
+
+<ul>
+<li>Priorités numériques et `trigger_type` (hard_stop, advisory, info).</li>
+<li>Politique : hard_stop &gt; contraindication &gt; major &gt; moderate &gt; minor.</li>
+</ul>
+
+<h3>Scalabilité</h3>
+
+<ul>
+<li>Stateless → scale horizontal. </li>
+<li>Cache des règles en mémoire et invalidation via webhooks.</li>
+</ul>
+
+<h3>Sécurité</h3>
+
+<ul>
+<li>Sandbox des expressions, timeouts, quotas CPU/mem.</li>
+</ul>
+
+
+<h2>8. Familles de règles</h2>
+
+<p>Pour chaque famille : objectif, paramètres, exemples.</p>
+
+<h3>CONTRAINDICATION</h3>
+
+<ul>
+<li>Objectif : détecter CI formelles (p. ex. teratogènes en grossesse).</li>
+<li>Exemples : isotretinoïne en grossesse → CI absolue.</li>
+</ul>
+
+<h3>INTERACTION</h3>
+
+<ul>
+<li>Objectif : PK/PD alerts.</li>
+<li>Exemples : amiodarone + fluoroquinolone → QT prolongation.</li>
+</ul>
+
+<h3>TOXICOLOGY</h3>
+
+<ul>
+<li>Objectif : prise en charge intoxications.</li>
+<li>Exemples : paracétamol surdosage et décision NAC.</li>
+</ul>
+
+<h3>OVERDOSE</h3>
+
+<ul>
+<li>Objectif : prise en charge surdosage aigu.</li>
+<li>Exemples : opioïdes → naloxone.</li>
+</ul>
+
+<h3>EMERGENCY</h3>
+
+<ul>
+<li>Objectif : triage et actions immédiates.</li>
+<li>Exemples : SpO2 &lt; 85% → alerte réanimation.</li>
+</ul>
+
+<h3>THERAPEUTIC</h3>
+
+<ul>
+<li>Objectif : suggestions thérapeutiques.</li>
+<li>Exemples : alternative antibiothérapie selon allergies.</li>
+</ul>
+
+<h3>DOSING</h3>
+
+<ul>
+<li>Objectif : calcul posologique précis.</li>
+<li>Exemples : gentamicine mg/kg avec monitor trough.</li>
+</ul>
+
+
+<h2>9. Pipelines cliniques</h2>
+
+<h3>Architecture</h3>
+
+<p>Normalisation → Baseline → Interactions → Toxicologie → Overdose → Urgence → Therapeutic → Aggregation &amp; Scoring → Audit/Explicabilité</p>
+
+<h3>Rôles</h3>
+
+<ul>
+<li>Pipeline Baseline : règles patient‑centrées.</li>
+<li>Pipeline Interactions : pairwise + aggregation.</li>
+<li>Pipeline Toxicologie : dépistage substances dangereuses.</li>
+<li>Pipeline Urgence : règles temps réel et escalation.</li>
+<li>Pipeline Overdose : protocole antidote.</li>
+<li>Pipeline Therapeutic/Dosing : recommandations adaptées.</li>
+</ul>
+
+<h3>Isolement et avantages</h3>
+
+<ul>
+<li>Indépendance et possibilité d'échelle spécifique par pipeline.</li>
+<li>Rollback localisé.</li>
+</ul>
+
+<h3>Performance</h3>
+
+<ul>
+<li>Chemins critiques exécutés synchronously, autres asynchrones.</li>
+</ul>
+
+
+<h2>10. Système d'explicabilité</h2>
+
+<h3>Objectifs</h3>
+
+<ul>
+<li>Permettre au clinicien de comprendre chaque recommandation : quelles règles, quelles valeurs, quelles preuves.</li>
+</ul>
+
+<h3>Composants</h3>
+
+<ul>
+<li>Trace d'exécution (rule_id, version, matched_conditions). </li>
+<li>Templates d'explication intégrés aux règles.</li>
+<li>UI : timeline des déclenchements, contribution au score.</li>
+</ul>
+
+<h3>Format d'un explain</h3>
+
+<p>`finding`: { id, description, triggered_by: [{ rule_id, rule_version, matched_conditions }], evidence: [...], contribution_score }</p>
+
+<h3>Conservation</h3>
+
+<ul>
+<li>Stockage du explain dans `risk_assessments` ou dans `rule_execution_trace` pour audit.</li>
+</ul>
+
+
+<h2>11. Sandbox clinique</h2>
+
+<h3>Fonctionnalités</h3>
+
+<ul>
+<li>Import de profils (dé‑identifiés), construction de timelines, exécution de versions multiples de règles, comparaisons.</li>
+</ul>
+
+<h3>Sécurité</h3>
+
+<ul>
+<li>Environnement isolé, accès restreint.</li>
+</ul>
+
+<h3>Cas d'usage</h3>
+
+<ul>
+<li>Validation de nouvelles règles, A/B testing clinique, stress tests.</li>
+</ul>
+
+
+<h2>12. Audit et traçabilité</h2>
+
+<h3>Exigences</h3>
+
+<ul>
+<li>Historisation immuable de toutes les décisions.</li>
+<li>Rétention configurée selon juridiction.</li>
+</ul>
+
+<h3>Modèle d'audit</h3>
+
+<p>`audit_event`: { id, case_id, patient_id, timestamp, actor, action, payload (immutable), rule_snapshot_hash }</p>
+
+<h3>Reproductibilité</h3>
+
+<ul>
+<li>Re‑exécution des décisions sur snapshot de données et version de règles identique.</li>
+</ul>
+
+
+<h2>13. Évolutivité future</h2>
+
+<h3>Vue stratégique</h3>
+
+<p>Le système est conçu pour évoluer vers l'intégration de ML explicable, standards FHIR, monitoring temps réel, NLP médical et connecteurs externes.</p>
+
+<h3>Phases recommandées</h3>
+
+<ul>
+<li>Data collection &amp; featurization pour ML; méthodes explainables (SHAP). </li>
+<li>APIs FHIR (Patient, Encounter, Observation, MedicationRequest). </li>
+<li>Monitoring et drift detection.</li>
+<li>Connexions à référentiels toxico/pharma.</li>
+</ul>
+
+
+<h2>14. Conclusion</h2>
+
+<p>La plateforme décrite favorise sécurité, auditabilité, modularité et explicabilité. Elle met le clinicien au centre des décisions et offre un parcours d'évolution contrôlé vers l'IA et l'intégration hospitalière.</p>
+
+
+<p>---</p>
+
+<h2>Annexes</h2>
+
+<h3>Annexe A — Exemple de règle (JSON)</h3>
+
+<pre><code>json
+<p>{</p>
+<p>  "id": "INTERACT-CKD-001",</p>
+<p>  "version": "2026-05-20",</p>
+<p>  "family": "INTERACTION",</p>
+<p>  "priority": 900,</p>
+<p>  "enabled": true,</p>
+<p>  "conditions": {</p>
+<p>    "all": [</p>
+<p>      { "fact": "patient.renal_creatinine_clearance", "operator": "&lt;", "value": 30 },</p>
+<p>      { "any": [</p>
+<p>          { "fact": "medications", "operator": "contains", "value": "NSAID" },</p>
+<p>          { "fact": "medications", "operator": "contains_class", "value": "NEPHROTOXIC" }</p>
+<p>      ]}</p>
+<p>    ]</p>
+<p>  },</p>
+<p>  "outputs": {</p>
+<p>    "findings": [</p>
+<p>      { "type": "nephrotoxicity_risk", "severity": "high", "description": "Patient with CrCl &lt; 30 on nephrotoxic agent" }</p>
+<p>    ],</p>
+<p>    "recommendations": [</p>
+<p>      "Evaluer la fonction renale, envisager alternative non‑nephrotoxique, monitorer creatinine sous 48h"</p>
+<p>    ],</p>
+<p>    "risk_scores": { "renal": 30 }</p>
+<p>  }</p>
+<p>}</code></pre></p>
+
+
+<h3>Annexe B — Schéma conceptuel (extrait)</h3>
+
+<ul>
+<li>Table `patients`: id, first_name, last_name, date_of_birth, sex, weight_kg, height_cm, renal_creatinine_clearance, hepatic_status, allergies JSONB, current_medications JSONB, extended_profile JSONB.</li>
+<li>Table `cases`: id, patient_id, user_id, chief_complaint, symptoms, vital_signs JSONB, labs JSONB, created_at.</li>
+<li>Table `medications`: id, name, inn, atc, dosage JSONB, thresholds JSONB, interactions JSONB.</li>
+<li>Table `risk_assessments`: id, case_id, total_risk_score numeric, risk_scores JSONB, findings JSONB, recommendations JSONB, rule_execution_trace JSONB, created_at.</li>
+</ul>
+
+<h3>Annexe C — Scénario clinique illustratif</h3>
+
+<p>Patient: 78 ans, 72 kg, CrCl calculé 28 ml/min, traitements: ibuprofène, metformine, warfarine.</p>
+
+<p>Cas: douleur abdominale aiguë, T 38.9°C, SpO2 94%, TA 100/60.</p>
+
+<p>Pipeline résumé:</p>
+<ul>
+<li>Baseline: âge &gt; 75.</li>
+<li>Interactions: NSAID + warfarine → risque hémorragique.</li>
+<li>Renal: CrCl &lt; 30 + NSAID → nephrotoxicity_risk → recommendation: stopper NSAID, monitorer créatinine.</li>
+<li>Aggregation: total_risk_score = 50 → classification "high".</li>
+</ul>
+
+<p>---</p>
+
+<p><em>Document généré à des fins techniques. Pour conversion finale en PDF et mise en page réglementaire, appliquer feuille de styles et vérifier la présence d'un comité médical pour validation du contenu clinique.</em></p>
+
+</body></html>

@@ -18,6 +18,20 @@ function getSql() {
 
 const sql = getSql()
 
+function normalizeRiskRow(row: any) {
+  if (!row) return row
+  try {
+    // postgres may return DECIMAL/NUMERIC as string; ensure a JS number
+    if (row.risk_score !== undefined && row.risk_score !== null) {
+      const n = Number(row.risk_score)
+      row.risk_score = Number.isFinite(n) ? n : row.risk_score
+    }
+  } catch (e) {
+    // ignore and return original
+  }
+  return row
+}
+
 export async function createUser(
   email: string,
   password: string,
@@ -206,7 +220,7 @@ export async function createPatient(userId: string, data: PatientInput) {
       )
       RETURNING *
     `
-    return result[0]
+    return normalizeRiskRow(result[0])
   } catch (error) {
     throw error
   }
@@ -219,7 +233,7 @@ export async function getPatientById(patientId: string, userId: string) {
       FROM patients
       WHERE id = ${patientId} AND user_id = ${userId}
     `
-    return result[0] || null
+    return normalizeRiskRow(result[0]) || null
   } catch (error) {
     throw error
   }
