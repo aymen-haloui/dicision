@@ -848,8 +848,8 @@ export default function AdminClinicalRules() {
   const pageRules = filteredRules.slice((safePage - 1) * pageSize, safePage * pageSize)
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-2xl border border-[var(--color-border)] bg-white p-4 shadow-sm">
+    <div className="space-y-6">
+      <div className="rounded-2xl bg-slate-50 p-5 shadow-sm">
         <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
           <div className="space-y-2.5">
             <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-1 text-xs font-medium text-[var(--color-muted-foreground)]">
@@ -869,10 +869,11 @@ export default function AdminClinicalRules() {
               <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-0.5">{rules.length} au total</span>
             </div>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex items-center gap-3">
             <Button type="button" variant="outline" onClick={() => openEditor(null)} className="h-9 shadow-sm">
               <Plus className="h-4 w-4" /> Nouvelle règle
             </Button>
+            <div className="text-sm text-slate-500">{rules.length} règles · Filtrer pour affiner</div>
           </div>
         </div>
       </div>
@@ -883,9 +884,9 @@ export default function AdminClinicalRules() {
         </div>
       )}
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(420px,480px)_minmax(0,1fr)] xl:items-start 2xl:grid-cols-[480px_minmax(0,1fr)]">
+      <div className="grid gap-6 xl:grid-cols-[minmax(420px,480px)_minmax(0,1fr)] xl:items-start 2xl:grid-cols-[480px_minmax(0,1fr)]">
         <div className="space-y-4">
-          <Card className="border-[var(--color-border)] bg-white p-5 shadow-sm">
+          <div className="rounded-lg bg-white p-4 shadow-sm">
             <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
               <div className="relative flex-1 min-w-0">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-muted-foreground)]" />
@@ -893,7 +894,7 @@ export default function AdminClinicalRules() {
                   value={search}
                   onChange={e => { setSearch(e.target.value); setPage(1) }}
                   placeholder="Recherche par nom, catégorie, type..."
-                  className="pl-10 h-9"
+                  className="pl-10 h-10 rounded-xl"
                 />
               </div>
               <div className="flex flex-wrap gap-2.5 items-center w-full md:w-auto">
@@ -946,13 +947,13 @@ export default function AdminClinicalRules() {
 
           <div className="space-y-3">
             {pageRules.length === 0 && (
-              <Card className="border-[var(--color-border)] bg-white p-7 text-center text-sm text-[var(--color-muted-foreground)] shadow-sm">
+              <div className="rounded-lg bg-white p-6 text-center text-sm text-slate-500 shadow-sm">
                 Aucun résultat trouvé. Ajustez le filtre ou créez une nouvelle règle.
-              </Card>
+              </div>
             )}
 
             {pageRules.map(rule => (
-              <Card key={rule.id} className="border-[var(--color-border)] bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md">
+              <div key={rule.id} className="rounded-lg bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                   <div className="min-w-0 space-y-2.5">
                     <div className="flex flex-wrap items-center gap-2.5">
@@ -975,12 +976,12 @@ export default function AdminClinicalRules() {
                       )}
                     </div>
                     {rule.description && <p className="text-sm text-[var(--color-muted-foreground)]">{rule.description}</p>}
-                    <div className="grid gap-2.5 sm:grid-cols-2">
-                      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-2.5 text-xs text-[var(--color-muted-foreground)]">
-                        <span className="font-semibold">Conditions:</span> {buildConditionSummary(rule.conditions)}
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="rounded-md bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                        <span className="font-medium">Conditions:</span> {buildConditionSummary(rule.conditions)}
                       </div>
-                      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-2.5 text-xs text-[var(--color-muted-foreground)]">
-                        <span className="font-semibold">Outputs:</span> {buildOutputSummary(rule.outputs)}
+                      <div className="rounded-md bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                        <span className="font-medium">Outputs:</span> {buildOutputSummary(rule.outputs)}
                       </div>
                     </div>
                     <div className="flex flex-wrap gap-2 text-[11px] text-slate-500">
@@ -990,15 +991,13 @@ export default function AdminClinicalRules() {
                   </div>
 
                   <div className="flex flex-col gap-2 sm:items-end">
-                    <Button type="button" variant="outline" size="sm" onClick={() => toggleEnabled(rule)}>
-                      {rule.enabled ? 'Désactiver' : 'Activer'}
+                    <Button type="button" variant="ghost" size="sm" onClick={() => toggleEnabled(rule)}>
+                      {rule.enabled ? 'Activée' : 'Inactivée'}
                     </Button>
-                    <Button type="button" variant="secondary" size="sm" onClick={() => openEditor(rule)}>
-                      Modifier
-                    </Button>
-                    <Button type="button" variant="destructive" size="sm" onClick={() => deleteRule(rule.id)}>
-                      Supprimer
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button type="button" variant="secondary" size="sm" onClick={() => openEditor(rule)}>Modifier</Button>
+                      <Button type="button" variant="destructive" size="sm" onClick={() => deleteRule(rule.id)}>Supprimer</Button>
+                    </div>
                   </div>
                 </div>
               </Card>
@@ -1028,8 +1027,8 @@ export default function AdminClinicalRules() {
           )}
         </div>
 
-        {showEditor && (
-              <Card className="space-y-4 border-[var(--color-border)] bg-white p-5 shadow-sm xl:p-6 xl:sticky xl:top-6">
+          {showEditor && (
+            <div className="space-y-4 bg-white rounded-lg p-6 shadow-sm xl:sticky xl:top-6">
             <div className="flex flex-col gap-4 border-b border-[var(--color-border)] pb-4">
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -1043,18 +1042,16 @@ export default function AdminClinicalRules() {
 
             </div>
 
-            <form onSubmit={saveRule} className="space-y-4">
-              <section className="space-y-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-4">
-                <div className="flex items-center justify-between gap-3">
+            <form onSubmit={saveRule} className="space-y-6">
+              <details open className="group rounded-2xl bg-slate-50 p-4">
+                <summary className="flex items-center justify-between cursor-pointer">
                   <div>
                     <h4 className="text-sm font-semibold text-slate-900">Étape 1 · Famille clinique</h4>
                     <p className="text-sm text-slate-600">Chaque règle appartient à une seule famille de raisonnement médical.</p>
                   </div>
-                  <div className="rounded-full border border-[var(--color-border)] bg-white px-3 py-1 text-xs text-slate-500">
-                    {RULE_FAMILY_LABELS[form.ruleFamily]}
-                  </div>
-                </div>
-                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                  <div className="text-xs text-slate-500">{RULE_FAMILY_LABELS[form.ruleFamily]}</div>
+                </summary>
+                <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                   {RULE_FAMILY_ORDER.map(family => {
                     const Icon = FAMILY_ICONS[family] || ShieldAlert
                     const familyUi = FAMILY_UI[family] || FAMILY_UI.PATIENT_RISK
@@ -1080,7 +1077,8 @@ export default function AdminClinicalRules() {
                     )
                   })}
                 </div>
-              </section>
+                </div>
+              </details>
 
               <div className="grid gap-4 lg:grid-cols-2">
                 <div>
@@ -1131,7 +1129,21 @@ export default function AdminClinicalRules() {
                 />
               </div>
 
-              <section className="space-y-3 rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-4">
+              <details open className="group rounded-2xl bg-slate-50 p-4">
+                <summary className="flex items-center justify-between cursor-pointer">
+                  <div>
+                    <h4 className="text-sm font-semibold text-slate-900">Conditions dynamiques</h4>
+                    <p className="text-sm text-slate-600">Chaque ligne peut être combinée avec ET ou OU.</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs uppercase tracking-[0.18em] text-slate-500">Combinaison</span>
+                    <select value={form.conditionJoin} onChange={e => setForm(form => ({ ...form, conditionJoin: e.target.value as 'all' | 'any' }))} title="Mode de combinaison des conditions" className="rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">
+                      <option value="all">ET</option>
+                      <option value="any">OU</option>
+                    </select>
+                  </div>
+                </summary>
+                <div className="mt-3 space-y-3">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <h4 className="text-sm font-semibold text-slate-900">Conditions dynamiques</h4>
@@ -1187,9 +1199,20 @@ export default function AdminClinicalRules() {
                 <Button type="button" variant="secondary" size="sm" onClick={addCondition}>
                   <Plus className="h-4 w-4" /> Ajouter une condition
                 </Button>
-              </section>
+                </div>
+              </details>
 
-              <section className="space-y-4 rounded-2xl border border-[var(--color-border)] bg-white p-5">
+              <details open className="group space-y-4 rounded-2xl bg-white p-5">
+                <summary className="flex items-center justify-between cursor-pointer">
+                  <div>
+                    <h4 className="text-sm font-semibold text-slate-900">Résultats et recommandations</h4>
+                    <p className="text-sm text-slate-600">Configurez les scores, alertes, contre-indications et recommandations cliniques.</p>
+                  </div>
+                  <div className="inline-flex items-center gap-2 rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">
+                    <ArrowUpDown className="h-4 w-4" /> Priorité {form.urgency}
+                  </div>
+                </summary>
+                <div className="mt-3">
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <h4 className="text-sm font-semibold text-slate-900">Résultats et recommandations</h4>
@@ -1315,7 +1338,8 @@ export default function AdminClinicalRules() {
                     ))}
                   </div>
                 </div>
-              </section>
+                </div>
+              </details>
 
               <section className="space-y-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-4">
                 <div className="flex items-center justify-between gap-3">
@@ -1351,6 +1375,16 @@ export default function AdminClinicalRules() {
                 <div className="flex flex-wrap gap-2">
                   <Button type="submit" disabled={saving}>{saving ? 'Enregistrement...' : editingId ? 'Mettre à jour la règle' : 'Créer la règle'}</Button>
                   <Button type="button" variant="outline" onClick={resetForm}>Annuler</Button>
+                </div>
+              </div>
+              <div className="h-6" />
+              <div className="sticky bottom-6 z-40 bg-transparent">
+                <div className="mx-auto max-w-3xl rounded-lg bg-white px-4 py-3 shadow-md flex items-center justify-between gap-4">
+                  <div className="text-sm text-slate-600">{error || 'Modifications non enregistrées'}</div>
+                  <div className="flex items-center gap-2">
+                    <Button type="button" variant="outline" onClick={resetForm}>Annuler</Button>
+                    <Button type="submit" onClick={(e) => saveRule(e as any)}>{saving ? 'Enregistrement...' : 'Enregistrer la règle'}</Button>
+                  </div>
                 </div>
               </div>
             </form>

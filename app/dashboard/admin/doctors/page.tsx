@@ -65,7 +65,7 @@ export default function DoctorsAdminPage() {
             <p className="max-w-2xl text-base text-slate-600">Gérez les accès et les permissions</p>
           </div>
           <div className="flex items-center gap-3">
-            <Button className="h-10 px-3.5">Ajouter un utilisateur</Button>
+            {/* Add user button removed (feature not available yet) */}
           </div>
         </div>
       </div>
@@ -120,8 +120,15 @@ export default function DoctorsAdminPage() {
                 <div key={d.id} className="flex items-center justify-between gap-4 rounded-lg bg-white p-4 transition duration-150 hover:shadow-sm hover:bg-slate-50">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <div className="flex-shrink-0">
-                      {d.profile_image ? (
-                        <img src={d.profile_image} alt={d.full_name || d.email} className="h-11 w-11 rounded-full object-cover ring-2 ring-white shadow-sm" />
+                      {(
+                        d.profile_image || d.profileImage || d.avatar_url || d.avatar
+                      ) ? (
+                        <img
+                          src={d.profile_image || d.profileImage || d.avatar_url || d.avatar}
+                          alt={d.full_name || d.email}
+                          className="h-11 w-11 rounded-full object-cover ring-2 ring-white shadow-sm"
+                          onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none' }}
+                        />
                       ) : (
                         <div className={`${bgClass} flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold text-slate-700 ring-2 ring-white`}>
                           {initials}
@@ -146,9 +153,7 @@ export default function DoctorsAdminPage() {
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
-                    <button aria-label="Plus d'actions" title="Plus d'actions" className="flex h-9 w-9 items-center justify-center rounded-md text-slate-400 transition-colors duration-150 hover:bg-slate-100">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </button>
+                    {/* More actions removed until implemented */}
                   </div>
                 </div>
               )
