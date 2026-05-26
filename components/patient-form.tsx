@@ -75,8 +75,8 @@ function Field({
   required?: boolean
 }) {
   return (
-    <div className="flex flex-col gap-1">
-      <Label htmlFor={controlId} className="text-sm font-medium text-slate-700">
+    <div className="flex flex-col gap-2">
+      <Label htmlFor={controlId} className="text-sm font-medium text-slate-600">
         {label}{required && <span className="text-red-500 ml-1">*</span>}
         {unit && <span className="ml-1 text-xs text-slate-400">({unit})</span>}
       </Label>
@@ -87,16 +87,19 @@ function Field({
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="text-sm font-semibold text-[#1E3A5F] uppercase tracking-wide border-b border-slate-200 pb-1 mb-4 col-span-full">
-      {children}
-    </h3>
+    <div className="col-span-full flex items-center gap-3 pt-1">
+      <h3 className="shrink-0 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+        {children}
+      </h3>
+      <div className="h-px flex-1 bg-slate-200" />
+    </div>
   )
 }
 
 const inputClass =
-  'w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2CB1BC] disabled:opacity-50'
+  'w-full h-11 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm shadow-sm transition-colors placeholder:text-slate-400 focus:border-[#2CB1BC] focus:outline-none focus:ring-4 focus:ring-[#2CB1BC]/10 disabled:opacity-50'
 const selectClass =
-  'w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#2CB1BC] disabled:opacity-50'
+  'w-full h-11 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm shadow-sm transition-colors focus:border-[#2CB1BC] focus:outline-none focus:ring-4 focus:ring-[#2CB1BC]/10 disabled:opacity-50'
 
 const breastfeedingTypeOptions = [
   { value: 'EXCLUSIVE', label: 'Exclusif' },
@@ -618,40 +621,31 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#1E3A5F]">
-          {mode === 'edit' ? 'Modifier le patient' : 'Nouveau patient'}
-        </h1>
-        <p className="text-slate-600 mt-1">
-          Profil patient permanent — antécédents, risques chroniques et contexte de base (sans données de cas urgentes)
-        </p>
-      </div>
-
+    <div className="w-full">
       {error && (
-        <Alert className="mb-6 border-red-200 bg-red-50">
+        <Alert className="mx-6 mb-6 border-red-200 bg-red-50">
           <AlertDescription className="text-red-800">{error}</AlertDescription>
         </Alert>
       )}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid h-auto w-full grid-cols-2 items-stretch gap-1 p-1 sm:grid-cols-3 lg:grid-cols-6 mb-6">
-            <TabsTrigger className="h-auto min-h-10 whitespace-normal px-2 py-2 text-center leading-tight" value="identity">Identité</TabsTrigger>
-            <TabsTrigger className="h-auto min-h-10 whitespace-normal px-2 py-2 text-center leading-tight" value="history">Antécédents Médicaux Chroniques</TabsTrigger>
-            <TabsTrigger className="h-auto min-h-10 whitespace-normal px-2 py-2 text-center leading-tight" value="allergies">Allergies & Intolérances</TabsTrigger>
-            <TabsTrigger className="h-auto min-h-10 whitespace-normal px-2 py-2 text-center leading-tight" value="treatments">Traitements Chroniques</TabsTrigger>
-            <TabsTrigger className="h-auto min-h-10 whitespace-normal px-2 py-2 text-center leading-tight" value="lifestyle">Habitudes de Vie</TabsTrigger>
-            <TabsTrigger className="h-auto min-h-10 whitespace-normal px-2 py-2 text-center leading-tight" value="risks">Risques Spéciaux</TabsTrigger>
+          <TabsList className="sticky top-0 z-10 mb-6 grid h-auto w-full grid-cols-2 gap-1.5 rounded-2xl border border-slate-200/80 bg-slate-50/90 p-1.5 shadow-sm backdrop-blur sm:grid-cols-3 lg:grid-cols-6">
+            <TabsTrigger className="h-auto min-h-11 whitespace-normal rounded-xl px-3 py-2 text-center text-sm font-medium text-slate-500 transition data-[state=active]:bg-white data-[state=active]:text-[#1E3A5F] data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-slate-200" value="identity">Identité</TabsTrigger>
+            <TabsTrigger className="h-auto min-h-11 whitespace-normal rounded-xl px-3 py-2 text-center text-sm font-medium text-slate-500 transition data-[state=active]:bg-white data-[state=active]:text-[#1E3A5F] data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-slate-200" value="history">Antécédents Médicaux Chroniques</TabsTrigger>
+            <TabsTrigger className="h-auto min-h-11 whitespace-normal rounded-xl px-3 py-2 text-center text-sm font-medium text-slate-500 transition data-[state=active]:bg-white data-[state=active]:text-[#1E3A5F] data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-slate-200" value="allergies">Allergies & Intolérances</TabsTrigger>
+            <TabsTrigger className="h-auto min-h-11 whitespace-normal rounded-xl px-3 py-2 text-center text-sm font-medium text-slate-500 transition data-[state=active]:bg-white data-[state=active]:text-[#1E3A5F] data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-slate-200" value="treatments">Traitements Chroniques</TabsTrigger>
+            <TabsTrigger className="h-auto min-h-11 whitespace-normal rounded-xl px-3 py-2 text-center text-sm font-medium text-slate-500 transition data-[state=active]:bg-white data-[state=active]:text-[#1E3A5F] data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-slate-200" value="lifestyle">Habitudes de Vie</TabsTrigger>
+            <TabsTrigger className="h-auto min-h-11 whitespace-normal rounded-xl px-3 py-2 text-center text-sm font-medium text-slate-500 transition data-[state=active]:bg-white data-[state=active]:text-[#1E3A5F] data-[state=active]:shadow-sm data-[state=active]:ring-1 data-[state=active]:ring-slate-200" value="risks">Risques Spéciaux</TabsTrigger>
           </TabsList>
 
           {/* Identity Tab */}
-          <TabsContent value="identity" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Informations d'identité</CardTitle>
+          <TabsContent value="identity" className="space-y-6 pt-2">
+            <Card className="overflow-hidden border-slate-200/80 shadow-sm">
+              <CardHeader className="border-b border-slate-100 bg-slate-50/60 px-6 py-5">
+                <CardTitle className="text-base font-semibold text-slate-900">Informations d'identité</CardTitle>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <CardContent className="grid grid-cols-1 gap-5 px-6 py-6 md:grid-cols-2">
                 <Field label="Prénom" controlId="first_name" required>
                   <Input
                     id="first_name"
@@ -844,29 +838,29 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
           </TabsContent>
 
           {/* Chronic Medical History Tab */}
-          <TabsContent value="history" className="space-y-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-lg">Conditions médicales chroniques</CardTitle>
+          <TabsContent value="history" className="space-y-6 pt-2">
+            <Card className="overflow-hidden border-slate-200/80 shadow-sm">
+              <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 bg-slate-50/60 px-6 py-5">
+                <CardTitle className="text-base font-semibold text-slate-900">Conditions médicales chroniques</CardTitle>
                 <Button type="button" onClick={addCondition} size="sm" className="bg-[#2CB1BC] hover:bg-[#25a5a5]">
                   <Plus className="w-4 h-4 mr-2" />
                   Ajouter une condition
                 </Button>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-6 px-6 py-6">
                 {formData.conditions.map((condition, index) => (
-                  <div key={index} className="border border-slate-200 rounded-lg p-4 relative">
+                  <div key={index} className="relative rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                     <Button
                       type="button"
                       onClick={() => removeCondition(index)}
                       size="sm"
                       variant="destructive"
-                      className="absolute top-2 right-2"
+                      className="absolute right-3 top-3"
                     >
                       <X className="w-4 h-4" />
                     </Button>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       <SearchableCombobox
                         id={`condition_name_${index}`}
                         label="Nom de la maladie"
@@ -956,29 +950,29 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
           </TabsContent>
 
           {/* Allergies & Intolerances Tab */}
-          <TabsContent value="allergies" className="space-y-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-lg">Allergies et intolérances</CardTitle>
+          <TabsContent value="allergies" className="space-y-6 pt-2">
+            <Card className="overflow-hidden border-slate-200/80 shadow-sm">
+              <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 bg-slate-50/60 px-6 py-5">
+                <CardTitle className="text-base font-semibold text-slate-900">Allergies et intolérances</CardTitle>
                 <Button type="button" onClick={addAllergy} size="sm" className="bg-[#2CB1BC] hover:bg-[#25a5a5]">
                   <Plus className="w-4 h-4 mr-2" />
                   Ajouter une allergie
                 </Button>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-6 px-6 py-6">
                 {formData.allergies.map((allergy, index) => (
-                  <div key={index} className="border border-slate-200 rounded-lg p-4 relative">
+                  <div key={index} className="relative rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                     <Button
                       type="button"
                       onClick={() => removeAllergy(index)}
                       size="sm"
                       variant="destructive"
-                      className="absolute top-2 right-2"
+                      className="absolute right-3 top-3"
                     >
                       <X className="w-4 h-4" />
                     </Button>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       <SearchableCombobox
                         id={`allergen_name_${index}`}
                         label="Nom de l'allergène"
@@ -1062,29 +1056,29 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
           </TabsContent>
 
           {/* Chronic Treatments Tab */}
-          <TabsContent value="treatments" className="space-y-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="text-lg">Traitements chroniques</CardTitle>
+          <TabsContent value="treatments" className="space-y-6 pt-2">
+            <Card className="overflow-hidden border-slate-200/80 shadow-sm">
+              <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 bg-slate-50/60 px-6 py-5">
+                <CardTitle className="text-base font-semibold text-slate-900">Traitements chroniques</CardTitle>
                 <Button type="button" onClick={addMedication} size="sm" className="bg-[#2CB1BC] hover:bg-[#25a5a5]">
                   <Plus className="w-4 h-4 mr-2" />
                   Ajouter un traitement
                 </Button>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-y-6 px-6 py-6">
                 {formData.medications.map((medication, index) => (
-                  <div key={index} className="border border-slate-200 rounded-lg p-4 relative">
+                  <div key={index} className="relative rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                     <Button
                       type="button"
                       onClick={() => removeMedication(index)}
                       size="sm"
                       variant="destructive"
-                      className="absolute top-2 right-2"
+                      className="absolute right-3 top-3"
                     >
                       <X className="w-4 h-4" />
                     </Button>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       <SearchableCombobox
                         id={`medication_name_${index}`}
                         label="Médicament"
@@ -1170,12 +1164,12 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
           </TabsContent>
 
           {/* Lifestyle & Habits Tab */}
-          <TabsContent value="lifestyle" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Habitudes de vie et facteurs de risque de base</CardTitle>
+          <TabsContent value="lifestyle" className="space-y-6 pt-2">
+            <Card className="overflow-hidden border-slate-200/80 shadow-sm">
+              <CardHeader className="border-b border-slate-100 bg-slate-50/60 px-6 py-5">
+                <CardTitle className="text-base font-semibold text-slate-900">Habitudes de vie et facteurs de risque de base</CardTitle>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <CardContent className="grid grid-cols-1 gap-5 px-6 py-6 md:grid-cols-2">
                 <Field label="Tabagisme" controlId="smoking_status">
                   <Select value={formData.smoking_status} onValueChange={value => updateFormData('smoking_status', value)}>
                     <SelectTrigger className={selectClass}>
@@ -1556,12 +1550,12 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
           </TabsContent>
 
           {/* Special Risks Tab */}
-          <TabsContent value="risks" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Cancer / Immunosuppression</CardTitle>
+          <TabsContent value="risks" className="space-y-6 pt-2">
+            <Card className="overflow-hidden border-slate-200/80 shadow-sm">
+              <CardHeader className="border-b border-slate-100 bg-slate-50/60 px-6 py-5">
+                <CardTitle className="text-base font-semibold text-slate-900">Cancer / Immunosuppression</CardTitle>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <CardContent className="grid grid-cols-1 gap-5 px-6 py-6 md:grid-cols-2">
                 <Field label="Type de condition" controlId="special_condition_type">
                   <Select value={formData.special_condition_type} onValueChange={value => updateFormData('special_condition_type', value)}>
                     <SelectTrigger className={selectClass}><SelectValue placeholder="Sélectionner..." /></SelectTrigger>
@@ -1593,7 +1587,7 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
                 </div>
                 <div className="md:col-span-2">
                   <SectionTitle>Types de traitement</SectionTitle>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
+                  <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
                     {treatmentTypeOptions.map(option => (
                       <label key={option.value} className="flex items-center gap-2 text-sm">
                         <input type="checkbox" checked={(formData.special_treatment_types as string[]).includes(option.value)}
@@ -1780,7 +1774,7 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
 
         </Tabs>
 
-        <div className="flex justify-end space-x-4 mt-8 pt-6 border-t border-slate-200">
+        <div className="sticky bottom-0 z-10 mt-8 flex justify-end gap-3 border-t border-slate-200/80 bg-white/95 px-6 py-4 backdrop-blur">
           <Button
             type="button"
             variant="outline"
@@ -1792,7 +1786,7 @@ export default function PatientForm({ patientId, initialData, mode = 'create' }:
           <Button
             type="submit"
             disabled={isLoading}
-            className="bg-[#2CB1BC] hover:bg-[#25a5a5] text-white"
+            className="min-w-40 bg-[#2CB1BC] px-6 text-white hover:bg-[#25a5a5]"
           >
             {isLoading ? 'Sauvegarde...' : (mode === 'edit' ? 'Modifier le patient' : 'Créer le patient')}
           </Button>

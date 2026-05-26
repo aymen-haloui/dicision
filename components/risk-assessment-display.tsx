@@ -21,6 +21,19 @@ interface RiskAssessment {
   created_at: string
 }
 
+const RISK_LEVEL_LABELS: Record<string, string> = {
+  low: 'Faible',
+  moderate: 'Modéré',
+  high: 'Élevé',
+  critical: 'Critique',
+}
+
+const PRIORITY_LABELS: Record<string, string> = {
+  low: 'Faible',
+  medium: 'Moyenne',
+  high: 'Élevée',
+}
+
 export default function RiskAssessmentDisplay({
   assessment,
 }: {
@@ -98,7 +111,7 @@ export default function RiskAssessmentDisplay({
         <span
           className={`inline-flex items-center px-4 py-2 rounded-full text-lg font-bold ${getRiskBadgeColor(assessment.risk_level)}`}
         >
-          {assessment.risk_level.toUpperCase()}
+          {RISK_LEVEL_LABELS[assessment.risk_level] || assessment.risk_level.toUpperCase()}
         </span>
       </div>
 
@@ -148,7 +161,7 @@ export default function RiskAssessmentDisplay({
                             : 'bg-green-200 text-green-800'
                     }`}
                   >
-                    {finding.severity}
+                    {RISK_LEVEL_LABELS[finding.severity] || finding.severity}
                   </span>
                 </div>
                 <p className="text-slate-700 mb-2">{finding.description}</p>
@@ -182,7 +195,7 @@ export default function RiskAssessmentDisplay({
                           : 'bg-green-200 text-green-800'
                     }`}
                   >
-                    {rec.priority}
+                    {PRIORITY_LABELS[rec.priority] || rec.priority}
                   </span>
                 </div>
                 <p className="text-slate-700 mb-2">{rec.description}</p>

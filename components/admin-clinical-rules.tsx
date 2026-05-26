@@ -113,6 +113,13 @@ const OPERATORS: Operator[] = ['=', '!=', '>', '<', '>=', '<=', 'includes', 'not
 
 const SEVERITY_OPTIONS: SeverityLevel[] = ['LOW', 'MODERATE', 'HIGH', 'CRITICAL']
 
+const SEVERITY_LABELS: Record<SeverityLevel, string> = {
+  LOW: 'Faible',
+  MODERATE: 'Modéré',
+  HIGH: 'Élevé',
+  CRITICAL: 'Critique',
+}
+
 const CATEGORY_OPTIONS = [
   'TOXICITY',
   'INTERACTION',
@@ -920,7 +927,7 @@ export default function AdminClinicalRules() {
                 >
                   <option value="">Toutes gravités</option>
                   {SEVERITY_OPTIONS.map(option => (
-                    <option key={option} value={option}>{option}</option>
+                    <option key={option} value={option}>{SEVERITY_LABELS[option] || option}</option>
                   ))}
                 </select>
                 <select
@@ -1089,7 +1096,7 @@ export default function AdminClinicalRules() {
                 <div>
                   <Label htmlFor="rule-severity">Sévérité</Label>
                   <select id="rule-severity" value={form.severity} onChange={e => setForm(form => ({ ...form, severity: e.target.value as SeverityLevel }))} title="Sévérité de la règle" className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">
-                    {SEVERITY_OPTIONS.map(option => <option key={option} value={option}>{option}</option>)}
+                    {SEVERITY_OPTIONS.map(option => <option key={option} value={option}>{SEVERITY_LABELS[option] || option}</option>)}
                   </select>
                 </div>
                 <div>
@@ -1197,7 +1204,7 @@ export default function AdminClinicalRules() {
                   <div>
                     <Label>Urgence globale</Label>
                     <select value={form.urgency} onChange={e => setForm(form => ({ ...form, urgency: e.target.value as SeverityLevel }))} title="Urgence globale" className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">
-                      {SEVERITY_OPTIONS.map(option => <option key={option} value={option}>{option}</option>)}
+                      {SEVERITY_OPTIONS.map(option => <option key={option} value={option}>{SEVERITY_LABELS[option] || option}</option>)}
                     </select>
                   </div>
                   <div>
@@ -1234,7 +1241,7 @@ export default function AdminClinicalRules() {
                       <div key={alert.id} className="grid gap-2.5 lg:grid-cols-[140px_120px_1fr_auto]">
                         <Input value={alert.type} onChange={e => updateAlert(alert.id, { type: e.target.value })} placeholder="type" />
                         <select value={alert.severity} onChange={e => updateAlert(alert.id, { severity: e.target.value as SeverityLevel })} title="Sévérité de l'alerte" className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">
-                          {SEVERITY_OPTIONS.map(option => <option key={option} value={option}>{option}</option>)}
+                          {SEVERITY_OPTIONS.map(option => <option key={option} value={option}>{SEVERITY_LABELS[option] || option}</option>)}
                         </select>
                         <Input value={alert.message} onChange={e => updateAlert(alert.id, { message: e.target.value })} placeholder="Message d'alerte" />
                         <Button type="button" variant="outline" size="sm" onClick={() => removeAlert(alert.id)}>

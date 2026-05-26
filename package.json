@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint .",
     "seed:users": "node prisma/seed.mjs",
+    "seed:demo": "node prisma/seed_demo_clinical_coverage.mjs",
     "prisma:pull": "prisma db pull",
     "prisma:generate": "prisma generate"
   },
