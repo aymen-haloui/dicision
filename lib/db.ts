@@ -2,7 +2,21 @@ import postgres from 'postgres'
 import bcryptjs from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
 
-const sql = postgres(process.env.DATABASE_URL!)
+function getSql() {
+  // Lazily initialize the Postgres client so missing envs fail with a clear message.
+  const conn = process.env.DATABASE_URL ?? process.env.DATABASE_URL_UNPOOLED
+  if (!conn) {
+    throw new Error('Missing DATABASE_URL. Create a .env.local (or .env) with DATABASE_URL pointing to your Postgres instance.')
+  }
+
+  try {
+    return postgres(conn)
+  } catch (err) {
+    throw new Error('Failed to initialize Postgres client: ' + (err instanceof Error ? err.message : String(err)))
+  }
+}
+
+const sql = getSql()
 
 export async function createUser(
   email: string,
@@ -348,6 +362,28 @@ export async function createCase(
 
     return result[0]
   } catch (error) {
+    // If the production DB lacks the `vital_signs` column (SQLSTATE 42703),
+    // fall back to inserting without that column for compatibility.
+    try {
+      // @ts-ignore - error from postgres client may have `code`
+      const code = (error && (error as any).code) as string | undefined
+      if (code === '42703' || String(error).includes('vital_signs')) {
+        const result = await sql`
+          INSERT INTO cases (
+            user_id, patient_id, case_type, chief_complaint, symptoms
+          )
+          VALUES (
+            ${userId}, ${patientId}, ${caseType}, ${chiefComplaint || null}, ${symptoms || null}
+          )
+          RETURNING id, case_type, chief_complaint, symptoms, status, created_at
+        `
+
+        return result[0]
+      }
+    } catch (err2) {
+      // fall through to rethrow original error
+    }
+
     throw error
   }
 }
@@ -377,6 +413,27 @@ export async function getCaseById(caseId: string, userId: string) {
 
     return result[0] || null
   } catch (error) {
+    // If the `vital_signs` column does not exist, retry without it.
+    try {
+      // @ts-ignore
+      const code = (error && (error as any).code) as string | undefined
+      if (code === '42703' || String(error).includes('vital_signs')) {
+        const result = await sql`
+          SELECT id, patient_id, case_type, chief_complaint, symptoms, status, created_at
+          FROM cases
+          WHERE id = ${caseId} AND user_id = ${userId}
+        `
+
+        const row = result[0] || null
+        if (row && !Object.prototype.hasOwnProperty.call(row, 'vital_signs')) {
+          row.vital_signs = {}
+        }
+        return row
+      }
+    } catch (err2) {
+      // ignore and rethrow original
+    }
+
     throw error
   }
 }

@@ -1,6 +1,4 @@
-import postgres from 'postgres'
-
-const sql = postgres(process.env.DATABASE_URL!)
+import sql from '@/lib/postgres'
 
 interface CaseMedication {
   id: string
@@ -378,41 +376,91 @@ export async function analyzeCase(
 }> {
   try {
     // ── 1. Load case + patient ──────────────────────────────────────────────
-    const caseResult = await sql`
-      SELECT
-        c.id, c.case_type, c.vital_signs, c.symptoms,
-        p.allergies, p.comorbidities,
-        p.date_of_birth,
-        p.weight, p.height,
-        p.renal_creatinine_clearance,
-        p.hepatic_status,
-        p.pregnancy_status,
-        p.gender,
-        -- new extended fields
-        p.smoking_status,
-        p.alcohol_use,
-        p.immunodepression,
-        p.creatinine,
-        p.renal_stage,
-        p.asat,
-        p.alat,
-        p.bilirubin,
-        p.glycemia,
-        p.sodium,
-        p.potassium,
-        p.crp,
-        p.lactates,
-        p.prolonged_fasting,
-        p.blood_donor,
-        p.sudden_medication_stop,
-        p.uncontrolled_natural_products,
-        p.previous_intoxication,
-        p.allergy_reaction_types,
-        p.night_shift
-      FROM cases c
-      JOIN patients p ON c.patient_id = p.id
-      WHERE c.id = ${caseId} AND c.user_id = ${userId}
-    `
+    let caseResult
+    try {
+      caseResult = await sql`
+        SELECT
+          c.id, c.case_type, c.vital_signs, c.symptoms,
+          p.allergies, p.comorbidities,
+          p.date_of_birth,
+          p.weight, p.height,
+          p.renal_creatinine_clearance,
+          p.hepatic_status,
+          p.pregnancy_status,
+          p.gender,
+          -- new extended fields
+          p.smoking_status,
+          p.alcohol_use,
+          p.immunodepression,
+          p.creatinine,
+          p.renal_stage,
+          p.asat,
+          p.alat,
+          p.bilirubin,
+          p.glycemia,
+          p.sodium,
+          p.potassium,
+          p.crp,
+          p.lactates,
+          p.prolonged_fasting,
+          p.blood_donor,
+          p.sudden_medication_stop,
+          p.uncontrolled_natural_products,
+          p.previous_intoxication,
+          p.allergy_reaction_types,
+          p.night_shift
+        FROM cases c
+        JOIN patients p ON c.patient_id = p.id
+        WHERE c.id = ${caseId} AND c.user_id = ${userId}
+      `
+    } catch (err) {
+      // If the DB schema is missing `vital_signs`, retry without selecting it for compatibility.
+      // Postgres undefined-column error is SQLSTATE 42703.
+      const code = (err && (err as any).code) as string | undefined
+      if (code === '42703' || String(err).includes('vital_signs')) {
+        caseResult = await sql`
+          SELECT
+            c.id, c.case_type, c.symptoms,
+            p.allergies, p.comorbidities,
+            p.date_of_birth,
+            p.weight, p.height,
+            p.renal_creatinine_clearance,
+            p.hepatic_status,
+            p.pregnancy_status,
+            p.gender,
+            -- new extended fields
+            p.smoking_status,
+            p.alcohol_use,
+            p.immunodepression,
+            p.creatinine,
+            p.renal_stage,
+            p.asat,
+            p.alat,
+            p.bilirubin,
+            p.glycemia,
+            p.sodium,
+            p.potassium,
+            p.crp,
+            p.lactates,
+            p.prolonged_fasting,
+            p.blood_donor,
+            p.sudden_medication_stop,
+            p.uncontrolled_natural_products,
+            p.previous_intoxication,
+            p.allergy_reaction_types,
+            p.night_shift
+          FROM cases c
+          JOIN patients p ON c.patient_id = p.id
+          WHERE c.id = ${caseId} AND c.user_id = ${userId}
+        `
+
+        if (caseResult && caseResult[0]) {
+          caseResult[0].vital_signs = {}
+        }
+      } else {
+        throw err
+      }
+    }
 
     if (caseResult.length === 0) throw new Error('Case not found')
 
