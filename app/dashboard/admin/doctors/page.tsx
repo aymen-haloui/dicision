@@ -105,7 +105,7 @@ export default function DoctorsAdminPage() {
               const role = getRole(d.specialization)
               const initials = d.full_name?.split(' ').map((part: string) => part[0]).join('').slice(0, 2).toUpperCase() || 'U'
               // avatar color class from id hash (pick from a small palette)
-              const bgClass = useMemo(() => {
+              const bgClass = (() => {
                 const palette = [
                   'bg-rose-100', 'bg-amber-100', 'bg-lime-100', 'bg-teal-100', 'bg-cyan-100', 'bg-violet-100', 'bg-pink-100', 'bg-sky-100'
                 ]
@@ -114,7 +114,7 @@ export default function DoctorsAdminPage() {
                 for (let i = 0; i < str.length; i++) h = (h << 5) - h + str.charCodeAt(i)
                 const idx = Math.abs(h) % palette.length
                 return palette[idx]
-              }, [d.id, d.email])
+              })()
 
               return (
                 <div key={d.id} className="flex items-center justify-between gap-4 rounded-lg bg-white p-4 transition duration-150 hover:shadow-sm hover:bg-slate-50">
