@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
-import { Trash2, Search } from 'lucide-react'
+import { Trash2, Search, MoreHorizontal } from 'lucide-react'
 
 export default function DoctorsAdminPage() {
   const [doctors, setDoctors] = useState<any[]>([])
@@ -57,10 +57,17 @@ export default function DoctorsAdminPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 max-w-[1100px] mx-auto">
       <div className="space-y-2">
-        <h1 className="text-4xl font-bold text-slate-900">Utilisateurs</h1>
-        <p className="max-w-2xl text-base text-slate-600">Gérez les accès et les permissions</p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-4xl font-bold text-slate-900">Utilisateurs</h1>
+            <p className="max-w-2xl text-base text-slate-600">Gérez les accès et les permissions</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button className="h-10 px-3.5">Ajouter un utilisateur</Button>
+          </div>
+        </div>
       </div>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
@@ -76,9 +83,7 @@ export default function DoctorsAdminPage() {
             />
           </div>
         </div>
-        <div className="text-sm text-slate-500">
-          {total} utilisateur{total !== 1 ? 's' : ''}
-        </div>
+        <div className="text-sm text-slate-500">{total} utilisateur{total !== 1 ? 's' : ''}</div>
       </div>
 
       {error && <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
@@ -95,36 +100,60 @@ export default function DoctorsAdminPage() {
             <p className="mt-1 text-xs text-slate-500">Essayez une autre recherche</p>
           </div>
         ) : (
-          filtered.map(d => {
-            const role = getRole(d.specialization)
-            const initials = d.full_name?.split(' ').map((part: string) => part[0]).join('').slice(0, 2).toUpperCase() || 'U'
-            return (
-              <div key={d.id} className="flex items-center justify-between rounded-lg bg-white p-4 transition duration-200 hover:bg-slate-50">
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-200 text-sm font-semibold text-slate-700 flex-shrink-0">
-                    {initials}
+          <Card className="space-y-2 p-2">
+            {filtered.map(d => {
+              const role = getRole(d.specialization)
+              const initials = d.full_name?.split(' ').map((part: string) => part[0]).join('').slice(0, 2).toUpperCase() || 'U'
+              // avatar color class from id hash (pick from a small palette)
+              const bgClass = useMemo(() => {
+                const palette = [
+                  'bg-rose-100', 'bg-amber-100', 'bg-lime-100', 'bg-teal-100', 'bg-cyan-100', 'bg-violet-100', 'bg-pink-100', 'bg-sky-100'
+                ]
+                const str = String(d.id || d.email || initials)
+                let h = 0
+                for (let i = 0; i < str.length; i++) h = (h << 5) - h + str.charCodeAt(i)
+                const idx = Math.abs(h) % palette.length
+                return palette[idx]
+              }, [d.id, d.email])
+
+              return (
+                <div key={d.id} className="flex items-center justify-between gap-4 rounded-lg bg-white p-4 transition duration-150 hover:shadow-sm hover:bg-slate-50">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="flex-shrink-0">
+                      {d.profile_image ? (
+                        <img src={d.profile_image} alt={d.full_name || d.email} className="h-11 w-11 rounded-full object-cover ring-2 ring-white shadow-sm" />
+                      ) : (
+                        <div className={`${bgClass} flex h-11 w-11 items-center justify-center rounded-full text-sm font-semibold text-slate-700 ring-2 ring-white`}>
+                          {initials}
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-slate-900">{d.full_name}</p>
+                      <p className="mt-0.5 truncate text-xs text-slate-500">{d.email}</p>
+                    </div>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-slate-900">{d.full_name}</p>
-                    <p className="mt-0.5 truncate text-xs text-slate-500">{d.email}</p>
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${role.className}`}>
+                      {role.label}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(d.id)}
+                      disabled={saving}
+                      title="Supprimer l'utilisateur"
+                      className="flex h-9 w-9 items-center justify-center rounded-md text-slate-400 transition-colors duration-150 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                    <button aria-label="Plus d'actions" title="Plus d'actions" className="flex h-9 w-9 items-center justify-center rounded-md text-slate-400 transition-colors duration-150 hover:bg-slate-100">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 flex-shrink-0">
-                  <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${role.className}`}>
-                    {role.label}
-                  </span>
-                  <button 
-                    type="button" 
-                    onClick={() => handleDelete(d.id)} 
-                    disabled={saving} 
-                    className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-400 transition duration-200 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-            )
-          })
+              )
+            })}
+          </Card>
         )}
       </div>
 
@@ -149,9 +178,11 @@ export default function DoctorsAdminPage() {
           >
             Suivant
           </button>
-          <select 
-            value={limit} 
-            onChange={e => { setLimit(Number(e.target.value)); setPage(1) }} 
+          <select
+            aria-label="Lignes par page"
+            title="Lignes par page"
+            value={limit}
+            onChange={e => { setLimit(Number(e.target.value)); setPage(1) }}
             className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700"
           >
             {[10,20,50,100].map(n => <option key={n} value={n}>{n} / page</option>)}
