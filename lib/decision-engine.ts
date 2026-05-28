@@ -375,13 +375,40 @@ export async function analyzeCase(
   recommendations: Recommendation[]
 }> {
   try {
+    const patientContextSql = sql`
+      COALESCE(
+        (
+          SELECT STRING_AGG(pa.allergen_name, ', ' ORDER BY pa.created_at)
+          FROM patient_allergies pa
+          WHERE pa.patient_id = p.id
+        ),
+        ''
+      ) AS allergies,
+      COALESCE(
+        (
+          SELECT STRING_AGG(pc.condition_name, ', ' ORDER BY pc.created_at)
+          FROM patient_conditions pc
+          WHERE pc.patient_id = p.id
+        ),
+        ''
+      ) AS comorbidities,
+      COALESCE(
+        (
+          SELECT STRING_AGG(DISTINCT NULLIF(pa.reaction_type, ''), ', ')
+          FROM patient_allergies pa
+          WHERE pa.patient_id = p.id AND pa.reaction_type IS NOT NULL
+        ),
+        ''
+      ) AS allergy_reaction_types
+    `
+
     // ── 1. Load case + patient ──────────────────────────────────────────────
     let caseResult
     try {
       caseResult = await sql`
         SELECT
           c.id, c.case_type, c.vital_signs, c.symptoms,
-          p.allergies, p.comorbidities,
+          ${patientContextSql},
           p.date_of_birth,
           p.weight, p.height,
           p.renal_creatinine_clearance,
@@ -421,7 +448,7 @@ export async function analyzeCase(
         caseResult = await sql`
           SELECT
             c.id, c.case_type, c.symptoms,
-            p.allergies, p.comorbidities,
+            ${patientContextSql},
             p.date_of_birth,
             p.weight, p.height,
             p.renal_creatinine_clearance,
