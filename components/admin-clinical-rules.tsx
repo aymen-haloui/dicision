@@ -937,12 +937,12 @@ export default function AdminClinicalRules() {
 
           <div>
             <Label htmlFor="rule-description">Description</Label>
-            <textarea id="rule-description" value={form.description} onChange={e => setForm(prev => ({ ...prev, description: e.target.value }))} rows={3} className="min-h-[96px] w-full rounded-xl border border-[var(--color-border)] bg-white px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20" />
+            <textarea id="rule-description" title="Description" value={form.description} onChange={e => setForm(prev => ({ ...prev, description: e.target.value }))} rows={3} className="min-h-[96px] w-full rounded-xl border border-[var(--color-border)] bg-white px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20" />
           </div>
 
           <div>
             <Label htmlFor="rule-explanation-template">Template explicatif</Label>
-            <textarea id="rule-explanation-template" value={form.explanationTemplate} onChange={e => setForm(prev => ({ ...prev, explanationTemplate: e.target.value }))} rows={3} className="min-h-[96px] w-full rounded-xl border border-[var(--color-border)] bg-white px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20" />
+            <textarea id="rule-explanation-template" title="Template explicatif" value={form.explanationTemplate} onChange={e => setForm(prev => ({ ...prev, explanationTemplate: e.target.value }))} rows={3} className="min-h-[96px] w-full rounded-xl border border-[var(--color-border)] bg-white px-3 py-2 text-sm outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20" />
           </div>
         </div>
       </details>
