@@ -652,38 +652,56 @@ export default function AdminClinicalRules() {
             )}
 
             {pageRules.map(rule => (
-              <button
-                key={rule.id}
-                onClick={() => openEditor(rule)}
-                className={`w-full text-left rounded-lg border p-3.5 transition-all duration-150 ${
-                  editingId === rule.id
-                    ? 'border-teal-500 bg-teal-50 shadow-sm'
-                    : 'border-slate-200 bg-white hover:border-slate-300 hover:shadow-sm hover:bg-slate-50'
-                }`}
-              >
-                <div className="space-y-2">
-                  <div className="flex items-start gap-2 justify-between">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-slate-900 truncate">{rule.name}</p>
-                      {rule.description && <p className="mt-1 text-xs text-slate-500 line-clamp-1">{rule.description}</p>}
-                    </div>
-                    <span className={`inline-flex flex-shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold border ${SEVERITY_BADGE[rule.severity]}`}>
-                      {rule.severity}
-                    </span>
-                  </div>
-                  
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <span className={`rounded-sm border text-[10px] font-medium px-1.5 py-0.5 ${FAMILY_UI[inferRuleFamily(rule)].bg} ${FAMILY_UI[inferRuleFamily(rule)].accent} ${FAMILY_UI[inferRuleFamily(rule)].border}`}>
-                      {RULE_FAMILY_LABELS[inferRuleFamily(rule)]}
-                    </span>
-                    {rule.enabled && (
-                      <span className="rounded-sm bg-teal-50 border border-teal-200 text-teal-700 text-[10px] font-medium px-1.5 py-0.5">
-                        Activée
+              <div key={rule.id} className={`rounded-lg bg-white p-3.5 transition-all duration-150 ${editingId === rule.id ? 'border-teal-500 bg-teal-50 shadow-sm' : 'border-slate-200 hover:border-slate-300 hover:shadow-sm'}`}>
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="min-w-0 space-y-2.5">
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${FAMILY_UI[inferRuleFamily(rule)].bg} ${FAMILY_UI[inferRuleFamily(rule)].accent} ${FAMILY_UI[inferRuleFamily(rule)].border}`}>
+                        {RULE_FAMILY_LABELS[inferRuleFamily(rule)]}
                       </span>
-                    )}
+                      <span className="text-base font-semibold text-slate-900 truncate">{rule.name}</span>
+                      <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${SEVERITY_BADGE[rule.severity]}`}>
+                        {SEVERITY_LABELS[rule.severity] || rule.severity}
+                      </span>
+                      {rule.category && (
+                        <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs text-slate-600">
+                          {rule.category}
+                        </span>
+                      )}
+                      {rule.trigger_type && (
+                        <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs text-slate-600">
+                          {rule.trigger_type}
+                        </span>
+                      )}
+                    </div>
+                    {rule.description && <p className="text-sm text-slate-600">{rule.description}</p>}
+
+                    <div className="grid gap-3 sm:grid-cols-2 mt-2">
+                      <div className="rounded-md bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                        <span className="font-medium">Conditions:</span> {buildConditionSummary(rule.conditions)}
+                      </div>
+                      <div className="rounded-md bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                        <span className="font-medium">Outputs:</span> {buildOutputSummary(rule.outputs)}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 text-[11px] text-slate-500 mt-2">
+                      <span>Créée le {formatDate(rule.created_at)}</span>
+                      <span>{rule.enabled ? 'Activée' : 'Désactivée'}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2 sm:items-end">
+                    <Button type="button" variant="ghost" size="sm" onClick={() => toggleEnabled(rule)}>
+                      {rule.enabled ? 'Activée' : 'Inactivée'}
+                    </Button>
+                    <div className="flex gap-2">
+                      <Button type="button" variant="outline" size="sm" onClick={() => openEditor(rule)}>Modifier</Button>
+                      <Button type="button" variant="ghost" size="sm" onClick={() => deleteRule(rule.id)} className="text-red-600">Supprimer</Button>
+                    </div>
                   </div>
                 </div>
-              </button>
+              </div>
             ))}
           </div>
 
@@ -723,6 +741,32 @@ export default function AdminClinicalRules() {
             </div>
 
             <form onSubmit={saveRule} className="space-y-3 md:space-y-6 max-h-[calc(100vh-200px)] md:max-h-none overflow-y-auto md:overflow-visible pb-20 md:pb-0">
+              {/* Rule family selector (restored) */}
+              <details open className="group rounded-lg bg-slate-50 p-3 md:p-4 border border-slate-200">
+                <summary className="flex items-center justify-between cursor-pointer font-semibold text-slate-900 text-sm">
+                  <span>Famille de la règle</span>
+                  <span className="text-xs text-slate-500">{RULE_FAMILY_LABELS[form.ruleFamily]}</span>
+                </summary>
+                <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {RULE_FAMILY_ORDER.map((fam) => {
+                    const Icon = FAMILY_ICONS[fam]
+                    const active = form.ruleFamily === fam
+                    return (
+                      <button
+                        key={fam}
+                        type="button"
+                        onClick={() => applyRuleFamily(fam)}
+                        className={`w-full text-left rounded-lg p-2 flex items-start gap-2 border ${active ? 'border-teal-500 bg-teal-50' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
+                        <Icon className="h-5 w-5 text-slate-700" />
+                        <div className="min-w-0">
+                          <div className="text-sm font-semibold text-slate-900 truncate">{RULE_FAMILY_LABELS[fam]}</div>
+                          <div className="text-xs text-slate-500 line-clamp-2">{RULE_FAMILY_DESCRIPTIONS[fam]}</div>
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
+              </details>
               {/* Section: Informations générales */}
               <details open className="group rounded-lg bg-slate-50 p-4 border border-slate-200">
                 <summary className="flex items-center justify-between cursor-pointer font-semibold text-slate-900">
@@ -746,6 +790,7 @@ export default function AdminClinicalRules() {
                       <Label htmlFor="rule-category" className="text-xs md:text-sm font-medium">Catégorie</Label>
                       <select
                         id="rule-category"
+                        title="Catégorie"
                         value={form.category}
                         onChange={e => setForm(form => ({ ...form, category: e.target.value }))}
                         className="mt-1 md:mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-2 md:px-3 h-8 md:h-9 text-xs md:text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
@@ -758,6 +803,7 @@ export default function AdminClinicalRules() {
                       <Label htmlFor="rule-severity" className="text-xs md:text-sm font-medium">Gravité</Label>
                       <select
                         id="rule-severity"
+                        title="Gravité"
                         value={form.severity}
                         onChange={e => setForm(form => ({ ...form, severity: e.target.value as SeverityLevel }))}
                         className="mt-1 md:mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-2 md:px-3 h-8 md:h-9 text-xs md:text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
@@ -884,6 +930,7 @@ export default function AdminClinicalRules() {
                       <Label htmlFor="rule-status" className="text-xs md:text-sm font-medium">Statut</Label>
                       <select
                         id="rule-status"
+                        title="Statut"
                         value={form.enabled ? 'enabled' : 'disabled'}
                         onChange={e => setForm(form => ({ ...form, enabled: e.target.value === 'enabled' }))}
                         className="mt-1 md:mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-2 md:px-3 h-8 md:h-9 text-xs md:text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
@@ -896,6 +943,7 @@ export default function AdminClinicalRules() {
                       <Label htmlFor="rule-trigger" className="text-sm font-medium">Déclencheur</Label>
                       <select
                         id="rule-trigger"
+                        title="Déclencheur"
                         value={form.triggerType}
                         onChange={e => setForm(form => ({ ...form, triggerType: e.target.value }))}
                         className="mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 h-9 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
