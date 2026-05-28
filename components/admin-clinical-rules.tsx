@@ -472,7 +472,7 @@ export default function AdminClinicalRules() {
       })
       if (!res.ok) {
         const body = await res.json()
-        throw new Error(body?.error || 'Erreur lors de l'enregistrement de la règle')
+        throw new Error(body?.error || 'Erreur lors de l\'enregistrement de la règle')
       }
       await loadRules()
       resetForm()
