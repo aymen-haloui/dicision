@@ -375,123 +375,81 @@ export async function analyzeCase(
   recommendations: Recommendation[]
 }> {
   try {
-    const patientContextSql = sql`
-      COALESCE(
-        (
-          SELECT STRING_AGG(pa.allergen_name, ', ' ORDER BY pa.created_at)
-          FROM patient_allergies pa
-          WHERE pa.patient_id = p.id
-        ),
-        ''
-      ) AS allergies,
-      COALESCE(
-        (
-          SELECT STRING_AGG(pc.condition_name, ', ' ORDER BY pc.created_at)
-          FROM patient_conditions pc
-          WHERE pc.patient_id = p.id
-        ),
-        ''
-      ) AS comorbidities,
-      COALESCE(
-        (
-          SELECT STRING_AGG(DISTINCT NULLIF(pa.reaction_type, ''), ', ')
-          FROM patient_allergies pa
-          WHERE pa.patient_id = p.id AND pa.reaction_type IS NOT NULL
-        ),
-        ''
-      ) AS allergy_reaction_types
+    // ── 1. Load case ───────────────────────────────────────────────────────
+    const caseRows = await sql`
+      SELECT id, case_type, vital_signs, symptoms, patient_id
+      FROM cases
+      WHERE id = ${caseId} AND user_id = ${userId}
+      LIMIT 1
     `
 
-    // ── 1. Load case + patient ──────────────────────────────────────────────
-    let caseResult
-    try {
-      caseResult = await sql`
-        SELECT
-          c.id, c.case_type, c.vital_signs, c.symptoms,
-          ${patientContextSql},
-          p.date_of_birth,
-          p.weight, p.height,
-          p.renal_creatinine_clearance,
-          p.hepatic_status,
-          p.pregnancy_status,
-          p.gender,
-          -- new extended fields
-          p.smoking_status,
-          p.alcohol_use,
-          p.immunodepression,
-          p.creatinine,
-          p.renal_stage,
-          p.asat,
-          p.alat,
-          p.bilirubin,
-          p.glycemia,
-          p.sodium,
-          p.potassium,
-          p.crp,
-          p.lactates,
-          p.prolonged_fasting,
-          p.blood_donor,
-          p.sudden_medication_stop,
-          p.uncontrolled_natural_products,
-          p.previous_intoxication,
-          p.allergy_reaction_types,
-          p.night_shift
-        FROM cases c
-        JOIN patients p ON c.patient_id = p.id
-        WHERE c.id = ${caseId} AND c.user_id = ${userId}
-      `
-    } catch (err) {
-      // If the DB schema is missing `vital_signs`, retry without selecting it for compatibility.
-      // Postgres undefined-column error is SQLSTATE 42703.
-      const code = (err && (err as any).code) as string | undefined
-      if (code === '42703' || String(err).includes('vital_signs')) {
-        caseResult = await sql`
-          SELECT
-            c.id, c.case_type, c.symptoms,
-            ${patientContextSql},
-            p.date_of_birth,
-            p.weight, p.height,
-            p.renal_creatinine_clearance,
-            p.hepatic_status,
-            p.pregnancy_status,
-            p.gender,
-            -- new extended fields
-            p.smoking_status,
-            p.alcohol_use,
-            p.immunodepression,
-            p.creatinine,
-            p.renal_stage,
-            p.asat,
-            p.alat,
-            p.bilirubin,
-            p.glycemia,
-            p.sodium,
-            p.potassium,
-            p.crp,
-            p.lactates,
-            p.prolonged_fasting,
-            p.blood_donor,
-            p.sudden_medication_stop,
-            p.uncontrolled_natural_products,
-            p.previous_intoxication,
-            p.allergy_reaction_types,
-            p.night_shift
-          FROM cases c
-          JOIN patients p ON c.patient_id = p.id
-          WHERE c.id = ${caseId} AND c.user_id = ${userId}
-        `
+    if (!caseRows || caseRows.length === 0) throw new Error('Case not found')
 
-        if (caseResult && caseResult[0]) {
-          caseResult[0].vital_signs = {}
-        }
-      } else {
-        throw err
-      }
+    const caseRow: any = caseRows[0]
+
+    // ── 1b. Load patient row defensively (SELECT * avoids referencing missing columns)
+    const patientRows = await sql`
+      SELECT * FROM patients WHERE id = ${caseRow.patient_id} LIMIT 1
+    `
+    const patientRow: any = (patientRows && patientRows[0]) || {}
+
+    // Merge into a single caseData object with fallbacks for relation-backed fields
+    const caseData: any = {
+      id: caseRow.id,
+      case_type: caseRow.case_type,
+      vital_signs: caseRow.vital_signs ?? {},
+      symptoms: caseRow.symptoms,
+      // patient scalar fields (may be undefined if column absent)
+      date_of_birth: patientRow.date_of_birth,
+      weight: patientRow.weight,
+      height: patientRow.height,
+      renal_creatinine_clearance: patientRow.renal_creatinine_clearance,
+      hepatic_status: patientRow.hepatic_status,
+      pregnancy_status: patientRow.pregnancy_status,
+      gender: patientRow.gender,
+      smoking_status: patientRow.smoking_status,
+      alcohol_use: patientRow.alcohol_use,
+      immunodepression: patientRow.immunodepression,
+      creatinine: patientRow.creatinine,
+      renal_stage: patientRow.renal_stage,
+      asat: patientRow.asat,
+      alat: patientRow.alat,
+      bilirubin: patientRow.bilirubin,
+      glycemia: patientRow.glycemia,
+      sodium: patientRow.sodium,
+      potassium: patientRow.potassium,
+      crp: patientRow.crp,
+      lactates: patientRow.lactates,
+      prolonged_fasting: patientRow.prolonged_fasting,
+      blood_donor: patientRow.blood_donor,
+      sudden_medication_stop: patientRow.sudden_medication_stop,
+      uncontrolled_natural_products: patientRow.uncontrolled_natural_products,
+      previous_intoxication: patientRow.previous_intoxication,
+      night_shift: patientRow.night_shift,
+      allergy_reaction_types: patientRow.allergy_reaction_types,
+      // relation-backed fields filled below if missing
+      allergies: patientRow.allergies,
+      comorbidities: patientRow.comorbidities,
     }
 
-    if (caseResult.length === 0) throw new Error('Case not found')
+    // If allergies/comorbidities are not stored on the patients table, aggregate from relation tables
+    if (!caseData.allergies) {
+      const a = await sql`
+        SELECT STRING_AGG(pa.allergen_name, ', ' ORDER BY pa.created_at) AS allergies
+        FROM patient_allergies pa
+        WHERE pa.patient_id = ${caseRow.patient_id}
+      `
+      caseData.allergies = (a && a[0] && a[0].allergies) || ''
+    }
 
-    const caseData = caseResult[0]
+    if (!caseData.comorbidities) {
+      const c = await sql`
+        SELECT STRING_AGG(pc.condition_name, ', ' ORDER BY pc.created_at) AS comorbidities
+        FROM patient_conditions pc
+        WHERE pc.patient_id = ${caseRow.patient_id}
+      `
+      caseData.comorbidities = (c && c[0] && c[0].comorbidities) || ''
+    }
 
     // Compute patient age from date_of_birth
     let patientAgeYears: number | null = null
