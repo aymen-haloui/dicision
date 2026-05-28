@@ -98,78 +98,399 @@ interface ClinicalRule {
   created_at: string
 }
 
-const SEVERITY_BADGE: Record<SeverityLevel, string> = {
-  LOW: 'bg-blue-50 border-blue-200 text-blue-700',
-  MODERATE: 'bg-amber-50 border-amber-200 text-amber-700',
-  HIGH: 'bg-orange-50 border-orange-200 text-orange-700',
-  CRITICAL: 'bg-red-50 border-red-200 text-red-700',
-}
+const CONDITION_TYPES: ConditionType[] = [
+  'CONDITION',
+  'MEDICATION',
+  'LAB_RESULT',
+  'VITAL_SIGN',
+  'SYMPTOM',
+  'EMERGENCY_FLAG',
+  'AGE',
+  'ALLERGY',
+]
+
+const OPERATORS: Operator[] = ['=', '!=', '>', '<', '>=', '<=', 'includes', 'not_includes']
+
+const SEVERITY_OPTIONS: SeverityLevel[] = ['LOW', 'MODERATE', 'HIGH', 'CRITICAL']
 
 const SEVERITY_LABELS: Record<SeverityLevel, string> = {
-  LOW: 'Basse',
-  MODERATE: 'Modérée',
-  HIGH: 'Haute',
+  LOW: 'Faible',
+  MODERATE: 'Modéré',
+  HIGH: 'Élevé',
   CRITICAL: 'Critique',
 }
 
-const SEVERITY_OPTIONS: SeverityLevel[] = ['LOW', 'MODERATE', 'HIGH', 'CRITICAL']
-const CATEGORY_OPTIONS: string[] = ['Cardio', 'Rénal', 'Hépatique', 'Endocrino', 'Infectio', 'Neuro', 'Autre']
-const TRIGGER_TYPES: string[] = ['COMPOSITE', 'MEDICATION_INTERACTION', 'LAB_THRESHOLD', 'CONDITION_MEDICATION', 'EMERGENCY_FLAG']
+const CATEGORY_OPTIONS = [
+  'TOXICITY',
+  'INTERACTION',
+  'RENAL',
+  'CARDIAC',
+  'EMERGENCY',
+  'OVERDOSE',
+  'CONTRAINDICATION',
+]
 
 const FAMILY_ICONS: Record<RuleFamily, any> = {
   PATIENT_RISK: Users,
   DRUG_INTERACTION: Pill,
-  CONTRAINDICATION: AlertTriangle,
+  CONTRAINDICATION: ClipboardList,
   TOXICOLOGY: FlaskConical,
-  OVERDOSE: Siren,
+  OVERDOSE: AlertTriangle,
   EMERGENCY: Siren,
-  THERAPEUTIC_WARNING: AlertTriangle,
+  THERAPEUTIC_WARNING: Info,
   DOSING_ADJUSTMENT: Scale,
+}
+
+const TRIGGER_TYPES = [
+  'LAB_THRESHOLD',
+  'MEDICATION_INTERACTION',
+  'CONDITION_MEDICATION',
+  'VITAL_SIGN',
+  'EMERGENCY_FLAG',
+  'COMPOSITE',
+]
+
+const SEVERITY_BADGE: Record<SeverityLevel, string> = {
+  CRITICAL: 'bg-[var(--color-destructive)] text-[var(--color-destructive-foreground)] border-[var(--color-border)]',
+  HIGH: 'bg-[var(--color-accent)] text-[var(--color-accent-foreground)] border-[var(--color-border)]',
+  MODERATE: 'bg-[var(--color-secondary)] text-[var(--color-secondary-foreground)] border-[var(--color-border)]',
+  LOW: 'bg-[var(--color-muted)] text-[var(--color-muted-foreground)] border-[var(--color-border)]',
+}
+
+const FIELD_CATALOG: Record<string, FieldGroup[]> = {
+  AGE: [{ label: 'Patient age', options: [{ value: 'patient.age', label: 'Patient age', dataType: 'number' }] }],
+  CONDITION: [
+    {
+      label: 'Profil patient',
+      options: [
+        { value: 'patient.id', label: 'ID patient', dataType: 'string' },
+        { value: 'patient.name', label: 'Nom du patient', dataType: 'string' },
+        { value: 'patient.gender', label: 'Sexe', dataType: 'string' },
+        { value: 'patient.weight', label: 'Poids', dataType: 'number' },
+        { value: 'patient.weight_kg', label: 'Poids (kg)', dataType: 'number' },
+        { value: 'patient.height', label: 'Taille', dataType: 'number' },
+        { value: 'patient.immunostatus', label: 'Statut immunitaire', dataType: 'string' },
+        { value: 'patient.pregnancy_status', label: 'Statut de grossesse', dataType: 'string' },
+        { value: 'patient.smoking_status', label: 'Tabagisme', dataType: 'string' },
+        { value: 'patient.alcohol_use', label: 'Consommation d\'alcool', dataType: 'string' },
+        { value: 'patient.renal_creatinine_clearance', label: 'Clairance de créatinine', dataType: 'number' },
+        { value: 'patient.hepatic_status', label: 'Statut hépatique', dataType: 'string' },
+        { value: 'patient.breastfeeding_status', label: 'Allaitement', dataType: 'boolean' },
+        { value: 'patient.sudden_medication_stop', label: 'Arrêt brusque de médicament', dataType: 'boolean' },
+        { value: 'patient.immunodepression', label: 'Immunodépression', dataType: 'string' },
+      ],
+    },
+    {
+      label: 'Contexte clinique',
+      options: [
+        { value: 'case_type', label: 'Type de cas', dataType: 'string' },
+        { value: 'presenting_complaint', label: 'Motif de consultation', dataType: 'string' },
+        { value: 'duration_of_illness', label: 'Durée de la maladie', dataType: 'string' },
+        { value: 'timestamp', label: 'Horodatage', dataType: 'date' },
+      ],
+    },
+    {
+      label: 'Conditions et indicateurs',
+      options: [
+        { value: 'conditions', label: 'Conditions', dataType: 'array' },
+        { value: 'allergies', label: 'Allergies', dataType: 'array' },
+        { value: 'symptoms', label: 'Symptômes', dataType: 'array' },
+        { value: 'emergency_flags', label: 'Signaux d\'urgence', dataType: 'array' },
+        { value: 'interactions_found', label: 'Interactions trouvées', dataType: 'array' },
+      ],
+    },
+  ],
+  LAB_RESULT: [
+    {
+      label: 'Bilans courants',
+      options: [
+        { value: 'labs.potassium.value', label: 'Potassium', dataType: 'number' },
+        { value: 'labs.sodium.value', label: 'Sodium', dataType: 'number' },
+        { value: 'labs.glycemia.value', label: 'Glycémie', dataType: 'number' },
+        { value: 'labs.lactates.value', label: 'Lactates', dataType: 'number' },
+        { value: 'labs.asat.value', label: 'ASAT', dataType: 'number' },
+        { value: 'labs.alat.value', label: 'ALAT', dataType: 'number' },
+        { value: 'labs.creatinine.value', label: 'Créatinine', dataType: 'number' },
+        { value: 'labs.eGFR.value', label: 'eGFR', dataType: 'number' },
+      ],
+    },
+  ],
+  VITAL_SIGN: [
+    {
+      label: 'Signes vitaux',
+      options: [
+        { value: 'vitals.heart_rate', label: 'Fréquence cardiaque', dataType: 'number' },
+        { value: 'vitals.heartRate', label: 'Fréquence cardiaque (alt)', dataType: 'number' },
+        { value: 'vitals.blood_pressure_systolic', label: 'TAS (systolique)', dataType: 'number' },
+        { value: 'vitals.blood_pressure_diastolic', label: 'TAD (diastolique)', dataType: 'number' },
+        { value: 'vitals.bloodPressure.systolic', label: 'TAS (objet)', dataType: 'number' },
+        { value: 'vitals.bloodPressure.diastolic', label: 'TAD (objet)', dataType: 'number' },
+        { value: 'vitals.respiratory_rate', label: 'Fréquence respiratoire', dataType: 'number' },
+        { value: 'vitals.temperature', label: 'Température', dataType: 'number' },
+        { value: 'vitals.spo2', label: 'SpO2', dataType: 'number' },
+        { value: 'vitals.glucose', label: 'Glycémie', dataType: 'number' },
+      ],
+    },
+  ],
+  MEDICATION: [
+    {
+      label: 'Informations médicament',
+      options: [
+        { value: 'medications.name', label: 'Nom du médicament', dataType: 'array' },
+        { value: 'medications.category', label: 'Catégorie', dataType: 'array' },
+        { value: 'medications.dosage', label: 'Dosage', dataType: 'array' },
+        { value: 'medications.frequency', label: 'Fréquence', dataType: 'array' },
+        { value: 'medications.duration', label: 'Durée', dataType: 'array' },
+        { value: 'medications.route', label: 'Voie d\'administration', dataType: 'array' },
+        { value: 'medications.generic_name', label: 'Nom générique', dataType: 'array' },
+        { value: 'medications.warnings', label: 'Avertissements', dataType: 'array' },
+        { value: 'medications.overdose_management', label: 'Prise en charge surdosage', dataType: 'array' },
+        { value: 'medications.max_daily_dose_adult', label: 'Dose max journalière adulte', dataType: 'array' },
+        { value: 'medications.max_daily_dose_child', label: 'Dose max journalière enfant', dataType: 'array' },
+        { value: 'medications.contraindications.target', label: 'Cible contre-indication', dataType: 'array' },
+        { value: 'medications.contraindications.reason', label: 'Raison contre-indication', dataType: 'array' },
+        { value: 'medications.contraindications.severity', label: 'Gravité contre-indication', dataType: 'array' },
+        { value: 'medications.toxicity_thresholds.adult_toxic_dose', label: 'Dose toxique adulte', dataType: 'array' },
+        { value: 'medications.toxicity_thresholds.child_toxic_dose_per_kg', label: 'Dose toxique enfant (mg/kg)', dataType: 'array' },
+        { value: 'medications.toxicity_thresholds.child_severe_dose_per_kg', label: 'Dose sévère enfant (mg/kg)', dataType: 'array' },
+      ],
+    },
+  ],
+  SYMPTOM: [{ label: 'Symptômes', options: [{ value: 'symptoms', label: 'Symptômes', dataType: 'array' }, { value: 'presenting_complaint', label: 'Motif de consultation', dataType: 'string' }] }],
+  ALLERGY: [{ label: 'Allergies', options: [{ value: 'allergies', label: 'Allergies', dataType: 'array' }, { value: 'patient.allergies', label: 'Allergies du patient', dataType: 'array' }] }],
+  EMERGENCY_FLAG: [{ label: 'Signaux d\'urgence', options: [{ value: 'emergency_flags', label: 'Signaux d\'urgence', dataType: 'array' }] }],
 }
 
 const FAMILY_UI: Record<RuleFamily, { bg: string; accent: string; border: string }> = {
   PATIENT_RISK: { bg: 'bg-blue-50', accent: 'text-blue-600', border: 'border-blue-200' },
-  DRUG_INTERACTION: { bg: 'bg-amber-50', accent: 'text-amber-600', border: 'border-amber-200' },
-  CONTRAINDICATION: { bg: 'bg-red-50', accent: 'text-red-600', border: 'border-red-200' },
-  TOXICOLOGY: { bg: 'bg-purple-50', accent: 'text-purple-600', border: 'border-purple-200' },
-  OVERDOSE: { bg: 'bg-red-50', accent: 'text-red-600', border: 'border-red-200' },
-  EMERGENCY: { bg: 'bg-red-50', accent: 'text-red-600', border: 'border-red-200' },
-  THERAPEUTIC_WARNING: { bg: 'bg-yellow-50', accent: 'text-yellow-600', border: 'border-yellow-200' },
-  DOSING_ADJUSTMENT: { bg: 'bg-green-50', accent: 'text-green-600', border: 'border-green-200' },
+  DRUG_INTERACTION: { bg: 'bg-yellow-50', accent: 'text-yellow-700', border: 'border-yellow-200' },
+  CONTRAINDICATION: { bg: 'bg-red-50', accent: 'text-red-700', border: 'border-red-200' },
+  TOXICOLOGY: { bg: 'bg-pink-50', accent: 'text-pink-700', border: 'border-pink-200' },
+  OVERDOSE: { bg: 'bg-amber-50', accent: 'text-amber-700', border: 'border-amber-200' },
+  EMERGENCY: { bg: 'bg-red-50', accent: 'text-red-700', border: 'border-red-200' },
+  THERAPEUTIC_WARNING: { bg: 'bg-green-50', accent: 'text-green-700', border: 'border-green-200' },
+  DOSING_ADJUSTMENT: { bg: 'bg-indigo-50', accent: 'text-indigo-700', border: 'border-indigo-200' },
 }
 
-const makeId = () => Math.random().toString(36).slice(2, 11)
-const makeDefaultConditionForFamily = (family: RuleFamily): RuleCondition => ({
-  id: makeId(),
-  conditionType: 'MEDICATION',
-  field: 'medication_name',
-  operator: '=',
-  value: '',
-})
-const makeDefaultExplanationTemplate = (family: RuleFamily, name: string) => `${name} s'est déclenchée selon le protocole clinique de famille ${RULE_FAMILY_LABELS[family]}.`
-const formatDate = (date: string) => new Date(date).toLocaleDateString('fr-FR')
-const buildConditionSummary = (conditions: any) => {
-  if (!conditions?.conditions?.length) return 'Aucune condition'
-  return `${conditions.conditions.length} condition(s) - Mode: ${conditions.logic}`
+function getFieldGroups(conditionType: ConditionType): FieldGroup[] {
+  return FIELD_CATALOG[conditionType] || FIELD_CATALOG.CONDITION
 }
-const buildOutputSummary = (outputs: any) => {
-  if (!outputs) return 'Aucune sortie'
-  const counts = [outputs.risk_scores, outputs.alerts, outputs.contraindications].filter(Boolean).length
-  return `${counts} catégorie(s) de sortie`
+
+function getFieldOption(conditionType: ConditionType, field: string): FieldOption | undefined {
+  return getFieldGroups(conditionType).flatMap(group => group.options).find(option => option.value === field)
 }
-const parseConditionValue = (field: string, value: string) => value
-const parseNumber = (value: string) => parseInt(value, 10) || 0
-const getFieldGroupsForFamily = (family: RuleFamily, conditionType: ConditionType): FieldGroup[] => [
-  { label: 'Clinique', options: [{ value: 'symptom', label: 'Symptôme', dataType: 'string' }] },
-  { label: 'Médicaments', options: [{ value: 'medication', label: 'Médicament', dataType: 'string' }] },
-]
-const getDefaultField = (conditionType: ConditionType) => 'default_field'
-const getFieldOption = (conditionType: ConditionType, field: string): FieldOption | undefined => ({
-  value: field,
-  label: field,
-  dataType: 'string',
-})
-const getOperatorOptions = (dataType?: FieldDataType) => ['=', '!=', '>', '<'] as Operator[]
+
+function getDefaultField(conditionType: ConditionType): string {
+  return getFieldGroups(conditionType).flatMap(group => group.options)[0]?.value || ''
+}
+
+function getOperatorOptions(dataType?: FieldDataType): Operator[] {
+  switch (dataType) {
+    case 'number':
+    case 'date':
+      return ['=', '!=', '>', '<', '>=', '<=']
+    case 'boolean':
+      return ['=', '!=']
+    case 'array':
+      return ['includes', 'not_includes']
+    default:
+      return OPERATORS
+  }
+}
+
+function parseConditionValue(field: string, value: string): string | number | boolean {
+  const fieldOption = Object.values(FIELD_CATALOG).flatMap(group => group.flatMap(section => section.options)).find(option => option.value === field)
+  if (!fieldOption) return value
+  if (fieldOption.dataType === 'number') {
+    const parsed = Number(value)
+    return Number.isFinite(parsed) ? parsed : value
+  }
+  if (fieldOption.dataType === 'boolean') {
+    return value === 'true'
+  }
+  return value
+}
+
+function mapLegacyConditionType(type?: string): ConditionType {
+  switch (type) {
+    case 'LAB_RESULT': return 'LAB_RESULT'
+    case 'MEDICATION': return 'MEDICATION'
+    case 'VITAL_SIGN': return 'VITAL_SIGN'
+    case 'SYMPTOM': return 'SYMPTOM'
+    case 'ALLERGY': return 'ALLERGY'
+    case 'AGE': return 'AGE'
+    case 'EMERGENCY_FLAG': return 'EMERGENCY_FLAG'
+    default: return 'CONDITION'
+  }
+}
+
+function normalizeRuleConditions(ruleConditions: any) {
+  if (!ruleConditions) return { logic: 'AND', conditions: [] as any[] }
+  if (Array.isArray(ruleConditions.conditions)) {
+    return { logic: ruleConditions.logic === 'OR' ? 'OR' : 'AND', conditions: ruleConditions.conditions }
+  }
+  if (Array.isArray(ruleConditions.items)) {
+    return {
+      logic: ruleConditions.logic === 'any' ? 'OR' : 'AND',
+      conditions: ruleConditions.items.map((item: any) => ({
+        type: mapLegacyConditionType(item.condition_type),
+        field: item.field || '',
+        operator: item.operator || '=',
+        value: item.value,
+      })),
+    }
+  }
+  if (Array.isArray(ruleConditions.all)) return { logic: 'AND', conditions: ruleConditions.all }
+  if (Array.isArray(ruleConditions.any)) return { logic: 'OR', conditions: ruleConditions.any }
+  return { logic: 'AND', conditions: [] as any[] }
+}
+
+function normalizeRiskScores(riskScores: any): RiskScoreEntry[] {
+  if (Array.isArray(riskScores)) {
+    return riskScores.map((item: any) => ({ id: makeId(), name: item.name || '', value: String(item.value ?? '') }))
+  }
+  if (riskScores && typeof riskScores === 'object') {
+    return Object.entries(riskScores).map(([name, value]) => ({ id: makeId(), name, value: String(value ?? '') }))
+  }
+  return [{ id: makeId(), name: 'renal_risk', value: '20' }]
+}
+
+function normalizeAlertEntries(alerts: any): AlertEntry[] {
+  if (!Array.isArray(alerts) || alerts.length === 0) {
+    return [{ id: makeId(), type: 'clinical', severity: 'CRITICAL', message: 'Verifier la fonction renale' }]
+  }
+  return alerts.map((item: any) => ({
+    id: makeId(),
+    type: item.type || 'clinical',
+    severity: item.severity ?? 'CRITICAL',
+    message: item.message || '',
+  }))
+}
+
+function normalizeContraindications(contraindications: any): ContraindicationEntry[] {
+  if (!Array.isArray(contraindications) || contraindications.length === 0) {
+    return [{ id: makeId(), medication: 'Metformin', reason: 'Insuffisance renale grave', severity: 'CRITICAL' }]
+  }
+  return contraindications.map((item: any) => ({
+    id: makeId(),
+    medication: item.medication || item.target || '',
+    reason: item.reason || '',
+    severity: item.severity ?? 'CRITICAL',
+  }))
+}
+
+function makeId() {
+  return `id_${Math.random().toString(36).slice(2, 10)}`
+}
+
+function makeDefaultConditionForFamily(family: RuleFamily): RuleCondition {
+  switch (family) {
+    case 'EMERGENCY':
+      return { id: makeId(), conditionType: 'VITAL_SIGN', field: 'vitals.spo2', operator: '<', value: '85' }
+    case 'OVERDOSE':
+      return { id: makeId(), conditionType: 'MEDICATION', field: 'medications.max_daily_dose_adult', operator: '>', value: '1' }
+    case 'CONTRAINDICATION':
+      return { id: makeId(), conditionType: 'MEDICATION', field: 'medications.name', operator: 'includes', value: 'Metformin' }
+    case 'TOXICOLOGY':
+      return { id: makeId(), conditionType: 'LAB_RESULT', field: 'labs.creatinine.value', operator: '>', value: '2' }
+    case 'DOSING_ADJUSTMENT':
+      return { id: makeId(), conditionType: 'LAB_RESULT', field: 'labs.eGFR.value', operator: '<', value: '30' }
+    case 'THERAPEUTIC_WARNING':
+      return { id: makeId(), conditionType: 'CONDITION', field: 'patient.smoking_status', operator: '=', value: 'smoker' }
+    case 'DRUG_INTERACTION':
+      return { id: makeId(), conditionType: 'MEDICATION', field: 'medications.name', operator: 'includes', value: 'Warfarin' }
+    case 'PATIENT_RISK':
+    default:
+      return { id: makeId(), conditionType: 'CONDITION', field: 'patient.smoking_status', operator: '=', value: 'smoker' }
+  }
+}
+
+function makeDefaultExplanationTemplate(family: RuleFamily, name = 'Cette règle') {
+  return `${name} déclenchée pour la famille ${RULE_FAMILY_LABELS[family]}. Expliquer les facteurs cliniques, le niveau de risque et la conduite à tenir.`
+}
+
+function makeEmptyRuleForm(family: RuleFamily = 'DRUG_INTERACTION'): ClinicalRuleForm {
+  return {
+    ruleFamily: family,
+    name: '',
+    description: '',
+    category: 'INTERACTION',
+    severity: 'HIGH',
+    enabled: true,
+    triggerType: 'COMPOSITE',
+    conditionJoin: 'all',
+    explanationTemplate: makeDefaultExplanationTemplate(family),
+    conditions: [makeDefaultConditionForFamily(family)],
+    riskScores: [{ id: makeId(), name: 'renal_risk', value: '20' }],
+    urgency: 'HIGH',
+    alerts: [{ id: makeId(), type: 'clinical', severity: 'CRITICAL', message: 'Verifier la fonction renale' }],
+    contraindications: [{ id: makeId(), medication: 'Metformin', reason: 'Insuffisance renale grave', severity: 'CRITICAL' }],
+    recommendations: ['Arreter Metformin'],
+    warnings: ['Surveiller creatinine et fonction renale'],
+  }
+}
+
+function getFieldGroupsForFamily(family: RuleFamily, conditionType: ConditionType): FieldGroup[] {
+  const allowed = getAllowedConditionTypesForFamily(family)
+  if (!allowed.includes(conditionType)) {
+    return FIELD_CATALOG[allowed[0]] || FIELD_CATALOG.CONDITION
+  }
+  return FIELD_CATALOG[conditionType] || FIELD_CATALOG.CONDITION
+}
+
+function parseNumber(value: string) {
+  const parsed = parseFloat(value)
+  return Number.isFinite(parsed) ? parsed : value
+}
+
+function formatDate(value: string) {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return new Intl.DateTimeFormat('fr-FR', {
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+  }).format(date)
+}
+
+function buildConditionSummary(conditions: any): string {
+  const normalized = normalizeRuleConditions(conditions)
+  if (!normalized.conditions.length) return 'Aucune condition définie'
+  return normalized.conditions
+    .map((item: any) => `${item.type || item.condition_type || 'CONDITION'} ${item.field} ${item.operator} ${item.value}`)
+    .join(` ${normalized.logic === 'OR' ? 'OU' : 'ET'} `)
+}
+
+function buildOutputSummary(outputs: any): string {
+  if (!outputs) return 'Aucun output defini'
+  const parts: string[] = []
+  if (Array.isArray(outputs.risk_scores)) {
+    parts.push(outputs.risk_scores.map((r: any) => `${r.name} +${r.value}`).join(', '))
+  } else if (outputs.risk_scores && typeof outputs.risk_scores === 'object') {
+    parts.push(Object.entries(outputs.risk_scores).map(([name, value]) => `${name} +${value}`).join(', '))
+  }
+  if (outputs.urgency) {
+    parts.push(`Urgence ${outputs.urgency}`)
+  }
+  if (outputs.alerts?.length) {
+    parts.push(`${outputs.alerts.length} alerte(s)`)
+  }
+  if (outputs.contraindications?.length) {
+    parts.push(`${outputs.contraindications.length} CI(s)`)
+  }
+  if (outputs.recommendations?.length) {
+    parts.push(`${outputs.recommendations.length} recommandation(s)`)
+  }
+  const warningCount = Array.isArray(outputs.therapeutic_warnings)
+    ? outputs.therapeutic_warnings.length
+    : Array.isArray(outputs.warnings)
+      ? outputs.warnings.length
+      : 0
+  if (warningCount) {
+    parts.push(`${warningCount} avertissement(s)`)
+  }
+  return parts.join(' · ') || 'Aucun output defini'
+}
 
 export default function AdminClinicalRules() {
   const [rules, setRules] = useState<ClinicalRule[]>([])
@@ -182,205 +503,190 @@ export default function AdminClinicalRules() {
   const [severityFilter, setSeverityFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'enabled' | 'disabled'>('all')
   const [page, setPage] = useState(1)
-  const [showEditor, setShowEditor] = useState(false)
+  const [form, setForm] = useState<ClinicalRuleForm>(makeEmptyRuleForm())
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [form, setForm] = useState<ClinicalRuleForm>({
-    ruleFamily: 'PATIENT_RISK',
-    name: '',
-    description: '',
-    category: '',
-    severity: 'MODERATE',
-    enabled: true,
-    triggerType: '',
-    explanationTemplate: '',
-    conditionJoin: 'all',
-    conditions: [makeDefaultConditionForFamily('PATIENT_RISK')],
-    riskScores: [],
-    urgency: 'MODERATE',
-    alerts: [],
-    contraindications: [],
-    recommendations: [],
-    warnings: [],
-  })
-
-  const loadRules = async () => {
-    try {
-      setLoading(true)
-      const res = await fetch('/api/admin/clinical-rules')
-      if (!res.ok) throw new Error('Erreur de chargement')
-      const data = await res.json()
-      setRules(Array.isArray(data) ? data : data.rules || [])
-    } catch (err: any) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
-  }
+  const [showEditor, setShowEditor] = useState(false)
 
   useEffect(() => {
     loadRules()
   }, [])
 
-  const openEditor = (rule: ClinicalRule | null) => {
-    if (rule) {
-      setEditingId(rule.id)
-      setForm({
-        ruleFamily: rule.rule_family || 'PATIENT_RISK',
-        name: rule.name,
-        description: rule.description || '',
-        category: rule.category || '',
-        severity: rule.severity,
-        enabled: rule.enabled,
-        triggerType: rule.trigger_type || '',
-        explanationTemplate: rule.explanation_template || '',
-        conditionJoin: rule.conditions?.logic === 'OR' ? 'any' : 'all',
-        conditions: rule.conditions?.conditions || [makeDefaultConditionForFamily(rule.rule_family || 'PATIENT_RISK')],
-        riskScores: Object.entries(rule.outputs?.risk_scores || {}).map(([name, value]) => ({ id: makeId(), name, value: String(value) })),
-        urgency: 'MODERATE',
-        alerts: rule.outputs?.alerts || [],
-        contraindications: rule.outputs?.contraindications || [],
-        recommendations: rule.outputs?.recommendations || [],
-        warnings: rule.outputs?.therapeutic_warnings?.map((w: any) => w.warning) || [],
-      })
-    } else {
-      setEditingId(null)
-      resetForm()
+  async function loadRules() {
+    setLoading(true)
+    try {
+      const res = await fetch('/api/admin/clinical-rules')
+      if (!res.ok) throw new Error('Chargement impossible')
+      const data = await res.json()
+      setRules(data)
+    } catch (err: any) {
+      setError(err.message || 'Erreur de chargement')
+    } finally {
+      setLoading(false)
     }
-    setShowEditor(true)
   }
 
-  const resetForm = () => {
-    setShowEditor(false)
+  function resetForm() {
+    setForm(makeEmptyRuleForm())
     setEditingId(null)
+    setShowEditor(false)
+    setError('')
+  }
+
+  function openEditor(rule: ClinicalRule | null) {
+    if (!rule) {
+      resetForm()
+      setShowEditor(true)
+      return
+    }
+
+    const conditions = normalizeRuleConditions(rule.conditions)
+    const outputs = rule.outputs ?? {}
+    const ruleFamily = inferRuleFamily(rule)
+
     setForm({
-      ruleFamily: 'PATIENT_RISK',
-      name: '',
-      description: '',
-      category: '',
-      severity: 'MODERATE',
-      enabled: true,
-      triggerType: '',
-      explanationTemplate: '',
-      conditionJoin: 'all',
-      conditions: [makeDefaultConditionForFamily('PATIENT_RISK')],
-      riskScores: [],
-      urgency: 'MODERATE',
-      alerts: [],
-      contraindications: [],
-      recommendations: [],
-      warnings: [],
+      ruleFamily,
+      name: rule.name ?? '',
+      description: rule.description ?? '',
+      category: rule.category ?? 'INTERACTION',
+      severity: rule.severity ?? 'HIGH',
+      enabled: rule.enabled ?? true,
+      triggerType: rule.trigger_type ?? 'COMPOSITE',
+      explanationTemplate: rule.explanation_template ?? makeDefaultExplanationTemplate(ruleFamily, rule.name),
+      conditionJoin: conditions.logic === 'OR' ? 'any' : 'all',
+      conditions: conditions.conditions.length > 0
+        ? conditions.conditions.map((item: any) => ({
+          id: makeId(),
+          conditionType: mapLegacyConditionType(item.type),
+          field: item.field || getDefaultField(mapLegacyConditionType(item.type)),
+          operator: item.operator || '=',
+          value: item.value != null ? String(item.value) : '',
+        }))
+        : [{ id: makeId(), conditionType: 'AGE', field: 'patient.age', operator: '>', value: '65' }],
+      riskScores: normalizeRiskScores(outputs.risk_scores),
+      urgency: outputs.urgency ?? 'HIGH',
+      alerts: normalizeAlertEntries(outputs.alerts),
+      contraindications: normalizeContraindications(outputs.contraindications),
+      recommendations: Array.isArray(outputs.recommendations) ? outputs.recommendations.slice() : ['Arreter Metformin'],
+      warnings: Array.isArray(outputs.therapeutic_warnings)
+        ? outputs.therapeutic_warnings.map((item: any) => item.warning || '').filter(Boolean)
+        : Array.isArray(outputs.warnings)
+          ? outputs.warnings.slice()
+          : ['Surveiller creatinine et fonction renale'],
     })
+    setEditingId(rule.id)
+    setShowEditor(true)
+    setError('')
   }
 
-  const updateCondition = (id: string, data: Partial<RuleCondition>) => {
+  function updateCondition(id: string, data: Partial<RuleCondition>) {
     setForm(form => ({
       ...form,
-      conditions: form.conditions.map(item => item.id === id ? { ...item, ...data } : item),
+      conditions: form.conditions.map(cond => cond.id === id ? { ...cond, ...data } : cond),
     }))
   }
 
-  const removeCondition = (id: string) => {
-    setForm(form => ({ ...form, conditions: form.conditions.filter(item => item.id !== id) }))
-  }
-
-  const addCondition = () => {
+  function addCondition() {
     setForm(form => ({
       ...form,
-      conditions: [...form.conditions, makeDefaultConditionForFamily(form.ruleFamily)],
+      conditions: [...form.conditions, { id: makeId(), conditionType: 'CONDITION', field: getDefaultField('CONDITION'), operator: '=', value: '' }],
     }))
   }
 
-  const addRiskScore = () => {
+  function removeCondition(id: string) {
+    setForm(form => ({ ...form, conditions: form.conditions.filter(cond => cond.id !== id) }))
+  }
+
+  function addRiskScore() {
     setForm(form => ({
       ...form,
       riskScores: [...form.riskScores, { id: makeId(), name: '', value: '' }],
     }))
   }
 
-  const updateRiskScore = (id: string, data: Partial<RiskScoreEntry>) => {
+  function updateRiskScore(id: string, data: Partial<RiskScoreEntry>) {
     setForm(form => ({
       ...form,
       riskScores: form.riskScores.map(item => item.id === id ? { ...item, ...data } : item),
     }))
   }
 
-  const removeRiskScore = (id: string) => {
+  function removeRiskScore(id: string) {
     setForm(form => ({ ...form, riskScores: form.riskScores.filter(item => item.id !== id) }))
   }
 
-  const addAlert = () => {
+  function addAlert() {
     setForm(form => ({
       ...form,
       alerts: [...form.alerts, { id: makeId(), type: 'clinical', severity: 'HIGH', message: '' }],
     }))
   }
 
-  const updateAlert = (id: string, data: Partial<AlertEntry>) => {
+  function updateAlert(id: string, data: Partial<AlertEntry>) {
     setForm(form => ({
       ...form,
       alerts: form.alerts.map(item => item.id === id ? { ...item, ...data } : item),
     }))
   }
 
-  const removeAlert = (id: string) => {
+  function removeAlert(id: string) {
     setForm(form => ({ ...form, alerts: form.alerts.filter(item => item.id !== id) }))
   }
 
-  const addContraindication = () => {
+  function addContraindication() {
     setForm(form => ({
       ...form,
       contraindications: [...form.contraindications, { id: makeId(), medication: '', reason: '', severity: 'CRITICAL' }],
     }))
   }
 
-  const updateContraindication = (id: string, data: Partial<ContraindicationEntry>) => {
+  function updateContraindication(id: string, data: Partial<ContraindicationEntry>) {
     setForm(form => ({
       ...form,
       contraindications: form.contraindications.map(item => item.id === id ? { ...item, ...data } : item),
     }))
   }
 
-  const removeContraindication = (id: string) => {
+  function removeContraindication(id: string) {
     setForm(form => ({
       ...form,
       contraindications: form.contraindications.filter(item => item.id !== id),
     }))
   }
 
-  const addRecommendation = () => {
+  function addRecommendation() {
     setForm(form => ({ ...form, recommendations: [...form.recommendations, ''] }))
   }
 
-  const updateRecommendation = (index: number, value: string) => {
+  function updateRecommendation(index: number, value: string) {
     setForm(form => ({
       ...form,
       recommendations: form.recommendations.map((item, idx) => idx === index ? value : item),
     }))
   }
 
-  const removeRecommendation = (index: number) => {
+  function removeRecommendation(index: number) {
     setForm(form => ({
       ...form,
       recommendations: form.recommendations.filter((_, idx) => idx !== index),
     }))
   }
 
-  const addWarning = () => {
+  function addWarning() {
     setForm(form => ({ ...form, warnings: [...form.warnings, ''] }))
   }
 
-  const updateWarning = (index: number, value: string) => {
+  function updateWarning(index: number, value: string) {
     setForm(form => ({
       ...form,
       warnings: form.warnings.map((item, idx) => idx === index ? value : item),
     }))
   }
 
-  const removeWarning = (index: number) => {
+  function removeWarning(index: number) {
     setForm(form => ({ ...form, warnings: form.warnings.filter((_, idx) => idx !== index) }))
   }
 
-  const applyRuleFamily = (family: RuleFamily) => {
+  function applyRuleFamily(family: RuleFamily) {
     setForm(form => ({
       ...form,
       ruleFamily: family,
@@ -398,7 +704,7 @@ export default function AdminClinicalRules() {
     }))
   }
 
-  const buildPayload = (): any => {
+  function buildPayload(): any {
     return {
       name: form.name,
       description: form.description || null,
@@ -443,7 +749,7 @@ export default function AdminClinicalRules() {
     }
   }
 
-  const saveRule = async (event: React.FormEvent) => {
+  async function saveRule(event: React.FormEvent) {
     event.preventDefault()
     setSaving(true)
     setError('')
@@ -472,7 +778,7 @@ export default function AdminClinicalRules() {
       })
       if (!res.ok) {
         const body = await res.json()
-        throw new Error(body?.error || 'Erreur lors de l\'enregistrement de la règle')
+        throw new Error(body?.error || 'Erreur lors de l’enregistrement de la règle')
       }
       await loadRules()
       resetForm()
@@ -483,13 +789,13 @@ export default function AdminClinicalRules() {
     }
   }
 
-  const deleteRule = async (id: string) => {
+  async function deleteRule(id: string) {
     if (!confirm('Supprimer cette règle clinique ?')) return
     await fetch(`/api/admin/clinical-rules/${id}`, { method: 'DELETE' })
     await loadRules()
   }
 
-  const toggleEnabled = async (rule: ClinicalRule) => {
+  async function toggleEnabled(rule: ClinicalRule) {
     setSaving(true)
     setError('')
     try {
@@ -542,141 +848,135 @@ export default function AdminClinicalRules() {
   const pageRules = filteredRules.slice((safePage - 1) * pageSize, safePage * pageSize)
 
   return (
-    <div className="space-y-4 md:space-y-6 px-3 md:px-6 lg:px-8">
-      {/* Header */}
-      <div className="rounded-2xl bg-slate-50 p-4 md:p-5 shadow-sm">
-        <div className="flex flex-col gap-2 sm:gap-3 md:flex-row md:items-center md:justify-between">
-          <div className="space-y-1.5 sm:space-y-2.5 flex-1">
-            <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-100 px-2 sm:px-3 py-0.5 sm:py-1 text-xs font-medium text-slate-600">
+    <div className="space-y-6">
+      <div className="rounded-2xl bg-slate-50 p-5 shadow-sm">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
+          <div className="space-y-2.5">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-1 text-xs font-medium text-[var(--color-muted-foreground)]">
               <ShieldAlert className="h-3.5 w-3.5" />
               Studio de règles
             </div>
-            <div className="space-y-1 sm:space-y-1.5">
-              <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-slate-900">
+            <div className="space-y-1.5">
+              <h2 className="flex items-center gap-2 text-3xl font-semibold tracking-tight text-slate-900">
                 Moteur de règles cliniques
               </h2>
-              <p className="max-w-4xl text-xs sm:text-sm leading-5 sm:leading-6 text-slate-600">
-                Créez, modifiez et activez des règles cliniques dynamiques. L'éditeur garde la logique métier intacte tout en présentant les conditions, les sorties et l'explicabilité.
+              <p className="max-w-4xl text-sm leading-6 text-slate-600">
+                Créez, modifiez et activez des règles cliniques dynamiques sans JSON brut. L’éditeur garde la logique métier intacte tout en présentant les conditions, les sorties et l’explicabilité dans un espace de travail lisible.
               </p>
             </div>
+            <div className="flex flex-wrap gap-2 text-xs font-medium text-[var(--color-muted-foreground)]">
+              <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-0.5">{filteredRules.length} règles visibles</span>
+              <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-0.5">{rules.length} au total</span>
+            </div>
           </div>
-          <Button type="button" variant="default" onClick={() => openEditor(null)} className="h-8 sm:h-9 shadow-sm gap-2 text-xs sm:text-sm w-full md:w-auto">
-            <Plus className="h-4 w-4" /> <span className="hidden sm:inline">Nouvelle</span> règle
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button type="button" variant="outline" onClick={() => openEditor(null)} className="h-9 shadow-sm">
+              <Plus className="h-4 w-4" /> Nouvelle règle
+            </Button>
+            <div className="text-sm text-slate-500">{rules.length} règles · Filtrer pour affiner</div>
+          </div>
         </div>
       </div>
 
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 sm:px-4 sm:py-3 text-xs sm:text-sm text-red-700">
+        <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-destructive)]/10 px-3 py-2 text-sm text-[var(--color-destructive-foreground)]">
           {error}
         </div>
       )}
 
-      {/* Main Grid: Rules List (LEFT) + Editor (RIGHT) */}
-      <div className="grid gap-4 md:gap-6 lg:gap-8 grid-cols-1 lg:grid-cols-[35%_65%] xl:grid-cols-[380px_minmax(0,1fr)] lg:items-start">
-        
-        {/* LEFT: Rules List */}
-        <div className="space-y-3 md:space-y-4 order-2 lg:order-1">
-          {/* Search & Filters */}
-          <div className="space-y-2 md:space-y-3 rounded-lg bg-white p-3 md:p-4 shadow-sm">
-            {/* Search Bar */}
-            <div className="relative">
-              <Search className="absolute left-3 md:left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <Input
-                value={search}
-                onChange={e => { setSearch(e.target.value); setPage(1) }}
-                placeholder="Rechercher..."
-                className="h-9 md:h-10 w-full rounded-lg border border-slate-200 bg-white pl-10 md:pl-12 pr-3 md:pr-4 text-xs md:text-sm placeholder:text-slate-400 focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition-all"
-              />
-            </div>
-            
-            {/* Filters Grid */}
-            <div className="space-y-2 border-t border-slate-100 pt-2 md:pt-3">
-              <div className="grid grid-cols-2 gap-1.5 md:gap-2.5">
+      <div className="grid gap-6 xl:grid-cols-[minmax(420px,480px)_minmax(0,1fr)] xl:items-start 2xl:grid-cols-[480px_minmax(0,1fr)]">
+        <div className="space-y-4">
+          <div className="rounded-lg bg-white p-4 shadow-sm">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div className="relative flex-1 min-w-0">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-muted-foreground)]" />
+                <Input
+                  value={search}
+                  onChange={e => { setSearch(e.target.value); setPage(1) }}
+                  placeholder="Recherche par nom, catégorie, type..."
+                  className="pl-10 h-10 rounded-xl"
+                />
+              </div>
+              <div className="flex flex-wrap gap-2.5 items-center w-full md:w-auto">
                 <select
                   value={categoryFilter}
                   onChange={e => { setCategoryFilter(e.target.value); setPage(1) }}
                   title="Filtre de catégorie"
-                  className="h-7 md:h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                  className="w-full md:w-48 h-9 rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
                 >
-                  <option value="">Cat.</option>
+                  <option value="">Toutes catégories</option>
                   {CATEGORY_OPTIONS.map(option => (
                     <option key={option} value={option}>{option}</option>
+                  ))}
+                </select>
+                <select
+                  value={familyFilter}
+                  onChange={e => { setFamilyFilter(e.target.value); setPage(1) }}
+                  title="Filtre de famille"
+                  className="w-full md:w-56 h-9 rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
+                >
+                  <option value="">Toutes familles</option>
+                  {RULE_FAMILY_ORDER.map(option => (
+                    <option key={option} value={option}>{RULE_FAMILY_LABELS[option]}</option>
                   ))}
                 </select>
                 <select
                   value={severityFilter}
                   onChange={e => { setSeverityFilter(e.target.value); setPage(1) }}
                   title="Filtre de gravité"
-                  className="h-7 md:h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                  className="w-full md:w-48 h-9 rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
                 >
-                  <option value="">Grav.</option>
+                  <option value="">Toutes gravités</option>
                   {SEVERITY_OPTIONS.map(option => (
-                    <option key={option} value={option}>{SEVERITY_LABELS[option]?.charAt(0).toUpperCase() || option}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="grid grid-cols-2 gap-1.5 md:gap-2.5">
-                <select
-                  value={familyFilter}
-                  onChange={e => { setFamilyFilter(e.target.value); setPage(1) }}
-                  title="Filtre de famille"
-                  className="h-7 md:h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
-                >
-                  <option value="">Fam.</option>
-                  {RULE_FAMILY_ORDER.map(option => (
-                    <option key={option} value={option}>{RULE_FAMILY_LABELS[option]?.substring(0, 10)}</option>
+                    <option key={option} value={option}>{SEVERITY_LABELS[option] || option}</option>
                   ))}
                 </select>
                 <select
                   value={statusFilter}
                   onChange={e => { setStatusFilter(e.target.value as any); setPage(1) }}
                   title="Filtre de statut"
-                  className="h-7 md:h-8 w-full rounded-md border border-slate-200 bg-white px-2 text-xs text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
+                  className="w-full md:w-40 h-9 rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
                 >
-                  <option value="all">Statut</option>
-                  <option value="enabled">Act.</option>
-                  <option value="disabled">Inact.</option>
+                  <option value="all">Tous statuts</option>
+                  <option value="enabled">Activées</option>
+                  <option value="disabled">Désactivées</option>
                 </select>
               </div>
             </div>
-          </div>
+          </Card>
 
-          {/* Rules List */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             {pageRules.length === 0 && (
-              <div className="rounded-lg bg-slate-50 border border-slate-200 p-6 text-center text-xs text-slate-500">
-                <p className="font-medium">Aucune règle trouvée</p>
-                <p className="mt-1">Affinez vos filtres ou créez une nouvelle règle</p>
+              <div className="rounded-lg bg-white p-6 text-center text-sm text-slate-500 shadow-sm">
+                Aucun résultat trouvé. Ajustez le filtre ou créez une nouvelle règle.
               </div>
             )}
 
             {pageRules.map(rule => (
-              <div key={rule.id} className={`rounded-lg bg-white p-3.5 transition-all duration-150 ${editingId === rule.id ? 'border-teal-500 bg-teal-50 shadow-sm' : 'border-slate-200 hover:border-slate-300 hover:shadow-sm'}`}>
+              <div key={rule.id} className="rounded-lg bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                   <div className="min-w-0 space-y-2.5">
                     <div className="flex flex-wrap items-center gap-2.5">
                       <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${FAMILY_UI[inferRuleFamily(rule)].bg} ${FAMILY_UI[inferRuleFamily(rule)].accent} ${FAMILY_UI[inferRuleFamily(rule)].border}`}>
                         {RULE_FAMILY_LABELS[inferRuleFamily(rule)]}
                       </span>
-                      <span className="text-base font-semibold text-slate-900 truncate">{rule.name}</span>
+                      <span className="text-base font-semibold text-[var(--color-foreground)]">{rule.name}</span>
                       <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${SEVERITY_BADGE[rule.severity]}`}>
-                        {SEVERITY_LABELS[rule.severity] || rule.severity}
+                        {rule.severity}
                       </span>
                       {rule.category && (
-                        <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs text-slate-600">
+                        <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/5 px-2 py-0.5 text-xs text-[var(--color-muted-foreground)]">
                           {rule.category}
                         </span>
                       )}
                       {rule.trigger_type && (
-                        <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs text-slate-600">
+                        <span className="rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/5 px-2 py-0.5 text-xs text-[var(--color-muted-foreground)]">
                           {rule.trigger_type}
                         </span>
                       )}
                     </div>
-                    {rule.description && <p className="text-sm text-slate-600">{rule.description}</p>}
-
-                    <div className="grid gap-3 sm:grid-cols-2 mt-2">
+                    {rule.description && <p className="text-sm text-[var(--color-muted-foreground)]">{rule.description}</p>}
+                    <div className="grid gap-3 sm:grid-cols-2">
                       <div className="rounded-md bg-slate-50 px-3 py-2 text-xs text-slate-600">
                         <span className="font-medium">Conditions:</span> {buildConditionSummary(rule.conditions)}
                       </div>
@@ -684,8 +984,7 @@ export default function AdminClinicalRules() {
                         <span className="font-medium">Outputs:</span> {buildOutputSummary(rule.outputs)}
                       </div>
                     </div>
-
-                    <div className="flex flex-wrap gap-2 text-[11px] text-slate-500 mt-2">
+                    <div className="flex flex-wrap gap-2 text-[11px] text-slate-500">
                       <span>Créée le {formatDate(rule.created_at)}</span>
                       <span>{rule.enabled ? 'Activée' : 'Désactivée'}</span>
                     </div>
@@ -696,276 +995,400 @@ export default function AdminClinicalRules() {
                       {rule.enabled ? 'Activée' : 'Inactivée'}
                     </Button>
                     <div className="flex gap-2">
-                      <Button type="button" variant="outline" size="sm" onClick={() => openEditor(rule)}>Modifier</Button>
-                      <Button type="button" variant="ghost" size="sm" onClick={() => deleteRule(rule.id)} className="text-red-600">Supprimer</Button>
+                      <Button type="button" variant="secondary" size="sm" onClick={() => openEditor(rule)}>Modifier</Button>
+                      <Button type="button" variant="destructive" size="sm" onClick={() => deleteRule(rule.id)}>Supprimer</Button>
                     </div>
                   </div>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
 
-          {/* Pagination */}
           {pageCount > 1 && (
-            <div className="flex items-center justify-between text-xs text-slate-500 pt-2">
-              <span>Page {safePage} sur {pageCount}</span>
+            <div className="flex items-center justify-between rounded-2xl border border-[var(--color-border)] bg-white px-4 py-3 text-sm text-[var(--color-muted-foreground)] shadow-sm">
+              <span>{`${(safePage - 1) * pageSize + 1} - ${Math.min(safePage * pageSize, filteredRules.length)} sur ${filteredRules.length}`}</span>
               <div className="flex items-center gap-2">
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="sm"
                   disabled={page <= 1}
                   onClick={() => setPage(page - 1)}
-                  className="rounded-md border border-slate-200 bg-white px-2 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >←</button>
-                <button
+                >Précédent</Button>
+                <Button
                   type="button"
+                  variant="outline"
+                  size="sm"
                   disabled={page >= pageCount}
                   onClick={() => setPage(page + 1)}
-                  className="rounded-md border border-slate-200 bg-white px-2 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >→</button>
+                >Suivant</Button>
               </div>
             </div>
           )}
         </div>
 
-        {/* RIGHT: Rule Editor */}
-        {showEditor && (
-          <div className="space-y-3 md:space-y-4 bg-white rounded-lg p-3 md:p-6 shadow-sm lg:sticky lg:top-6 order-1 lg:order-2">
-            <div className="flex items-start justify-between gap-2 md:gap-4 border-b border-slate-200 pb-3 md:pb-4">
-              <div className="min-w-0 flex-1">
-                <h3 className="text-sm md:text-base font-semibold text-slate-900">{editingId ? 'Modifier' : 'Nouvelle'} règle</h3>
-                <p className="text-xs md:text-sm text-slate-500 mt-0.5 md:mt-1">Conditions et résultats</p>
+          {showEditor && (
+            <div className="space-y-4 bg-white rounded-lg p-6 shadow-sm xl:sticky xl:top-6">
+            <div className="flex flex-col gap-4 border-b border-[var(--color-border)] pb-4">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-base font-semibold text-slate-950">{editingId ? 'Modifier la règle' : 'Nouvelle règle'}</h3>
+                  <p className="text-sm text-slate-500">Construisez les conditions, relisez la logique et testez un patient sans quitter le panneau.</p>
+                </div>
+                <button type="button" onClick={resetForm} title="Fermer le formulaire" className="text-slate-400 hover:text-slate-600">
+                  <X className="h-5 w-5" />
+                </button>
               </div>
-              <button type="button" onClick={resetForm} title="Fermer" className="text-slate-400 hover:text-slate-600 flex-shrink-0">
-                <X className="h-4 md:h-5 w-4 md:w-5" />
-              </button>
+
             </div>
 
-            <form onSubmit={saveRule} className="space-y-3 md:space-y-6 max-h-[calc(100vh-200px)] md:max-h-none overflow-y-auto md:overflow-visible pb-20 md:pb-0">
-              {/* Rule family selector (restored) */}
-              <details open className="group rounded-lg bg-slate-50 p-3 md:p-4 border border-slate-200">
-                <summary className="flex items-center justify-between cursor-pointer font-semibold text-slate-900 text-sm">
-                  <span>Famille de la règle</span>
-                  <span className="text-xs text-slate-500">{RULE_FAMILY_LABELS[form.ruleFamily]}</span>
+            <form onSubmit={saveRule} className="space-y-6">
+              <details open className="group rounded-2xl bg-slate-50 p-4">
+                <summary className="flex items-center justify-between cursor-pointer">
+                  <div>
+                    <h4 className="text-sm font-semibold text-slate-900">Étape 1 · Famille clinique</h4>
+                    <p className="text-sm text-slate-600">Chaque règle appartient à une seule famille de raisonnement médical.</p>
+                  </div>
+                  <div className="text-xs text-slate-500">{RULE_FAMILY_LABELS[form.ruleFamily]}</div>
                 </summary>
-                <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {RULE_FAMILY_ORDER.map((fam) => {
-                    const Icon = FAMILY_ICONS[fam]
-                    const active = form.ruleFamily === fam
+                <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                  {RULE_FAMILY_ORDER.map(family => {
+                    const Icon = FAMILY_ICONS[family] || ShieldAlert
+                    const familyUi = FAMILY_UI[family] || FAMILY_UI.PATIENT_RISK
+                    const active = form.ruleFamily === family
                     return (
                       <button
-                        key={fam}
+                        key={family}
                         type="button"
-                        onClick={() => applyRuleFamily(fam)}
-                        className={`w-full text-left rounded-lg p-2 flex items-start gap-2 border ${active ? 'border-teal-500 bg-teal-50' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
-                        <Icon className="h-5 w-5 text-slate-700" />
-                        <div className="min-w-0">
-                          <div className="text-sm font-semibold text-slate-900 truncate">{RULE_FAMILY_LABELS[fam]}</div>
-                          <div className="text-xs text-slate-500 line-clamp-2">{RULE_FAMILY_DESCRIPTIONS[fam]}</div>
+                        onClick={() => applyRuleFamily(family)}
+                        className={`flex h-full flex-col gap-2 rounded-2xl border p-3 text-left transition ${active ? `${familyUi.border} ${familyUi.bg} shadow-sm` : 'border-[var(--color-border)] bg-white hover:border-slate-300'}`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className={`rounded-xl border p-2 ${active ? familyUi.border : 'border-[var(--color-border)] bg-[var(--color-muted)]/10'}`}>
+                            <Icon className={`h-4 w-4 ${active ? familyUi.accent : 'text-slate-500'}`} />
+                          </span>
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold text-slate-900">{RULE_FAMILY_LABELS[family]}</p>
+                            <p className="text-xs text-slate-500">{family}</p>
+                          </div>
                         </div>
+                        <p className="text-xs leading-5 text-slate-600">{RULE_FAMILY_DESCRIPTIONS[family]}</p>
                       </button>
                     )
                   })}
                 </div>
-              </details>
-              {/* Section: Informations générales */}
-              <details open className="group rounded-lg bg-slate-50 p-4 border border-slate-200">
-                <summary className="flex items-center justify-between cursor-pointer font-semibold text-slate-900">
-                  <span className="text-sm">Informations générales</span>
-                  <span className="text-xs text-slate-500">{RULE_FAMILY_LABELS[form.ruleFamily]}</span>
-                </summary>
-                <div className="mt-4 space-y-4">
-                  <div>
-                    <Label htmlFor="rule-name" className="text-xs md:text-sm font-medium">Nom de la règle</Label>
-                    <Input
-                      id="rule-name"
-                      value={form.name}
-                      onChange={e => setForm(form => ({ ...form, name: e.target.value }))}
-                      placeholder="ex: Interaction Métformine-Alcool"
-                      required
-                      className="mt-1 md:mt-1.5 h-8 md:h-9 text-xs md:text-sm"
-                    />
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-4">
-                    <div>
-                      <Label htmlFor="rule-category" className="text-xs md:text-sm font-medium">Catégorie</Label>
-                      <select
-                        id="rule-category"
-                        title="Catégorie"
-                        value={form.category}
-                        onChange={e => setForm(form => ({ ...form, category: e.target.value }))}
-                        className="mt-1 md:mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-2 md:px-3 h-8 md:h-9 text-xs md:text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
-                      >
-                        <option value="">Sélectionner...</option>
-                        {CATEGORY_OPTIONS.map(option => <option key={option} value={option}>{option}</option>)}
-                      </select>
-                    </div>
-                    <div>
-                      <Label htmlFor="rule-severity" className="text-xs md:text-sm font-medium">Gravité</Label>
-                      <select
-                        id="rule-severity"
-                        title="Gravité"
-                        value={form.severity}
-                        onChange={e => setForm(form => ({ ...form, severity: e.target.value as SeverityLevel }))}
-                        className="mt-1 md:mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-2 md:px-3 h-8 md:h-9 text-xs md:text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
-                      >
-                        {SEVERITY_OPTIONS.map(option => <option key={option} value={option}>{SEVERITY_LABELS[option]}</option>)}
-                      </select>
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="rule-description" className="text-xs md:text-sm font-medium">Description</Label>
-                    <textarea
-                      id="rule-description"
-                      value={form.description}
-                      onChange={e => setForm(form => ({ ...form, description: e.target.value }))}
-                      rows={2}
-                      placeholder="Décrivez le contexte clinique..."
-                      className="mt-1 md:mt-1.5 min-h-[60px] md:min-h-[84px] w-full rounded-lg border border-slate-200 bg-white px-2 md:px-3 py-1.5 md:py-2 text-xs md:text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
-                    />
-                  </div>
                 </div>
               </details>
 
-              {/* Section: Conditions */}
-              <details open className="group rounded-lg bg-slate-50 p-3 md:p-4 border border-slate-200">
-                <summary className="flex items-center justify-between cursor-pointer font-semibold text-slate-900 text-xs md:text-sm">
-                  <span>Conditions</span>
-                  <span className="text-xs text-slate-500">{form.conditions.length} condition(s)</span>
+              <div className="grid gap-4 lg:grid-cols-2">
+                <div>
+                  <Label htmlFor="rule-name">Nom de la règle</Label>
+                  <Input id="rule-name" value={form.name} onChange={e => setForm(form => ({ ...form, name: e.target.value }))} required />
+                </div>
+                <div>
+                  <Label htmlFor="rule-category">Catégorie</Label>
+                  <select id="rule-category" value={form.category} onChange={e => setForm(form => ({ ...form, category: e.target.value }))} title="Catégorie de la règle" className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">
+                    {CATEGORY_OPTIONS.map(option => <option key={option} value={option}>{option}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <Label htmlFor="rule-severity">Sévérité</Label>
+                  <select id="rule-severity" value={form.severity} onChange={e => setForm(form => ({ ...form, severity: e.target.value as SeverityLevel }))} title="Sévérité de la règle" className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">
+                    {SEVERITY_OPTIONS.map(option => <option key={option} value={option}>{SEVERITY_LABELS[option] || option}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <Label htmlFor="rule-trigger">Type de déclencheur</Label>
+                  <select id="rule-trigger" value={form.triggerType} onChange={e => setForm(form => ({ ...form, triggerType: e.target.value }))} title="Type de déclencheur" className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">
+                    {TRIGGER_TYPES.map(option => <option key={option} value={option}>{option}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <Label htmlFor="rule-status">Statut</Label>
+                  <select id="rule-status" value={form.enabled ? 'enabled' : 'disabled'} onChange={e => setForm(form => ({ ...form, enabled: e.target.value === 'enabled' }))} title="Statut de la règle" className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">
+                    <option value="enabled">Activée</option>
+                    <option value="disabled">Désactivée</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="rule-description">Description</Label>
+                <textarea id="rule-description" value={form.description} onChange={e => setForm(form => ({ ...form, description: e.target.value }))} rows={2} placeholder="Décrivez le comportement clinique de la règle" className="min-h-[84px] w-full rounded-lg border border-[var(--color-border)] bg-white px-3 py-2 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0" />
+              </div>
+
+              <div>
+                <Label htmlFor="rule-explanation-template">Pourquoi cette règle s’est déclenchée ?</Label>
+                <textarea
+                  id="rule-explanation-template"
+                  value={form.explanationTemplate}
+                  onChange={e => setForm(form => ({ ...form, explanationTemplate: e.target.value }))}
+                  rows={3}
+                  placeholder="Décrivez la logique clinique, les facteurs déclenchants et la conduite à tenir."
+                  className="min-h-[96px] w-full rounded-lg border border-[var(--color-border)] bg-white px-3 py-2 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0"
+                />
+              </div>
+
+              <details open className="group rounded-2xl bg-slate-50 p-4">
+                <summary className="flex items-center justify-between cursor-pointer">
+                  <div>
+                    <h4 className="text-sm font-semibold text-slate-900">Conditions dynamiques</h4>
+                    <p className="text-sm text-slate-600">Chaque ligne peut être combinée avec ET ou OU.</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs uppercase tracking-[0.18em] text-slate-500">Combinaison</span>
+                    <select value={form.conditionJoin} onChange={e => setForm(form => ({ ...form, conditionJoin: e.target.value as 'all' | 'any' }))} title="Mode de combinaison des conditions" className="rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">
+                      <option value="all">ET</option>
+                      <option value="any">OU</option>
+                    </select>
+                  </div>
                 </summary>
-                <div className="mt-3 md:mt-4 space-y-2 md:space-y-4">
-                  {form.conditions.map((condition) => (
-                    <div key={condition.id} className="flex gap-1.5 md:gap-2 items-end flex-col md:flex-row">
-                      <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-1.5 md:gap-2 w-full">
-                        <Input
-                          value={condition.conditionType}
-                          onChange={e => updateCondition(condition.id, { conditionType: e.target.value as ConditionType })}
-                          placeholder="Type"
-                          className="h-7 md:h-8 text-xs"
-                        />
-                        <Input
-                          value={condition.field}
-                          onChange={e => updateCondition(condition.id, { field: e.target.value })}
-                          placeholder="Champ"
-                          className="h-7 md:h-8 text-xs"
-                        />
-                        <Input
-                          value={condition.value}
-                          onChange={e => updateCondition(condition.id, { value: e.target.value })}
-                          placeholder="Valeur"
-                          className="h-7 md:h-8 text-xs"
-                        />
+                <div className="mt-3 space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <h4 className="text-sm font-semibold text-slate-900">Conditions dynamiques</h4>
+                    <p className="text-sm text-slate-600">Chaque ligne peut être combinée avec ET ou OU.</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs uppercase tracking-[0.18em] text-slate-500">Combinaison</span>
+                    <select value={form.conditionJoin} onChange={e => setForm(form => ({ ...form, conditionJoin: e.target.value as 'all' | 'any' }))} title="Mode de combinaison des conditions" className="rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">
+                      <option value="all">ET</option>
+                      <option value="any">OU</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {form.conditions.map((condition, index) => (
+                    <div key={condition.id} className="grid grid-cols-1 gap-2 items-start lg:grid-cols-[1fr_auto]">
+                      <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                        <div className="min-w-0">
+                          <Label>Type</Label>
+                          <select value={condition.conditionType} onChange={e => { const nextType = e.target.value as ConditionType; const nextGroups = getFieldGroupsForFamily(form.ruleFamily, nextType); const nextField = nextGroups.flatMap(group => group.options)[0]?.value || getDefaultField(nextType); updateCondition(condition.id, { conditionType: nextType, field: nextField, operator: getOperatorOptions(getFieldOption(nextType, nextField)?.dataType)[0] }) }} title="Type de condition" className="w-full h-9 rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">
+                            {getAllowedConditionTypesForFamily(form.ruleFamily).map(option => <option key={option} value={option}>{option}</option>)}
+                          </select>
+                        </div>
+                        <div className="min-w-0">
+                          <Label>Champ ciblé</Label>
+                          <select value={condition.field || getDefaultField(condition.conditionType)} onChange={e => { const nextField = e.target.value; const nextFieldOption = getFieldOption(condition.conditionType, nextField); updateCondition(condition.id, { field: nextField, operator: getOperatorOptions(nextFieldOption?.dataType)[0] }) }} title="Champ clinique" className="w-full h-9 rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">
+                            {getFieldGroupsForFamily(form.ruleFamily, condition.conditionType).map(group => (
+                              <optgroup key={group.label} label={group.label}>
+                                {group.options.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
+                              </optgroup>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="min-w-0">
+                          <Label>Opérateur</Label>
+                          {(() => { const fieldOption = getFieldOption(condition.conditionType, condition.field || getDefaultField(condition.conditionType)); const operatorOptions = getOperatorOptions(fieldOption?.dataType); return (<select value={condition.operator} onChange={e => updateCondition(condition.id, { operator: e.target.value as Operator })} title="Opérateur de comparaison" className="w-full h-9 rounded-lg border border-[var(--color-border)] bg-white px-3 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">{operatorOptions.map(option => <option key={option} value={option}>{option}</option>)}</select>) })()}
+                        </div>
+                        <div className="min-w-0">
+                          <Label>Valeur</Label>
+                          <Input value={condition.value} onChange={e => updateCondition(condition.id, { value: e.target.value })} placeholder="ex. Metformin" className="h-9" />
+                        </div>
                       </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeCondition(condition.id)}
-                        className="h-7 md:h-8 w-7 md:w-8 p-0 flex-shrink-0"
-                      >
-                        <Trash2 className="h-3.5 md:h-4 w-3.5 md:w-4" />
-                      </Button>
+                      <div className="flex items-start lg:items-start gap-2 mt-2 lg:mt-0">
+                        <Button type="button" variant="outline" size="sm" onClick={() => removeCondition(condition.id)} className="h-9 w-9 p-0 flex items-center justify-center">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   ))}
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={addCondition}
-                    className="w-full h-7 md:h-8 text-xs md:text-sm"
-                  >
-                    <Plus className="h-3.5 md:h-4 w-3.5 md:w-4" /> Ajouter
-                  </Button>
+                </div>
+
+                <Button type="button" variant="secondary" size="sm" onClick={addCondition}>
+                  <Plus className="h-4 w-4" /> Ajouter une condition
+                </Button>
                 </div>
               </details>
 
-              {/* Section: Résultats */}
-              <details open className="group rounded-lg bg-slate-50 p-3 md:p-4 border border-slate-200">
-                <summary className="flex items-center justify-between cursor-pointer font-semibold text-slate-900 text-xs md:text-sm">
-                  <span>Résultats</span>
-                  <span className="text-xs text-slate-500">{form.alerts.length + form.recommendations.length} élément(s)</span>
-                </summary>
-                <div className="mt-3 md:mt-4 space-y-3 md:space-y-4">
+              <details open className="group space-y-4 rounded-2xl bg-white p-5">
+                <summary className="flex items-center justify-between cursor-pointer">
                   <div>
-                    <Label className="text-xs md:text-sm font-medium mb-1.5 md:mb-2 block">Alertes</Label>
-                    {form.alerts.map((alert) => (
-                      <div key={alert.id} className="flex gap-1.5 md:gap-2 items-end mb-1.5 md:mb-2 flex-col sm:flex-row">
-                        <Input
-                          value={alert.message}
-                          onChange={e => updateAlert(alert.id, { message: e.target.value })}
-                          placeholder="Message d'alerte"
-                          className="flex-1 h-7 md:h-8 text-xs"
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeAlert(alert.id)}
-                          className="h-7 md:h-8 w-7 md:w-8 p-0 flex-shrink-0"
-                        >
-                          <Trash2 className="h-3.5 md:h-4 w-3.5 md:w-4" />
+                    <h4 className="text-sm font-semibold text-slate-900">Résultats et recommandations</h4>
+                    <p className="text-sm text-slate-600">Configurez les scores, alertes, contre-indications et recommandations cliniques.</p>
+                  </div>
+                  <div className="inline-flex items-center gap-2 rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-600">
+                    <ArrowUpDown className="h-4 w-4" /> Priorité {form.urgency}
+                  </div>
+                </summary>
+                <div className="mt-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <h4 className="text-sm font-semibold text-slate-900">Résultats et recommandations</h4>
+                    <p className="text-sm text-slate-600">Configurez les scores, alertes, contre-indications et recommandations cliniques.</p>
+                  </div>
+                  <div className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-muted)]/10 px-3 py-1 text-xs font-semibold text-[var(--color-muted-foreground)]">
+                    <ArrowUpDown className="h-4 w-4" /> Priorité {form.urgency}
+                  </div>
+                </div>
+
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <div>
+                    <Label>Urgence globale</Label>
+                    <select value={form.urgency} onChange={e => setForm(form => ({ ...form, urgency: e.target.value as SeverityLevel }))} title="Urgence globale" className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">
+                      {SEVERITY_OPTIONS.map(option => <option key={option} value={option}>{SEVERITY_LABELS[option] || option}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <Label>Score de risque</Label>
+                    <div className="space-y-2.5">
+                      {form.riskScores.map(score => (
+                        <div key={score.id} className="grid gap-2.5 sm:grid-cols-[1fr_96px_auto]">
+                          <Input value={score.name} onChange={e => updateRiskScore(score.id, { name: e.target.value })} placeholder="renal_risk" />
+                          <Input value={score.value} onChange={e => updateRiskScore(score.id, { value: e.target.value })} placeholder="20" />
+                          <Button type="button" variant="outline" size="sm" onClick={() => removeRiskScore(score.id)}>
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                      <Button type="button" variant="secondary" size="sm" onClick={addRiskScore}>
+                        <Plus className="h-4 w-4" /> Ajouter un score
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="grid gap-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900">Alertes</p>
+                        <p className="text-xs text-slate-500">Génère un message clinique et un niveau de gravité.</p>
+                      </div>
+                      <Button type="button" variant="secondary" size="sm" onClick={addAlert}>
+                        <Plus className="h-4 w-4" /> Ajouter
+                      </Button>
+                    </div>
+                    {form.alerts.map(alert => (
+                      <div key={alert.id} className="grid gap-2.5 lg:grid-cols-[140px_120px_1fr_auto]">
+                        <Input value={alert.type} onChange={e => updateAlert(alert.id, { type: e.target.value })} placeholder="type" />
+                        <select value={alert.severity} onChange={e => updateAlert(alert.id, { severity: e.target.value as SeverityLevel })} title="Sévérité de l'alerte" className="w-full rounded-lg border border-[var(--color-border)] bg-white px-3 h-9 text-sm text-[var(--color-foreground)] outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 min-w-0">
+                          {SEVERITY_OPTIONS.map(option => <option key={option} value={option}>{SEVERITY_LABELS[option] || option}</option>)}
+                        </select>
+                        <Input value={alert.message} onChange={e => updateAlert(alert.id, { message: e.target.value })} placeholder="Message d'alerte" />
+                        <Button type="button" variant="outline" size="sm" onClick={() => removeAlert(alert.id)}>
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
                     ))}
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={addAlert}
-                      className="w-full h-7 md:h-8 text-xs md:text-sm"
-                    >
-                      <Plus className="h-3.5 md:h-4 w-3.5 md:w-4" /> Ajouter
-                    </Button>
                   </div>
+
+                  <div className="grid gap-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900">Contre-indications</p>
+                        <p className="text-xs text-slate-500">Liste les médicaments ou classes impactés.</p>
+                      </div>
+                      <Button type="button" variant="secondary" size="sm" onClick={addContraindication}>
+                        <Plus className="h-4 w-4" /> Ajouter
+                      </Button>
+                    </div>
+                    {form.contraindications.map(ci => (
+                      <div key={ci.id} className="grid gap-2.5 lg:grid-cols-[1fr_1fr_140px_auto]">
+                        <Input value={ci.medication} onChange={e => updateContraindication(ci.id, { medication: e.target.value })} placeholder="Médicament" />
+                        <Input value={ci.reason} onChange={e => updateContraindication(ci.id, { reason: e.target.value })} placeholder="Raison" />
+                        <select value={ci.severity} onChange={e => updateContraindication(ci.id, { severity: e.target.value as SeverityLevel })} title="Sévérité de la contre-indication" className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20">
+                          {SEVERITY_OPTIONS.map(option => <option key={option} value={option}>{option}</option>)}
+                        </select>
+                        <Button type="button" variant="outline" size="sm" onClick={() => removeContraindication(ci.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="grid gap-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900">Recommandations médicales</p>
+                        <p className="text-xs text-slate-500">Liste les actions ou conseils cliniques.</p>
+                      </div>
+                      <Button type="button" variant="secondary" size="sm" onClick={addRecommendation}>
+                        <Plus className="h-4 w-4" /> Ajouter
+                      </Button>
+                    </div>
+                    {form.recommendations.map((rec, index) => (
+                      <div key={`rec_${index}`} className="grid gap-2.5 lg:grid-cols-[1fr_auto]">
+                        <Input value={rec} onChange={e => updateRecommendation(index, e.target.value)} placeholder="Recommandation clinique" />
+                        <Button type="button" variant="outline" size="sm" onClick={() => removeRecommendation(index)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="grid gap-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900">Avertissements thérapeutiques</p>
+                        <p className="text-xs text-slate-500">Messages visibles pour le médecin.</p>
+                      </div>
+                      <Button type="button" variant="secondary" size="sm" onClick={addWarning}>
+                        <Plus className="h-4 w-4" /> Ajouter
+                      </Button>
+                    </div>
+                    {form.warnings.map((text, index) => (
+                      <div key={`warn_${index}`} className="grid gap-2.5 lg:grid-cols-[1fr_auto]">
+                        <Input value={text} onChange={e => updateWarning(index, e.target.value)} placeholder="Avertissement thérapeutique" />
+                        <Button type="button" variant="outline" size="sm" onClick={() => removeWarning(index)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
                 </div>
               </details>
 
-              {/* Section: Métadonnées */}
-              <details open className="group rounded-lg bg-slate-50 p-3 md:p-4 border border-slate-200">
-                <summary className="flex items-center justify-between cursor-pointer font-semibold text-slate-900 text-xs md:text-sm">
-                  <span>Métadonnées</span>
-                </summary>
-                <div className="mt-3 md:mt-4 space-y-3 md:space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-4">
-                    <div>
-                      <Label htmlFor="rule-status" className="text-xs md:text-sm font-medium">Statut</Label>
-                      <select
-                        id="rule-status"
-                        title="Statut"
-                        value={form.enabled ? 'enabled' : 'disabled'}
-                        onChange={e => setForm(form => ({ ...form, enabled: e.target.value === 'enabled' }))}
-                        className="mt-1 md:mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-2 md:px-3 h-8 md:h-9 text-xs md:text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
-                      >
-                        <option value="enabled">Activée</option>
-                        <option value="disabled">Désactivée</option>
-                      </select>
-                    </div>
-                    <div>
-                      <Label htmlFor="rule-trigger" className="text-sm font-medium">Déclencheur</Label>
-                      <select
-                        id="rule-trigger"
-                        title="Déclencheur"
-                        value={form.triggerType}
-                        onChange={e => setForm(form => ({ ...form, triggerType: e.target.value }))}
-                        className="mt-1.5 w-full rounded-lg border border-slate-200 bg-white px-3 h-9 text-sm text-slate-700 outline-none focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20"
-                      >
-                        {TRIGGER_TYPES.map(option => <option key={option} value={option}>{option}</option>)}
-                      </select>
-                    </div>
+              <section className="space-y-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-muted)]/10 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <h4 className="text-sm font-semibold text-slate-900">Pourquoi cette règle s’est déclenchée ?</h4>
+                    <p className="text-sm text-slate-600">Prévisualisation explicable des facteurs attendus par la famille sélectionnée.</p>
+                  </div>
+                  <div className="rounded-full border border-[var(--color-border)] bg-white px-3 py-1 text-xs text-slate-500">
+                    {RULE_FAMILY_LABELS[form.ruleFamily]}
                   </div>
                 </div>
-              </details>
+                <div className="grid gap-4 lg:grid-cols-3">
+                  <div className="rounded-xl border border-[var(--color-border)] bg-white p-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Conditions matchées</p>
+                    <p className="mt-2 text-sm text-slate-700">{buildConditionSummary({ logic: form.conditionJoin === 'any' ? 'OR' : 'AND', conditions: form.conditions })}</p>
+                  </div>
+                  <div className="rounded-xl border border-[var(--color-border)] bg-white p-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Sorties générées</p>
+                    <p className="mt-2 text-sm text-slate-700">{buildOutputSummary(buildPayload().outputs)}</p>
+                  </div>
+                  <div className="rounded-xl border border-[var(--color-border)] bg-white p-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Facteurs de traçabilité</p>
+                    <p className="mt-2 text-sm text-slate-700">Famille: {RULE_FAMILY_LABELS[form.ruleFamily]} · Déclencheur: {form.triggerType}</p>
+                    <p className="mt-2 text-xs text-slate-500">{form.explanationTemplate || makeDefaultExplanationTemplate(form.ruleFamily, form.name || 'Cette règle')}</p>
+                  </div>
+                </div>
+              </section>
 
-              {/* Actions */}
-              <div className="flex flex-col sm:flex-row gap-1.5 md:gap-2 pt-3 md:pt-4 border-t border-slate-200 sticky bottom-0 bg-white py-2.5 md:py-3 -mx-3 md:-mx-6 px-3 md:px-6 md:static md:bg-transparent md:py-0 md:mx-0 md:px-0">
-                <Button type="submit" disabled={saving} className="flex-1 h-8 md:h-9 text-xs md:text-sm">
-                  {saving ? 'Enregistrement...' : editingId ? 'Mettre à jour' : 'Créer'}
-                </Button>
-                <Button type="button" variant="outline" onClick={resetForm} className="flex-1 sm:flex-none h-8 md:h-9 text-xs md:text-sm px-3 md:px-4">
-                  Annuler
-                </Button>
+              <div className="flex flex-col gap-3 pt-1 sm:flex-row sm:items-center sm:justify-between">
+                <div className="text-sm text-slate-500">
+                  {editingId ? 'Modification d’une règle existante.' : 'Nouvelle règle sauvegardée de façon dynamique.'}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Button type="submit" disabled={saving}>{saving ? 'Enregistrement...' : editingId ? 'Mettre à jour la règle' : 'Créer la règle'}</Button>
+                  <Button type="button" variant="outline" onClick={resetForm}>Annuler</Button>
+                </div>
+              </div>
+              <div className="h-6" />
+              <div className="sticky bottom-6 z-40 bg-transparent">
+                <div className="mx-auto max-w-3xl rounded-lg bg-white px-4 py-3 shadow-md flex items-center justify-between gap-4">
+                  <div className="text-sm text-slate-600">{error || 'Modifications non enregistrées'}</div>
+                  <div className="flex items-center gap-2">
+                    <Button type="button" variant="outline" onClick={resetForm}>Annuler</Button>
+                    <Button type="submit" onClick={(e) => saveRule(e as any)}>{saving ? 'Enregistrement...' : 'Enregistrer la règle'}</Button>
+                  </div>
+                </div>
               </div>
             </form>
-          </div>
+          </Card>
         )}
       </div>
     </div>
