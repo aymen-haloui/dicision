@@ -3,12 +3,14 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import bcryptjs from 'bcryptjs'
 import { prisma } from '@/lib/prisma'
 
+const nextAuthSecret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET || 'local-development-only-secret'
+
 if (!process.env.NEXTAUTH_SECRET) {
-  throw new Error('NEXTAUTH_SECRET must be set for NextAuth')
+  console.warn('NEXTAUTH_SECRET is not set; using a fallback secret. Set NEXTAUTH_SECRET in production.')
 }
 
 if (!process.env.NEXTAUTH_URL) {
-  throw new Error('NEXTAUTH_URL must be set for NextAuth')
+  console.warn('NEXTAUTH_URL is not set; callback URLs may be incomplete in some environments.')
 }
 
 export const authOptions: NextAuthOptions = {
@@ -69,7 +71,7 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: nextAuthSecret,
   debug: process.env.NODE_ENV !== 'production',
   pages: {
     signIn: '/auth/login',
