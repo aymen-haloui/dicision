@@ -376,12 +376,30 @@ export async function analyzeCase(
 }> {
   try {
     // ── 1. Load case ───────────────────────────────────────────────────────
-    const caseRows = await sql`
-      SELECT id, case_type, vital_signs, symptoms, patient_id
-      FROM cases
-      WHERE id = ${caseId} AND user_id = ${userId}
-      LIMIT 1
-    `
+    let caseRows
+    try {
+      caseRows = await sql`
+        SELECT id, case_type, vital_signs, symptoms, patient_id
+        FROM cases
+        WHERE id = ${caseId} AND user_id = ${userId}
+        LIMIT 1
+      `
+    } catch (error) {
+      const code = (error && (error as any).code) as string | undefined
+      if (code === '42703' || String(error).includes('vital_signs')) {
+        caseRows = await sql`
+          SELECT id, case_type, symptoms, patient_id
+          FROM cases
+          WHERE id = ${caseId} AND user_id = ${userId}
+          LIMIT 1
+        `
+        if (caseRows && caseRows[0] && !Object.prototype.hasOwnProperty.call(caseRows[0], 'vital_signs')) {
+          caseRows[0].vital_signs = {}
+        }
+      } else {
+        throw error
+      }
+    }
 
     if (!caseRows || caseRows.length === 0) throw new Error('Case not found')
 
