@@ -59,8 +59,9 @@ export default function DashboardNav({ user }: { user: User }) {
         <div className="mx-auto flex h-16 w-full max-w-[1600px] items-center justify-between px-4 lg:px-6 xl:px-8">
           
           {/* LEFT: Logo + Brand */}
-          <Link href="/dashboard" className="shrink-0 group">
-            <span className="text-base font-semibold text-slate-900">HEXA</span>
+          <Link href="/dashboard" className="shrink-0 group inline-flex items-center gap-3">
+            <img src="/lurexis-logo.png" alt="Lurexis" className="h-8 md:h-10 lg:h-12 w-auto" />
+            <span className="sr-only">Lurexis</span>
           </Link>
 
           {/* CENTER: Navigation */}
