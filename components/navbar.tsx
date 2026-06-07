@@ -53,7 +53,11 @@ export default function Navbar() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3.5">
         {/* Logo */}
         <Link href="/" className="inline-flex items-center gap-3 transition-opacity hover:opacity-80">
-          <img src="/lurexis-logo.png" alt="Lurexis" className="h-8 w-auto" />
+          <img
+            src="/lurexis-logo.png"
+            alt="Lurexis"
+            className="h-8 md:h-10 lg:h-12 w-auto"
+          />
           <span className="sr-only">Lurexis</span>
         </Link>
 

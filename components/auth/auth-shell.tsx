@@ -37,7 +37,13 @@ export function AuthShell({
           {/* Content */}
           <div className="relative flex h-full flex-col justify-between p-10 lg:p-14">
             <Link href="/" className="inline-flex items-center gap-3">
-              <Image src="/lurexis-logo.png" alt="Lurexis" width={160} height={36} className="object-contain" />
+              <Image
+                src="/lurexis-logo.png"
+                alt="Lurexis"
+                width={220}
+                height={48}
+                className="object-contain"
+              />
               <span className="sr-only">Lurexis</span>
             </Link>
 
@@ -59,7 +65,7 @@ export function AuthShell({
           <div className="w-full max-w-[500px] animate-rise">
             {/* Mobile logo â€” shown only when left panel is hidden */}
             <Link href="/" className="mb-8 block text-center lg:hidden">
-              <img src="/lurexis-logo.png" alt="Lurexis" className="mx-auto h-8 w-auto" />
+              <img src="/lurexis-logo.png" alt="Lurexis" className="mx-auto h-10 md:h-12 w-auto" />
             </Link>
 
             <Link
