@@ -14,7 +14,7 @@ const sourceSans = Source_Sans_3({
 })
 
 export const metadata: Metadata = {
-  title: 'HEXA | Plateforme d\'aide à la décision en toxicologie',
+  title: 'LUREXIS | Plateforme d\'aide à la décision en toxicologie',
   description: 'Analyse des risques, détection des interactions et ajustement personnalisé de la posologie en contexte clinique et d\'urgence.',
   icons: {
     icon: '/favicon.svg',

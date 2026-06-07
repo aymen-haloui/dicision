@@ -36,8 +36,9 @@ export function AuthShell({
 
           {/* Content */}
           <div className="relative flex h-full flex-col justify-between p-10 lg:p-14">
-            <Link href="/" className="text-base font-extrabold tracking-[0.22em] text-white">
-              HEXA
+            <Link href="/" className="inline-flex items-center gap-3">
+              <Image src="/lurexis-logo.png" alt="Lurexis" width={160} height={36} className="object-contain" />
+              <span className="sr-only">Lurexis</span>
             </Link>
 
             <div className="max-w-lg animate-rise">
@@ -49,7 +50,7 @@ export function AuthShell({
               </p>
             </div>
 
-            <p className="text-sm text-white/60">Â© 2026 HEXA</p>
+            <p className="text-sm text-white/60">© 2026 Lurexis</p>
           </div>
         </section>
 
@@ -57,8 +58,8 @@ export function AuthShell({
         <section className="flex min-h-screen items-center justify-center bg-[#F7FAFC] px-4 py-10 sm:px-8 lg:px-14">
           <div className="w-full max-w-[500px] animate-rise">
             {/* Mobile logo â€” shown only when left panel is hidden */}
-            <Link href="/" className="mb-8 block text-center text-base font-extrabold tracking-[0.22em] text-[#2CB1BC] lg:hidden">
-              HEXA
+            <Link href="/" className="mb-8 block text-center lg:hidden">
+              <img src="/lurexis-logo.png" alt="Lurexis" className="mx-auto h-8 w-auto" />
             </Link>
 
             <Link

@@ -529,7 +529,7 @@ export async function createRiskAssessment(
       RETURNING id, risk_score, risk_level, findings, recommendations, created_at
     `
 
-    return result[0]
+    return normalizeRiskRow(result[0])
   } catch (error) {
     throw error
   }
@@ -545,7 +545,7 @@ export async function getRiskAssessmentByCase(caseId: string) {
       LIMIT 1
     `
 
-    return result[0] || null
+    return normalizeRiskRow(result[0]) || null
   } catch (error) {
     throw error
   }
