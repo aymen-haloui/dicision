@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import postgres from 'postgres'
+import { PLANT_DRUG_INTERACTION_SEED_RULES, PLANT_SEED_DATA } from '@/lib/plant-clinical-catalog'
 
 const sql = postgres(process.env.DATABASE_URL!)
 
@@ -15,15 +16,6 @@ export async function POST(request: NextRequest) {
       authHeader !== process.env.ADMIN_SECRET
     ) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // Check if medications already exist
-    const existing = await sql`SELECT COUNT(*) as count FROM medications`
-    if (existing[0]?.count > 0) {
-      return NextResponse.json({
-        message: 'Medications already seeded',
-        count: existing[0].count,
-      })
     }
 
     // Seed medications
@@ -48,6 +40,27 @@ export async function POST(request: NextRequest) {
       `
     }
 
+    // Seed plants
+    for (const plant of PLANT_SEED_DATA) {
+      await sql`
+        INSERT INTO plants (name, common_name, toxic_parts, toxic_compounds, toxicity_data, overdose_management)
+        VALUES (
+          ${plant.name},
+          ${plant.commonName},
+          ${plant.toxicParts},
+          ${plant.toxicCompounds},
+          ${sql.json(plant.toxicityData)},
+          ${plant.overdoseManagement}
+        )
+        ON CONFLICT (name) DO UPDATE SET
+          common_name = EXCLUDED.common_name,
+          toxic_parts = EXCLUDED.toxic_parts,
+          toxic_compounds = EXCLUDED.toxic_compounds,
+          toxicity_data = EXCLUDED.toxicity_data,
+          overdose_management = EXCLUDED.overdose_management
+      `
+    }
+
     // Fetch medication IDs
     const medResult = await sql`SELECT id, name FROM medications ORDER BY name`
     const medMap: { [key: string]: string } = {}
@@ -55,7 +68,7 @@ export async function POST(request: NextRequest) {
       medMap[med.name] = med.id
     })
 
-    // Seed interactions
+    // Seed drug-drug interactions
     const interactionsData = [
       ['Warfarin', 'Aspirin', 'Increased bleeding risk', 'critical', 'Aspirin potentiates anticoagulant effect of warfarin', 'Use alternative to aspirin. If necessary, monitor INR closely.'],
       ['Warfarin', 'Ibuprofen', 'Increased bleeding risk', 'severe', 'NSAIDs increase anticoagulant effect and GI bleeding risk', 'Avoid NSAIDs. Use alternative analgesic like acetaminophen.'],
@@ -78,11 +91,52 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Fetch plant IDs
+    const plantResult = await sql`SELECT id, name FROM plants ORDER BY name`
+    const plantMap: { [key: string]: string } = {}
+    plantResult.forEach((plant: any) => {
+      plantMap[plant.name] = plant.id
+    })
+
+    let plantDrugInteractionsAdded = 0
+    for (const rule of PLANT_DRUG_INTERACTION_SEED_RULES) {
+      const plantId = plantMap[rule.plantName]
+      if (!plantId) continue
+
+      for (const medicationMatcher of rule.medicationMatchers) {
+        const meds = await sql`
+          SELECT id, name
+          FROM medications
+          WHERE LOWER(name) = LOWER(${medicationMatcher})
+             OR LOWER(generic_name) = LOWER(${medicationMatcher})
+          LIMIT 1
+        `
+
+        if (meds.length === 0) continue
+
+        const medicationId = meds[0].id
+        await sql`
+          INSERT INTO plant_drug_interactions (plant_id, medication_id, severity, description, recommendation)
+          VALUES (
+            ${plantId},
+            ${medicationId},
+            ${rule.severity},
+            ${rule.description},
+            ${rule.recommendation}
+          )
+          ON CONFLICT DO NOTHING
+        `
+        plantDrugInteractionsAdded++
+      }
+    }
+
     return NextResponse.json({
       success: true,
       message: 'Database seeded successfully',
       medicationsAdded: medications.length,
       interactionsAdded: interactionsData.length,
+      plantsAdded: PLANT_SEED_DATA.length,
+      plantDrugInteractionsAttempted: plantDrugInteractionsAdded,
     })
   } catch (error: any) {
     console.error('Seeding error:', error)

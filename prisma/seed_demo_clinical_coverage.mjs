@@ -299,6 +299,7 @@ const patientConditions = {
     { condition_name: 'Chronic kidney disease', category: 'RENAL', severity: 'SEVERE', status: 'ACTIVE', notes: 'DFG bas.' },
     { condition_name: 'Immunosuppression', category: 'IMMUNE', severity: 'MODERATE', status: 'CHRONIC', notes: 'Suivi régulier.' },
   ],
+    sleep_hours: 7,
 }
 
 const patientAllergies = {
@@ -306,6 +307,12 @@ const patientAllergies = {
     { allergen_name: 'Pollen', allergen_category: 'RESPIRATORY', reaction_type: 'RHINITIS', severity: 'LOW', onset_delay: 'DELAYED' },
   ],
   'DEMO-PREG-002': [
+    blood_donor: false,
+    blood_donation_details: null,
+    sun_exposure: 'low',
+    sun_exposure_details: 'Exposition solaire limitée.',
+    housing_conditions: 'Stable',
+    occupational_exposure: 'none',
     { allergen_name: 'Penicillin', allergen_category: 'DRUG', reaction_type: 'RASH', severity: 'MODERATE', onset_delay: '1_HOUR' },
   ],
   'DEMO-PED-003': [

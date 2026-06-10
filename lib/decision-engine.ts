@@ -16,6 +16,13 @@ interface CaseMedication {
   overdose_management: string | null
 }
 
+interface CasePlant {
+  id: string
+  name: string
+  common_name: string | null
+  toxicity_data: Record<string, any> | null
+}
+
 interface ContraIndication {
   condition: string           // "renal_insufficiency" | "hepatic_insufficiency" | "pregnancy_trimester_3" | "age_under_6" | etc.
   severity: 'absolute' | 'relative'
@@ -70,6 +77,7 @@ interface ClinicalRule {
 type RuleContext = {
   patient: Record<string, any>
   medications: Array<Record<string, any>>
+  plants: Array<Record<string, any>>
   labs: Record<string, any>
   vitals: Record<string, any>
   lifestyle: Record<string, any>
@@ -156,7 +164,11 @@ async function loadClinicalRules(): Promise<ClinicalRule[]> {
   return rows as unknown as ClinicalRule[]
 }
 
-function buildClinicalRuleContext(caseData: any, medications: CaseMedication[]): RuleContext {
+function buildClinicalRuleContext(
+  caseData: any,
+  medications: CaseMedication[],
+  plants: CasePlant[]
+): RuleContext {
   const labs = {
     potassium: caseData.potassium ? parseFloat(caseData.potassium) : undefined,
     sodium: caseData.sodium ? parseFloat(caseData.sodium) : undefined,
@@ -207,6 +219,12 @@ function buildClinicalRuleContext(caseData: any, medications: CaseMedication[]):
       max_daily_dose_adult: med.max_daily_dose_adult,
       max_daily_dose_child: med.max_daily_dose_child,
       toxicity_thresholds: med.toxicity_thresholds,
+    })),
+    plants: plants.map(plant => ({
+      id: plant.id,
+      name: plant.name,
+      common_name: plant.common_name,
+      toxicity_data: plant.toxicity_data,
     })),
     labs,
     vitals,
@@ -365,6 +383,23 @@ function parseFrequencyPerDay(freq: string): number {
   return 1
 }
 
+function normalizeText(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+}
+
+function plantAliases(plant: CasePlant): string[] {
+  const fromToxicity = Array.isArray((plant.toxicity_data as any)?.synonyms)
+    ? (plant.toxicity_data as any).synonyms
+    : []
+
+  return [plant.name, plant.common_name, ...fromToxicity]
+    .filter((value): value is string => typeof value === 'string' && value.trim().length > 0)
+    .map(value => normalizeText(value.trim()))
+}
+
 export async function analyzeCase(
   caseId: string,
   userId: string
@@ -469,6 +504,22 @@ export async function analyzeCase(
       caseData.comorbidities = (c && c[0] && c[0].comorbidities) || ''
     }
 
+    const lifestyleRows = await sql`
+      SELECT phytotherapy_details, natural_products_details, self_diagnosis_treatments, hidden_self_medication_details
+      FROM patient_lifestyle
+      WHERE patient_id = ${caseRow.patient_id}
+      ORDER BY created_at DESC
+      LIMIT 1
+    `
+
+    const lifestyleRow = (lifestyleRows && lifestyleRows[0]) || {}
+    const plantExposureText = normalizeText([
+      lifestyleRow.phytotherapy_details,
+      lifestyleRow.natural_products_details,
+      lifestyleRow.self_diagnosis_treatments,
+      lifestyleRow.hidden_self_medication_details,
+    ].filter(Boolean).join(' '))
+
     // Compute patient age from date_of_birth
     let patientAgeYears: number | null = null
     if (caseData.date_of_birth) {
@@ -509,6 +560,16 @@ export async function analyzeCase(
     `
 
     const medications = medRows as unknown as CaseMedication[]
+
+    const plantRows = await sql`
+      SELECT id, name, common_name, toxicity_data
+      FROM plants
+    `
+    const plants = plantRows as unknown as CasePlant[]
+    const exposedPlants = plants.filter(plant =>
+      plantAliases(plant).some(alias => alias.length >= 3 && plantExposureText.includes(alias))
+    )
+
     const findings: Finding[] = []
     const recommendations: Recommendation[] = []
     let riskScore = 0
@@ -522,7 +583,7 @@ export async function analyzeCase(
 
     // ── 3. CLINICAL RULES EVALUATION ─────────────────────────────────────────
     const clinicalRules = await loadClinicalRules()
-    const clinicalContext = buildClinicalRuleContext(caseData, medications)
+    const clinicalContext = buildClinicalRuleContext(caseData, medications, exposedPlants)
     applyClinicalRules(clinicalRules, clinicalContext, addFinding, addRec)
 
     // ── 4. ALLERGY CHECK ────────────────────────────────────────────────────
@@ -718,6 +779,62 @@ export async function analyzeCase(
     }
 
     // ── 7. COMORBIDITY-SPECIFIC RULES ──────────────────────────────────────
+    if (exposedPlants.length > 0 && medications.length > 0) {
+      const plantIds = exposedPlants.map(plant => plant.id)
+      const medIds = medications.map(med => med.medication_id)
+
+      const plantInteractionRows = await sql`
+        SELECT pdi.severity, pdi.description, pdi.recommendation,
+               p.name AS plant_name, m.name AS medication_name
+        FROM plant_drug_interactions pdi
+        JOIN plants p ON pdi.plant_id = p.id
+        JOIN medications m ON pdi.medication_id = m.id
+        WHERE pdi.plant_id IN ${sql(plantIds)}
+          AND pdi.medication_id IN ${sql(medIds)}
+      `
+
+      const severityToScore: Record<string, number> = {
+        critical: 35,
+        high: 20,
+        severe: 20,
+        moderate: 10,
+        mild: 5,
+        low: 5,
+      }
+
+      const severityToPriority: Record<string, Recommendation['priority']> = {
+        critical: 'high',
+        high: 'high',
+        severe: 'high',
+        moderate: 'medium',
+        mild: 'low',
+        low: 'low',
+      }
+
+      for (const row of plantInteractionRows) {
+        const sevRaw = String(row.severity ?? 'moderate').toLowerCase()
+        const sev = (['critical', 'high', 'moderate', 'low'].includes(sevRaw)
+          ? sevRaw
+          : sevRaw === 'severe'
+            ? 'high'
+            : 'moderate') as Finding['severity']
+
+        addFinding({
+          type: 'plant_drug_interaction',
+          severity: sev,
+          description: `${row.plant_name} + ${row.medication_name}: ${row.description}`,
+          recommendation: row.recommendation,
+        }, severityToScore[sevRaw] ?? 10)
+
+        addRec({
+          title: `Interaction plante-medicament: ${row.plant_name}`,
+          description: `${row.plant_name} avec ${row.medication_name}`,
+          priority: severityToPriority[sevRaw] ?? 'medium',
+          action: row.recommendation,
+        })
+      }
+    }
+
     const comorbLower = (caseData.comorbidities ?? '').toLowerCase()
     for (const med of medications) {
       const medLower = med.name.toLowerCase()
