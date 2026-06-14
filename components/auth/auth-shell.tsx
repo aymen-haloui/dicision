@@ -65,7 +65,7 @@ export function AuthShell({
           <div className="w-full max-w-[500px] animate-rise">
             {/* Mobile logo â€” shown only when left panel is hidden */}
             <Link href="/" className="mb-8 block text-center lg:hidden">
-              <img src="/lurexis-logo.png" alt="Lurexis" className="mx-auto h-10 md:h-12 w-auto" />
+              <img src="/lurexis-logo.png" alt="Lurexis" className="mx-auto h-7 md:h-8 w-auto" />
             </Link>
 
             <Link

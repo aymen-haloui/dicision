@@ -107,7 +107,7 @@ export default function DashboardNav({ user }: { user: User }) {
           
           {/* LEFT: Logo + Brand */}
           <Link href="/dashboard" className="shrink-0 group inline-flex items-center gap-3">
-            <img src="/lurexis-logo.png" alt="Lurexis" className="h-8 md:h-10 lg:h-12 w-auto" />
+            <img src="/lurexis-logo.png" alt="Lurexis" className="h-5 md:h-6 lg:h-7 w-auto" />
             <span className="sr-only">Lurexis</span>
           </Link>
 
