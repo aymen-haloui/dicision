@@ -56,7 +56,7 @@ export default function Navbar() {
           <img
             src="/lurexis-logo.png"
             alt="Lurexis"
-            className="h-6 md:h-7 lg:h-8 w-auto"
+            className="h-5 md:h-5 lg:h-6 w-auto"
           />
           <span className="sr-only">Lurexis</span>
         </Link>
