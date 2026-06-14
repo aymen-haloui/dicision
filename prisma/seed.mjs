@@ -203,16 +203,60 @@ async function run() {
     VALUES (${caseId}, 'Fatigue', 'MODERATE', '2 days', now()), (${caseId}, 'Dizziness', 'MODERATE', '1 day', now())
   `
 
+  // Risk Assessment with Findings
+  const findings = {
+    findings: [
+      {
+        type: 'LABORATORY',
+        description: 'Elevated creatinine (1.8 mg/dL) and low eGFR (42 mL/min/1.73m²) indicating moderate renal impairment',
+        severity: 'HIGH',
+      },
+      {
+        type: 'MEDICATION_INTERACTION',
+        description: 'Warfarine combined with renal disease requires careful INR monitoring',
+        severity: 'MEDIUM',
+      },
+      {
+        type: 'LIVER_FUNCTION',
+        description: 'Mildly elevated liver enzymes (AST 55, ALT 48) with hepatic impairment history',
+        severity: 'MEDIUM',
+      },
+      {
+        type: 'ELECTROLYTE_IMBALANCE',
+        description: 'Low potassium (3.3 mmol/L) in patient with hypertension and renal disease',
+        severity: 'HIGH',
+      },
+    ],
+  }
+
+  const recommendations = {
+    recommendations: [
+      'Monitor renal function closely (creatinine, eGFR every 3 months)',
+      'Adjust medication dosing based on renal function',
+      'Check INR weekly for first month, then monthly',
+      'Supplement potassium levels gradually',
+      'Consider nephrology consultation for CKD management',
+      'Review medication list for nephrotoxic drugs',
+    ],
+  }
+
+  await sql`
+    INSERT INTO risk_assessments (case_id, risk_score, risk_level, findings, recommendations, created_at)
+    VALUES (${caseId}, 75.5, 'HIGH', ${sql.json(findings)}, ${sql.json(recommendations)}, now())
+  `
+
   console.log('Demo data created successfully.')
 
   // Verify
   const verifyPatient = await sql`SELECT id, first_name, last_name, medical_record_number FROM patients WHERE id = ${patientId}`
   const verifyCase = await sql`SELECT id, case_type, status FROM cases WHERE id = ${caseId}`
   const verifyMeds = await sql`SELECT cm.id, m.name FROM case_medications cm JOIN medications m ON m.id = cm.medication_id WHERE cm.case_id = ${caseId}`
+  const verifyAssessment = await sql`SELECT id, risk_score, risk_level FROM risk_assessments WHERE case_id = ${caseId}`
 
   console.log('Verify patient:', verifyPatient[0])
   console.log('Verify case:', verifyCase[0])
   console.log('Medications on case:', verifyMeds.map((r) => r.name).join(', '))
+  console.log('Risk assessment:', verifyAssessment[0])
 }
 
 run()
