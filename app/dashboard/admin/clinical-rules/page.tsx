@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import Link from 'next/link'
-import { ArrowLeft, Activity, CheckCircle2, FileText, FlaskConical, ShieldAlert, Sparkles } from 'lucide-react'
+import { ArrowLeft, Activity, CheckCircle2, FileText, FlaskConical, ShieldAlert, Sparkles, Leaf } from 'lucide-react'
 
 export default function AdminClinicalRulesPage() {
   const [seeding, setSeeding] = useState(false)
@@ -130,6 +130,12 @@ export default function AdminClinicalRulesPage() {
                 <Button className="w-full justify-start" variant="outline">
                   <FileText className="mr-2 h-4 w-4" />
                   Voir toutes les règles
+                </Button>
+              </Link>
+              <Link href="/dashboard/admin/clinical-rules/plants" className="block">
+                <Button className="w-full justify-start" variant="outline">
+                  <Leaf className="mr-2 h-4 w-4" />
+                  Plantes medicinales
                 </Button>
               </Link>
               <Link href="/dashboard/admin/clinical-sandbox" className="block">
