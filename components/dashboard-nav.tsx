@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
-import { LayoutDashboard, Users, FolderOpen, ShieldAlert, LogOut, UserRound, ChevronDown, Leaf } from 'lucide-react'
+import { LayoutDashboard, Users, FolderOpen, ShieldAlert, LogOut, UserRound, ChevronDown } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 
 interface User {
@@ -28,7 +28,6 @@ const BASE_NAV: NavItem[] = [
 
 const ADMIN_NAV: NavItem[] = [
   { href: '/dashboard/admin', label: 'Moteur de Règles', icon: ShieldAlert },
-  { href: '/dashboard/admin/plants', label: 'Plantes Medicinales', icon: Leaf },
   { href: '/dashboard/admin/doctors', label: 'Utilisateurs', icon: UserRound },
 ]
 

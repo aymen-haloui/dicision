@@ -6,9 +6,10 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card } from '@/components/ui/card'
 import AdminClinicalRules from '@/components/admin-clinical-rules'
+import AdminPlantsPage from '@/app/dashboard/admin/clinical-rules/plants/page'
 import {
   Pill, Zap, Plus, Trash2, Search, AlertTriangle,
-  ChevronDown, ChevronUp, FlaskConical, ShieldAlert, X,
+  ChevronDown, ChevronUp, FlaskConical, ShieldAlert, X, Leaf,
 } from 'lucide-react'
 
 interface Medication {
@@ -133,10 +134,11 @@ function numberOrNull(value: string) {
 }
 
 export default function AdminRulesPage() {
-  const [tab, setTab] = useState<'medications' | 'interactions' | 'clinical_rules'>('medications')
+  const [tab, setTab] = useState<'medications' | 'interactions' | 'clinical_rules' | 'plants'>('medications')
   const [medications, setMedications] = useState<Medication[]>([])
   const [interactions, setInteractions] = useState<Interaction[]>([])
   const [rules, setRules] = useState<ClinicalRule[]>([])
+  const [plantsCount, setPlantsCount] = useState<number>(0)
   const [loading, setLoading] = useState(true)
   const [showAddMed, setShowAddMed] = useState(false)
   const [showAddInt, setShowAddInt] = useState(false)
@@ -175,14 +177,19 @@ export default function AdminRulesPage() {
 
   async function loadData() {
     setLoading(true)
-    const [medsRes, intsRes, rulesRes] = await Promise.all([
+    const [medsRes, intsRes, rulesRes, plantsRes] = await Promise.all([
       fetch('/api/admin/medications'),
       fetch('/api/admin/interactions'),
       fetch('/api/admin/clinical-rules'),
+      fetch('/api/admin/plants'),
     ])
     if (medsRes.ok) setMedications(await medsRes.json())
     if (intsRes.ok) setInteractions(await intsRes.json())
     if (rulesRes.ok) setRules(await rulesRes.json())
+    if (plantsRes.ok) {
+      const plants = await plantsRes.json()
+      setPlantsCount(Array.isArray(plants) ? plants.length : 0)
+    }
     setLoading(false)
   }
 
@@ -527,11 +534,12 @@ export default function AdminRulesPage() {
       </div>
 
       {/* Doctors quick view */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {[
           { label: 'Medicaments', value: medications.length, icon: <Pill className="h-5 w-5" />, color: 'text-blue-600 bg-blue-50' },
           { label: 'Regles d\'interaction', value: interactions.length, icon: <Zap className="h-5 w-5" />, color: 'text-violet-600 bg-violet-50' },
           { label: 'Regles cliniques actives', value: activeRulesCount, icon: <ShieldAlert className="h-5 w-5" />, color: 'text-teal-600 bg-teal-50' },
+          { label: 'Plantes', value: plantsCount, icon: <Leaf className="h-5 w-5" />, color: 'text-emerald-600 bg-emerald-50' },
           { label: 'Contre-indications', value: medications.reduce((n, m) => n + (m.contraindications?.length || 0), 0), icon: <FlaskConical className="h-5 w-5" />, color: 'text-amber-600 bg-amber-50' },
         ].map(s => (
           <Card key={s.label} className="p-4 flex items-center gap-3">
@@ -554,7 +562,7 @@ export default function AdminRulesPage() {
 
       {/* â”€â”€ TABS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="flex gap-1 bg-slate-100 p-1 rounded-xl w-fit">
-        {(['medications', 'interactions', 'clinical_rules'] as const).map(t => (
+        {(['medications', 'interactions', 'clinical_rules', 'plants'] as const).map(t => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -567,6 +575,7 @@ export default function AdminRulesPage() {
             {t === 'medications' && <span className="flex items-center gap-2"><Pill className="h-4 w-4" />Medicaments ({medications.length})</span>}
             {t === 'interactions' && <span className="flex items-center gap-2"><Zap className="h-4 w-4" />Interactions ({interactions.length})</span>}
             {t === 'clinical_rules' && <span className="flex items-center gap-2"><ShieldAlert className="h-4 w-4" />Regles ({rules.length})</span>}
+            {t === 'plants' && <span className="flex items-center gap-2"><Leaf className="h-4 w-4" />Plantes ({plantsCount})</span>}
           </button>
         ))}
       </div>
@@ -1052,6 +1061,7 @@ export default function AdminRulesPage() {
       )}
 
       {tab === 'clinical_rules' && <AdminClinicalRules />}
+      {tab === 'plants' && <AdminPlantsPage />}
     </div>
   )
 }
