@@ -17,7 +17,6 @@ interface NavItem {
   href: string
   label: string
   icon: any
-  submenu?: NavItem[]
 }
 
 const BASE_NAV: NavItem[] = [
@@ -28,14 +27,8 @@ const BASE_NAV: NavItem[] = [
 ]
 
 const ADMIN_NAV: NavItem[] = [
-  {
-    href: '/dashboard/admin',
-    label: 'Moteur de Règles',
-    icon: ShieldAlert,
-    submenu: [
-      { href: '/dashboard/admin/plants', label: 'Plantes Medicinales', icon: Leaf },
-    ]
-  },
+  { href: '/dashboard/admin', label: 'Moteur de Règles', icon: ShieldAlert },
+  { href: '/dashboard/admin/plants', label: 'Plantes Medicinales', icon: Leaf },
   { href: '/dashboard/admin/doctors', label: 'Utilisateurs', icon: UserRound },
 ]
 
@@ -43,7 +36,6 @@ export default function DashboardNav({ user }: { user: User }) {
   const path = usePathname()
   const [isEnglish, setIsEnglish] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
-  const [expandedSubmenu, setExpandedSubmenu] = useState<string | null>(null)
   const profileRef = useRef<HTMLDivElement>(null)
 
   const initials = user?.name
@@ -58,18 +50,16 @@ export default function DashboardNav({ user }: { user: User }) {
       ? [
           ...BASE_NAV,
           ...ADMIN_NAV.map(link => {
-            if (link.submenu) {
-              return {
-                ...link,
-                label: link.label === 'Moteur de Règles' ? (isEnglish ? 'Rules Engine' : 'Moteur de Règles') : link.label,
-                submenu: link.submenu.map(sub =>
-                  sub.href === '/dashboard/admin/plants'
-                    ? { ...sub, label: isEnglish ? 'Medicinal Plants' : 'Plantes Medicinales' }
-                    : sub
-                )
-              }
+            if (link.href === '/dashboard/admin') {
+              return { ...link, label: isEnglish ? 'Rules Engine' : 'Moteur de Règles' }
             }
-            return link.label === 'Utilisateurs' ? { ...link, label: isEnglish ? 'Users' : 'Utilisateurs' } : link
+            if (link.href === '/dashboard/admin/plants') {
+              return { ...link, label: isEnglish ? 'Medicinal Plants' : 'Plantes Medicinales' }
+            }
+            if (link.href === '/dashboard/admin/doctors') {
+              return { ...link, label: isEnglish ? 'Users' : 'Utilisateurs' }
+            }
+            return link
           })
         ]
       : BASE_NAV
@@ -77,11 +67,7 @@ export default function DashboardNav({ user }: { user: User }) {
   // Helper to check if an item or its submenu is active
   const isItemActive = (item: NavItem): boolean => {
     if (item.href === '/dashboard') return path === item.href
-    if (path.startsWith(item.href)) return true
-    if (item.submenu) {
-      return item.submenu.some(sub => path.startsWith(sub.href))
-    }
-    return false
+    return path.startsWith(item.href)
   }
 
   // Close dropdown when clicking outside
@@ -114,55 +100,7 @@ export default function DashboardNav({ user }: { user: User }) {
           {/* CENTER: Navigation */}
           <div className="hidden md:flex items-center gap-1">
             {links.map(({ href, label, icon: Icon, submenu }) => {
-              const active = isItemActive({ href, label, icon: Icon, submenu })
-              
-              if (submenu) {
-                // Parent with submenu
-                return (
-                  <div key={href} className="relative group">
-                    <button
-                      onClick={() => setExpandedSubmenu(expandedSubmenu === href ? null : href)}
-                      className={`group relative flex items-center gap-2 px-3 py-2 text-sm font-medium transition duration-150 ${
-                        active ? 'text-slate-900' : 'text-slate-600 hover:text-slate-900'
-                      }`}
-                    >
-                      <Icon className="h-4 w-4" />
-                      <span>{label}</span>
-                      <ChevronDown className={`h-3.5 w-3.5 transition duration-200 ${expandedSubmenu === href ? 'rotate-180' : ''}`} />
-                      {active && (
-                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#0f8f89]/0 via-[#0f8f89] to-[#0f8f89]/0" />
-                      )}
-                    </button>
-                    
-                    {/* Submenu Dropdown */}
-                    {expandedSubmenu === href && (
-                      <div className="absolute top-full left-0 mt-0 min-w-max rounded-lg border border-slate-200 bg-white shadow-lg overflow-hidden z-50">
-                        {submenu.map(sub => {
-                          const subActive = path.startsWith(sub.href)
-                          const SubIcon = sub.icon
-                          return (
-                            <Link
-                              key={sub.href}
-                              href={sub.href}
-                              onClick={() => setExpandedSubmenu(null)}
-                              className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition duration-150 whitespace-nowrap ${
-                                subActive
-                                  ? 'bg-slate-50 text-slate-900 border-l-2 border-[#0f8f89]'
-                                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                              }`}
-                            >
-                              <SubIcon className="h-4 w-4" />
-                              <span>{sub.label}</span>
-                            </Link>
-                          )
-                        })}
-                      </div>
-                    )}
-                  </div>
-                )
-              }
-              
-              // Regular link
+              const active = isItemActive({ href, label, icon: Icon })
               return (
                 <Link
                   key={href}
